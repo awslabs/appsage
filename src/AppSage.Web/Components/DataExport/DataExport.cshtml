@@ -1,0 +1,38 @@
+@using AppSage.Web.Extensions;
+@model AppSage.Web.Components.DataExport.DataExportModel
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+<div class="card" id="@Model.DataExportId">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        @if (!string.IsNullOrEmpty(Model.Title))
+        {
+
+
+
+            <h4 class="mb-0">@Model.Title</h4>
+        }
+        
+            <div class="btn-group">
+                <button type="button" class="btn btn-sm btn-outline-secondary" 
+                        onclick="exportData('@Model.DataExportId')">
+                    <i class="bi bi-download me-1"></i>Export CSV
+                </button>
+            </div>
+        
+    </div>
+</div>
+
+@Html.RenderAssetOnce($"{GetType().FullName}_Script",
+    @<script>
+             // Only add these functions once
+             if (typeof window.dataExportComponentInitialized === 'undefined') {
+                 window.dataExportComponentInitialized = true;
+
+                 window.exportData = function(dataExportId) {
+                     window.location.href = `/api/dataexport/${dataExportId}/export`;
+                 }
+             }
+    </script>
+    )
+
+

@@ -1,0 +1,487 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Purpose Analysis";
+}
+@using System.Text.Json;
+
+<style>
+    .purpose-analysis-container {
+        height: calc(100vh - 200px);
+        min-height: 600px;
+    }
+    
+    .tree-panel {
+        border-right: 2px solid #e9ecef;
+        background-color: #f8f9fa;
+        overflow-y: auto;
+        height: 100%;
+    }
+    
+    .details-panel {
+        overflow-y: auto;
+        height: 100%;
+        padding: 20px;
+    }
+    
+    .tree-node {
+        padding: 8px 15px;
+        margin: 2px 0;
+        cursor: pointer;
+        border-radius: 4px;
+        transition: all 0.2s ease;
+        border-left: 3px solid transparent;
+    }
+    
+    .tree-node:hover {
+        background-color: #e3f2fd;
+        border-left-color: #2196f3;
+    }
+    
+    .tree-node.selected {
+        background-color: #bbdefb;
+        border-left-color: #1976d2;
+        font-weight: 500;
+    }
+    
+    .tree-node.has-children {
+        position: relative;
+    }
+    
+    .tree-node.has-children::before {
+        content: '▶';
+        position: absolute;
+        left: 5px;
+        top: 8px;
+        font-size: 10px;
+        transition: transform 0.2s ease;
+        color: #666;
+    }
+    
+    .tree-node.expanded::before {
+        transform: rotate(90deg);
+    }
+    
+    .tree-children {
+        margin-left: 20px;
+        border-left: 1px dotted #ddd;
+        display: none;
+    }
+    
+    .tree-children.expanded {
+        display: block;
+    }
+    
+    .node-icon {
+        margin-right: 8px;
+        width: 16px;
+    }
+    
+    .file-node {
+        color: #4caf50;
+    }
+    
+    .folder-node {
+        color: #ff9800;
+    }
+    
+    .repository-node {
+        color: #2196f3;
+        font-weight: 600;
+    }
+    
+    .summary-content {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        padding: 25px;
+        margin-bottom: 20px;
+    }
+    
+    .summary-header {
+        border-bottom: 2px solid #e9ecef;
+        padding-bottom: 15px;
+        margin-bottom: 20px;
+    }
+    
+    .summary-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin: 0;
+    }
+    
+    .summary-path {
+        color: #6c757d;
+        font-size: 0.9rem;
+        margin-top: 5px;
+    }
+    
+    .summary-text {
+        line-height: 1.7;
+        color: #495057;
+        white-space: pre-wrap;
+    }
+    
+    .no-selection {
+        text-align: center;
+        color: #6c757d;
+        margin-top: 50px;
+    }
+    
+    .no-selection i {
+        font-size: 4rem;
+        margin-bottom: 20px;
+        color: #dee2e6;
+    }
+    
+    .tree-search {
+        padding: 15px;
+        border-bottom: 1px solid #e9ecef;
+    }
+    
+    .search-input {
+        width: 100%;
+        padding: 8px 12px;
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        font-size: 14px;
+    }
+    
+    .search-input:focus {
+        border-color: #2196f3;
+        box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.2);
+        outline: none;
+    }
+</style>
+
+<div class="container-fluid px-4">
+    <div class="page-header mb-4">
+        <h1 class="text-center">
+            <i class="fa-solid fa-brain me-2"></i>
+            Purpose Analysis Dashboard
+        </h1>
+        <p class="text-center mb-0 text-muted">AI-powered analysis of your .NET codebase</p>
+        <div class="text-center mt-2">
+            <small class="text-muted">Debug: </small>
+        </div>
+    </div>
+
+    <div class="row purpose-analysis-container">
+        <!-- Tree Panel (1/3 width) -->
+        <div class="col-md-4 tree-panel">
+            <div class="tree-search">
+                <input type="text" class="search-input" id="treeSearch" placeholder="Search files and folders..." />
+            </div>
+            <div class="p-3">
+                <h5 class="mb-3">
+                    <i class="fa-solid fa-sitemap me-2"></i>
+                    Project Structure
+                </h5>
+                <div id="treeContainer">
+                    @if (Model.RootNode.Children.Any())
+                    {
+                        @foreach (var child in Model.RootNode.Children)
+                        {
+                            @await Html.PartialAsync("_TreeNodePartial", child)
+                        }
+                    }
+                    else
+                    {
+                        <div class="text-muted text-center py-4">
+                            <i class="fa-solid fa-info-circle me-2"></i>
+                            No data available
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Details Panel (2/3 width) -->
+        <div class="col-md-8 details-panel">
+            <div id="detailsContent">
+                <div class="no-selection">
+                    <i class="fa-solid fa-mouse-pointer"></i>
+                    <h4>Select a node to view details</h4>
+                    <p>Click on any file or folder in the tree to see its AI-generated summary and analysis.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Filters {
+    <div class="d-flex align-items-center gap-2">
+        @await Html.FilterPartialAsync(x => x.SegmentFilter, "basicFilterGroup", 600)
+        @await Html.FilterPartialAsync(x => x.ProviderFilter, "basicFilterGroup", 300)
+    </div>
+}
+
+@section Scripts {
+    <script>
+        // Tree data for JavaScript
+        const treeData = @Html.Raw(JsonSerializer.Serialize(Model.RootNode, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
+        
+        // Debug: Log the tree data structure
+        console.log('Tree data loaded:', treeData);
+        console.log('Total children:', treeData.children ? treeData.children.length : 0);
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeTree();
+            initializeSearch();
+            
+            // Debug: Count nodes with summaries in JavaScript
+            logNodeSummaries(treeData, 0);
+        });
+
+        function logNodeSummaries(node, depth) {
+            const indent = '  '.repeat(depth);
+            const hasSummary = node.summary && node.summary.length > 0;
+            console.log(`${indent}${node.name} (${node.type}) - Has Summary: ${hasSummary} (${node.summary ? node.summary.length : 0} chars)`);
+            
+            if (node.children) {
+                node.children.forEach(child => logNodeSummaries(child, depth + 1));
+            }
+        }
+
+        function initializeTree() {
+            // Add click handlers for tree nodes
+            document.addEventListener('click', function(e) {
+                if (e.target.closest('.tree-node')) {
+                    handleNodeClick(e.target.closest('.tree-node'));
+                }
+            });
+        }
+
+        function handleNodeClick(nodeElement) {
+            const nodeId = nodeElement.dataset.nodeId;
+            const nodePath = nodeElement.dataset.nodePath;
+            const nodeName = nodeElement.dataset.nodeName;
+            const nodeType = nodeElement.dataset.nodeType;
+            const hasSummary = nodeElement.dataset.hasSummary === 'true';
+            
+            // Remove previous selection
+            document.querySelectorAll('.tree-node').forEach(node => {
+                node.classList.remove('selected');
+            });
+            
+            // Add selection to current node
+            nodeElement.classList.add('selected');
+            
+            // Toggle children if node has them
+            const childrenContainer = nodeElement.nextElementSibling;
+            if (childrenContainer && childrenContainer.classList.contains('tree-children')) {
+                const isExpanded = childrenContainer.classList.contains('expanded');
+                
+                if (isExpanded) {
+                    childrenContainer.classList.remove('expanded');
+                    nodeElement.classList.remove('expanded');
+                } else {
+                    childrenContainer.classList.add('expanded');
+                    nodeElement.classList.add('expanded');
+                }
+            }
+            
+            // Update details panel
+            updateDetailsPanel(nodeId, nodePath, nodeName, nodeType, hasSummary);
+        }
+
+        function updateDetailsPanel(nodeId, nodePath, nodeName, nodeType, hasSummary) {
+            console.log(`Updating details panel for: ${nodeName}, hasSummary: ${hasSummary}, nodeId: ${nodeId}`);
+            const detailsContent = document.getElementById('detailsContent');
+            
+            if (hasSummary) {
+                // Find the summary for this node
+                const nodeData = findNodeInTree(treeData, nodeId);
+                const summary = nodeData ? nodeData.summary : '';
+                console.log(`Found node data:`, nodeData);
+                console.log(`Summary length: ${summary ? summary.length : 0}`);
+                console.log(`Raw summary:`, summary);
+                
+                if (summary && summary.length > 0) {
+                    try {
+                        const formattedSummary = formatSummary(summary);
+                        console.log(`Formatted summary:`, formattedSummary);
+                        
+                        detailsContent.innerHTML = `
+                            <div class="summary-content">
+                                <div class="summary-header">
+                                    <h2 class="summary-title">
+                                        <i class="${getNodeIcon(nodeType)} me-2"></i>
+                                        ${escapeHtml(nodeName)}
+                                    </h2>
+                                    <div class="summary-path">
+                                        <i class="fa-solid fa-folder-open me-1"></i>
+                                        ${escapeHtml(nodePath)}
+                                    </div>
+                                </div>
+                                <div class="summary-text">
+                                    ${formattedSummary}
+                                </div>
+                            </div>
+                        `;
+                    } catch (error) {
+                        console.error('Error rendering summary:', error);
+                        // Fallback to simple text display
+                        const summaryContainer = document.createElement('div');
+                        summaryContainer.className = 'summary-content';
+                        summaryContainer.innerHTML = `
+                            <div class="summary-header">
+                                <h2 class="summary-title">
+                                    <i class="${getNodeIcon(nodeType)} me-2"></i>
+                                    ${escapeHtml(nodeName)}
+                                </h2>
+                                <div class="summary-path">
+                                    <i class="fa-solid fa-folder-open me-1"></i>
+                                    ${escapeHtml(nodePath)}
+                                </div>
+                            </div>
+                            <div class="summary-text">
+                                <pre style="white-space: pre-wrap; font-family: inherit;">${escapeHtml(summary)}</pre>
+                            </div>
+                        `;
+                        detailsContent.innerHTML = '';
+                        detailsContent.appendChild(summaryContainer);
+                    }
+                } else {
+                    console.log(`Summary is empty or null for ${nodeName}`);
+                    detailsContent.innerHTML = `
+                        <div class="summary-content">
+                            <div class="summary-header">
+                                <h2 class="summary-title">
+                                    <i class="${getNodeIcon(nodeType)} me-2"></i>
+                                    ${escapeHtml(nodeName)}
+                                </h2>
+                                <div class="summary-path">
+                                    <i class="fa-solid fa-folder-open me-1"></i>
+                                    ${escapeHtml(nodePath)}
+                                </div>
+                            </div>
+                            <div class="text-muted text-center py-4">
+                                <i class="fa-solid fa-info-circle me-2"></i>
+                                Summary data exists but is empty for this ${nodeType.toLowerCase()}.
+                            </div>
+                        </div>
+                    `;
+                }
+            } else {
+                console.log(`No summary available for ${nodeName}`);
+                detailsContent.innerHTML = `
+                    <div class="summary-content">
+                        <div class="summary-header">
+                            <h2 class="summary-title">
+                                <i class="${getNodeIcon(nodeType)} me-2"></i>
+                                ${escapeHtml(nodeName)}
+                            </h2>
+                            <div class="summary-path">
+                                <i class="fa-solid fa-folder-open me-1"></i>
+                                ${escapeHtml(nodePath)}
+                            </div>
+                        </div>
+                        <div class="text-muted text-center py-4">
+                            <i class="fa-solid fa-info-circle me-2"></i>
+                            No AI analysis available for this ${nodeType.toLowerCase()}.
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        function findNodeInTree(tree, nodeId) {
+            if (tree.id === nodeId) {
+                return tree;
+            }
+            
+            for (const child of tree.children || []) {
+                const found = findNodeInTree(child, nodeId);
+                if (found) return found;
+            }
+            
+            return null;
+        }
+
+        function getNodeIcon(nodeType) {
+            switch (nodeType.toLowerCase()) {
+                case 'repository':
+                    return 'fa-solid fa-code-branch';
+                case 'folder':
+                    return 'fa-solid fa-folder';
+                case 'file':
+                    return 'fa-solid fa-file-code';
+                default:
+                    return 'fa-solid fa-file';
+            }
+        }
+
+        function formatSummary(summary) {
+            if (!summary) return '';
+            
+            try {
+                // First escape HTML to prevent injection
+                let escaped = escapeHtml(summary);
+                
+                // Format the summary with better line breaks and highlighting
+                return escaped
+                    .replace(/\r\n\r\n/g, '</p><p>')
+                    .replace(/\n\n/g, '</p><p>')
+                    .replace(/\r\n/g, '<br>')
+                    .replace(/\n/g, '<br>')
+                    .replace(/^/, '<p>')
+                    .replace(/$/, '</p>')
+                    .replace(/SUMMARY:/g, '<strong>Summary:</strong>')
+                    .replace(/PATTERNS:/g, '<strong>Patterns:</strong>')
+                    .replace(/DEPENDENCIES:/g, '<strong>Dependencies:</strong>')
+                    .replace(/QUALITY:/g, '<strong>Quality:</strong>')
+                    .replace(/RISKS:/g, '<strong>Risks:</strong>')
+                    .replace(/Technologies:/g, '<strong>Technologies:</strong>')
+                    .replace(/Architecture:/g, '<strong>Architecture:</strong>')
+                    .replace(/Purpose:/g, '<strong>Purpose:</strong>')
+                    .replace(/OVERALL_PURPOSE:/g, '<strong>Overall Purpose:</strong>')
+                    .replace(/ARCHITECTURE:/g, '<strong>Architecture:</strong>')
+                    .replace(/DESIGN_PATTERNS:/g, '<strong>Design Patterns:</strong>')
+                    .replace(/MODERNIZATION_RISKS:/g, '<strong>Modernization Risks:</strong>')
+                    .replace(/BUSINESS_VALUE:/g, '<strong>Business Value:</strong>')
+                    .replace(/CODE_QUALITY:/g, '<strong>Code Quality:</strong>');
+            } catch (error) {
+                console.error('Error formatting summary:', error);
+                return '<p>Error formatting summary content</p>';
+            }
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function initializeSearch() {
+            const searchInput = document.getElementById('treeSearch');
+            searchInput.addEventListener('input', function(e) {
+                const searchTerm = e.target.value.toLowerCase();
+                filterTree(searchTerm);
+            });
+        }
+
+        function filterTree(searchTerm) {
+            const treeNodes = document.querySelectorAll('.tree-node');
+            
+            treeNodes.forEach(node => {
+                const nodeName = node.dataset.nodeName.toLowerCase();
+                const nodePath = node.dataset.nodePath.toLowerCase();
+                
+                if (searchTerm === '' || nodeName.includes(searchTerm) || nodePath.includes(searchTerm)) {
+                    node.style.display = '';
+                    // Also show parent containers
+                    let parent = node.parentElement;
+                    while (parent && parent.classList.contains('tree-children')) {
+                        parent.style.display = '';
+                        parent.classList.add('expanded');
+                        parent = parent.parentElement?.parentElement;
+                    }
+                } else {
+                    node.style.display = 'none';
+                }
+            });
+        }
+    </script>
+}

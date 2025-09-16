@@ -1,0 +1,627 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = ".NET Solution Analysis";
+}
+@using AppSage.Core.Metric;
+@using AppSage.Web.Extensions;
+
+<style>
+    .card {
+        margin-bottom: 30px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(88, 87, 87, 0.1);
+    }
+
+    .card-header {
+        background-color: #7a8086;
+        color: white;
+        font-weight: bold;
+        border-radius: 8px 8px 0 0 !important;
+    }
+
+    .solution-header {
+        background-color: #5a6268;
+        color: white;
+    }
+
+    .metric-box {
+        border-left: 4px solid;
+        padding: 10px 15px;
+        margin-bottom: 15px;
+        background-color: #ffffff;
+        border-radius: 4px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .metric-box .metric-value {
+        font-size: 1.8rem;
+        font-weight: bold;
+        line-height: 1.2;
+    }
+
+    .metric-box .metric-label {
+        font-size: 0.85rem;
+        color: #6c757d;
+    }
+
+    .metric-primary {
+        border-color: #007bff;
+    }
+
+    .metric-success {
+        border-color: #28a745;
+    }
+
+    .metric-warning {
+        border-color: #ffc107;
+    }
+
+    .metric-danger {
+        border-color: #dc3545;
+    }
+
+    .metric-info {
+        border-color: #17a2b8;
+    }
+
+    .project-header {
+        cursor: pointer;
+        padding: 15px;
+        background-color: #6c757d;
+        color: white;
+        font-weight: bold;
+        border-radius: 8px;
+        margin-bottom: 10px;
+        transition: background-color 0.3s;
+    }
+
+    .project-header:hover {
+        background-color: #5a6268;
+    }
+
+    .project-details {
+        background-color: #f8f9fa;
+        padding: 20px;
+        border-radius: 0 0 8px 8px;
+        border: 1px solid #dee2e6;
+        border-top: none;
+    }
+
+    .complexity-badge {
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        font-weight: bold;
+    }
+
+    .complexity-low {
+        background-color: #d4edda;
+        color: #155724;
+    }
+
+    .complexity-medium {
+        background-color: #fff3cd;
+        color: #856404;
+    }
+
+    .complexity-high {
+        background-color: #f8d7da;
+        color: #721c24;
+    }
+
+    .chart-container {
+        height: 300px;
+        margin-bottom: 20px;
+    }
+
+    .collapse-icon {
+        transition: transform 0.3s;
+    }
+
+    .collapsed .collapse-icon {
+        transform: rotate(-90deg);
+    }
+
+    .nuget-packages-table {
+        max-height: 300px;
+        overflow-y: auto;
+    }
+
+    .badge {
+        font-weight: 500;
+    }
+
+    .data-export-card {
+        transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        border: 1px solid #dee2e6;
+    }
+
+    .data-export-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+    }
+
+    .data-export-card .card-body {
+        padding: 1.25rem;
+    }
+
+    .data-export-card .card-title {
+        color: #495057;
+        font-size: 1.1rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .data-export-card .card-text {
+        color: #6c757d;
+        font-size: 0.9rem;
+        line-height: 1.4;
+    }
+</style>
+
+<div class="container-fluid px-4 px-xxl-5" style="max-width: 2400px; margin: 0 auto;">
+    <!-- Page header -->
+    <div class="page-header mb-4">
+        <h1 class="text-center"><i class="fa-solid fa-code me-2"></i>.NET Solution Analysis Dashboard</h1>
+        <p class="text-center mb-0">Generated on @DateTime.Now.ToString("MMMM d, yyyy")</p>
+    </div>
+
+    <!-- Summary Section -->
+    <div class="card solution-card mb-4">
+        <div class="card-header solution-header">
+            <h2 class="mb-0 py-2"><i class="fa-solid fa-chart-pie me-2"></i>Solution Summary</h2>
+        </div>
+        <div class="card-body">
+            <!-- Quick Stats Row -->
+            <div class="row mb-4">
+                <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+                    <div class="metric-box metric-primary">
+                        <div class="metric-value">@Model.Dashboard.Summary.TotalProjects</div>
+                        <div class="metric-label">Total Projects</div>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+                    <div class="metric-box metric-success">
+                        <div class="metric-value">@Model.Dashboard.Summary.TotalClasses.ToString("N0")</div>
+                        <div class="metric-label">Total Classes</div>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+                    <div class="metric-box metric-info">
+                        <div class="metric-value">@Model.Dashboard.Summary.TotalMethods.ToString("N0")</div>
+                        <div class="metric-label">Total Methods</div>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+                    <div class="metric-box metric-warning">
+                        <div class="metric-value">@Model.Dashboard.Summary.TotalDocuments.ToString("N0")</div>
+                        <div class="metric-label">Total Documents</div>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+                    <div class="metric-box metric-danger">
+                        <div class="metric-value">@Model.Dashboard.Summary.TotalDataClasses.ToString("N0")</div>
+                        <div class="metric-label">Total Data Classes</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Row -->
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card h-100">
+          
+
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fa-solid fa-cogs me-2"></i>Technology Distribution</h5>
+                        </div>
+
+                        <div class="card-body">
+                            <div class="chart-container">
+                                <canvas id="languageDistributionChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fa-solid fa-cogs me-2"></i>Project Types</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-container">
+                                <canvas id="projectTypeDistributionChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- .NET Version Distribution -->
+            <div class="row mt-4">
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fa-brands fa-microsoft me-2"></i>.NET Version Distribution</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-container">
+                                <canvas id="dotNetVersionChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fa-solid fa-cube me-2"></i>Top NuGet Packages</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-container">
+                                <canvas id="nugetPackagesChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Reference Details -->
+    <div class="card solution-card mb-4">
+        <div class="card-header solution-header">
+            <h2 class="mb-0 py-2"><i class="fa-solid fa-project-diagram me-2"></i>References</h2>
+        </div>
+        <div class="card-body">
+            @await Html.RenderDynamicTableAsync(
+                     Model.Dashboard.ReferencesMetricTableName,
+                     "ExternalReference Table",
+                     40,
+                     true,
+                     true
+                     )
+        </div>
+    </div>
+
+    <!-- Data Exports -->
+    <div class="card solution-card mb-4">
+        <div class="card-header solution-header">
+            <h2 class="mb-0 py-2"><i class="fa-solid fa-file-excel me-2"></i>Data Exports</h2>
+        </div>
+        <div class="card-body">
+            @if (Model.Dashboard.DataExports.Any())
+            {
+                <div class="row">
+                    @foreach (var dataExport in Model.Dashboard.DataExports)
+                    {
+                        <div class="col-md-6 col-lg-4 mb-3">
+                            <div class="card h-100 data-export-card">
+                                <div class="card-body d-flex flex-column">
+                                    <h5 class="card-title">
+                                        <i class="fa-solid fa-table me-2 text-success"></i>@dataExport.Item1
+                                    </h5>
+                                    <p class="card-text flex-grow-1">@dataExport.Item2</p>
+                                    <div class="mt-auto">
+                                        <a asp-page-handler="DataExport" 
+                                           asp-route-dataExportName="@dataExport.Item3" 
+                                           class="btn btn-success btn-sm w-100">
+                                            <i class="fa-solid fa-download me-2"></i>Download Excel
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info" role="alert">
+                    <i class="fa-solid fa-info-circle me-2"></i>
+                    No data exports are currently available.
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Project Details Section -->
+    <div class="card solution-card mb-4">
+        <div class="card-header solution-header">
+            <h2 class="mb-0 py-2"><i class="fa-solid fa-project-diagram me-2"></i>Project Details</h2>
+        </div>
+        <div class="card-body">
+            @foreach (var project in Model.Dashboard.Projects.OrderBy(p => p.ProjectName))
+            {
+                var projectId = project.ProjectName.Replace(" ", "").Replace(".", "");
+                var complexityClass = GetComplexityClass(project.ClassCount, project.MethodCount);
+                var complexityLabel = GetComplexityLabel(project.ClassCount, project.MethodCount);
+
+                <div class="project-item mb-3">
+                    <div class="project-header" data-bs-toggle="collapse" data-bs-target="#project-@projectId" aria-expanded="false">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <i class="fa-solid fa-chevron-down collapse-icon me-2"></i>
+                                <strong>@project.ProjectName</strong>
+                                <span class="badge bg-secondary ms-2">@project.Language</span>
+                                <span class="badge bg-info ms-1">@project.ProjectType</span>
+                                <span class="complexity-badge @complexityClass ms-1">@complexityLabel</span>
+                            </div>
+                            <div class="text-end">
+                                <small class="text-light">
+                                    @project.ClassCount classes • @project.MethodCount methods
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="collapse" id="project-@projectId">
+                        <div class="project-details">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6><i class="fa-solid fa-info-circle me-2"></i>Project Information</h6>
+                                    <table class="table table-sm">
+                                        <tr>
+                                            <td><strong>Path:</strong></td>
+                                            <td><code>@project.ProjectPath</code></td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Language:</strong></td>
+                                            <td>@project.Language</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Project Type:</strong></td>
+                                            <td>@project.ProjectType</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>.NET Version:</strong></td>
+                                            <td>@project.DotNetVersion</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Segment:</strong></td>
+                                            <td>@project.Segment</td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6><i class="fa-solid fa-chart-bar me-2"></i>Code Metrics</h6>
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <div class="metric-box metric-primary">
+                                                <div class="metric-value">@project.DocumentCount</div>
+                                                <div class="metric-label">Documents</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="metric-box metric-success">
+                                                <div class="metric-value">@project.ClassCount</div>
+                                                <div class="metric-label">Classes</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="metric-box metric-info">
+                                                <div class="metric-value">@project.MethodCount</div>
+                                                <div class="metric-label">Methods</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="metric-box metric-warning">
+                                                <div class="metric-value">@project.DataClassCount</div>
+                                                <div class="metric-label">Data Classes</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            @if (project.NugetPackages != null && project.NugetPackages.Rows.Count > 0)
+                            {
+                                <div class="row mt-4">
+                                    <div class="col-12">
+                                        <h6><i class="fa-solid fa-cube me-2"></i>NuGet Packages (@project.NugetPackages.Rows.Count)</h6>
+                                        <div class="nuget-packages-table">
+                                            <table class="table table-sm table-striped">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Package Name</th>
+                                                        <th>Version</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach (System.Data.DataRow row in project.NugetPackages.Rows)
+                                                    {
+                                                        <tr>
+                                                            <td>@row["ReferenceName"]</td>
+                                                            <td>@row["ReferenceVersion"]</td>
+                                                        </tr>
+                                                    }
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@functions {
+    string GetComplexityClass(int classCount, int methodCount)
+    {
+        var totalComplexity = classCount + (methodCount / 10.0);
+        if (totalComplexity < 50) return "complexity-low";
+        if (totalComplexity < 200) return "complexity-medium";
+        return "complexity-high";
+    }
+
+    string GetComplexityLabel(int classCount, int methodCount)
+    {
+        var totalComplexity = classCount + (methodCount / 10.0);
+        if (totalComplexity < 50) return "Low Complexity";
+        if (totalComplexity < 200) return "Medium Complexity";
+        return "High Complexity";
+    }
+}
+
+@section Filters {
+    <div class="d-flex align-items-center gap-2">
+        @await Html.FilterPartialAsync(x => x.SegmentFilter, "basicFilterGroup", 600)
+        @await Html.FilterPartialAsync(x => x.ProviderFilter, "basicFilterGroup",300)
+    </div>
+}
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+    <script>
+        // Store chart instances
+        const chartInstances = {};
+
+        // Language Distribution Chart
+        if(document.getElementById('languageDistributionChart')) {
+            chartInstances.languageDistributionChart = new Chart(document.getElementById('languageDistributionChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: @Json.Serialize(Model.Dashboard.Summary.LanguageDistribution.Keys.ToList()),
+                    datasets: [{
+                        data: @Json.Serialize(Model.Dashboard.Summary.LanguageDistribution.Values.ToList()),
+                        backgroundColor: ['#0d6efd', '#20c997', '#ffc107', '#dc3545', '#6c757d'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right'
+                        }
+                    }
+                }
+            });
+        }
+
+        // Project Type Distribution Chart
+        if(document.getElementById('projectTypeDistributionChart')) {
+            chartInstances.projectTypeDistributionChart = new Chart(document.getElementById('projectTypeDistributionChart'), {
+                type: 'bar',
+                data: {
+                    labels: @Json.Serialize(Model.Dashboard.Summary.ProjectTypeDistribution.Keys.ToList()),
+                    datasets: [{
+                        label: 'Projects',
+                        data: @Json.Serialize(Model.Dashboard.Summary.ProjectTypeDistribution.Values.ToList()),
+                        backgroundColor: '#0d6efd',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Number of Projects'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // .NET Version Distribution Chart
+        if(document.getElementById('dotNetVersionChart')) {
+            chartInstances.dotNetVersionChart = new Chart(document.getElementById('dotNetVersionChart'), {
+                type: 'pie',
+                data: {
+                    labels: @Json.Serialize(Model.Dashboard.Summary.DotNetVersionDistribution.Keys.ToList()),
+                    datasets: [{
+                        data: @Json.Serialize(Model.Dashboard.Summary.DotNetVersionDistribution.Values.ToList()),
+                        backgroundColor: ['#28a745', '#17a2b8', '#ffc107', '#dc3545', '#6c757d'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
+        // Top NuGet Packages Chart
+        if(document.getElementById('nugetPackagesChart')) {
+            chartInstances.nugetPackagesChart = new Chart(document.getElementById('nugetPackagesChart'), {
+                type: 'bar',
+                data: {
+                    labels: @Json.Serialize(Model.Dashboard.Summary.TopNugetPackages.Select(p => p.PackageName).ToList()),
+                    datasets: [{
+                        label: 'Usage Count',
+                        data: @Json.Serialize(Model.Dashboard.Summary.TopNugetPackages.Select(p => p.UsageCount).ToList()),
+                        backgroundColor: '#20c997',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Projects Using Package'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Handle collapsible sections
+        document.querySelectorAll('[data-bs-toggle="collapse"]').forEach(element => {
+            element.addEventListener('click', function() {
+                const icon = this.querySelector('.collapse-icon');
+                const target = document.querySelector(this.getAttribute('data-bs-target'));
+                
+                if (target.classList.contains('show')) {
+                    icon.classList.add('collapsed');
+                } else {
+                    icon.classList.remove('collapsed');
+                }
+            });
+        });
+
+        // Function to resize all charts
+        function resizeAllCharts() {
+            Object.values(chartInstances).forEach(chart => {
+                if (chart) {
+                    chart.resize();
+                }
+            });
+        }
+
+        // Add window resize handler
+        window.addEventListener('resize', function() {
+            setTimeout(resizeAllCharts, 100);
+        });
+    </script>
+}
+

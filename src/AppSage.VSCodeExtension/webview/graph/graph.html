@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="{{CSP_SOURCE}}">
+    <title>AppSage Graph Viewer</title>
+    <link rel="stylesheet" href="{{STYLE_URI}}">
+</head>
+<body>
+    <div id="controls">
+        <button id="fitBtn">Fit to Screen</button>
+        <button id="resetBtn">Reset View</button>
+        <select id="layoutSelect">
+            <option value="cose">Cose</option>
+            <option value="cose-bilkent">Cose Bilkent</option>
+            <option value="circle">Circle</option>
+            <option value="grid">Grid</option>
+            <option value="concentric">Concentric</option>
+            <option value="breadthfirst">Breadth First</option>
+        </select>
+        
+        <div class="filter-dropdown">
+            <button id="nodeFilterBtn" class="filter-btn">Node Types ▼</button>
+            <div id="nodeFilterDropdown" class="filter-content">
+                <div class="filter-header">
+                    <label><input type="checkbox" id="selectAllNodes"> Select All</label>
+                </div>
+                <div id="nodeFilterList"></div>
+            </div>
+        </div>
+        
+        <div class="filter-dropdown">
+            <button id="edgeFilterBtn" class="filter-btn">Edge Types ▼</button>
+            <div id="edgeFilterDropdown" class="filter-content">
+                <div class="filter-header">
+                    <label><input type="checkbox" id="selectAllEdges"> Select All</label>
+                </div>
+                <div id="edgeFilterList"></div>
+            </div>
+        </div>
+        
+        <div class="filter-dropdown">
+            <button id="viewFilterBtn" class="filter-btn">View ▼</button>
+            <div id="viewFilterDropdown" class="filter-content">
+                <div class="filter-header">
+                    <label>View Mode</label>
+                </div>
+                <div id="viewFilterList">
+                    <div class="filter-item">
+                        <div class="view-mode-selector">
+                            <div class="view-mode-option">
+                                <input type="radio" id="basicView" name="viewMode" value="basic" checked>
+                                <label for="basicView">Basic View</label>
+                            </div>
+                            <div class="view-mode-option">
+                                <input type="radio" id="enhancedView" name="viewMode" value="enhanced">
+                                <label for="enhancedView">Enhanced View</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="filter-item">
+                        <label><input type="checkbox" id="showSidePanel"> Show Side Panel</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="main-container">
+        <div id="cy"></div>
+        
+        <div id="sidebar-panel" class="sidebar-panel">
+            <div class="sidebar-header">
+                <button id="closeSidebarBtn" class="close-btn">&times;</button>
+                <div class="tabs">
+                    <button class="tab-btn active" data-tab="properties">Properties</button>
+                    <button class="tab-btn" data-tab="legend">Legend</button>
+                    <button class="tab-btn" data-tab="customize">Customize</button>
+                </div>
+            </div>
+            
+            <div class="tab-content">
+                <div id="properties-tab" class="tab-pane active">
+                    <div class="panel-section">
+                        <h3 id="property-title">No Selection</h3>
+                        <div id="property-content">
+                            <p class="empty-message">Select a node or edge to view its properties</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="legend-tab" class="tab-pane">
+                    <div class="panel-section">
+                        <h3>Graph Legend</h3>
+                        <div id="legend-content">
+                            <!-- Legend content will be dynamically generated -->
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="customize-tab" class="tab-pane">
+                    <div class="panel-section">
+                        <h3>Enhanced View Customization</h3>
+                        <div id="customize-content">
+                            <!-- Customization content will be dynamically generated -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script nonce="{{NONCE}}" src="{{CYTOSCAPE_URI}}"></script>
+    <script nonce="{{NONCE}}" src="{{CYTOSCAPE_COSE_BILKENT_URI}}"></script>
+    <script nonce="{{NONCE}}" src="{{GRAPH_CUSTOMIZATION_URI}}"></script>
+    <script nonce="{{NONCE}}" src="{{ENHANCED_VIEW_CUSTOMIZER_URI}}"></script>
+    <script nonce="{{NONCE}}" src="{{GRAPH_RENDERER_URI}}"></script>
+    <script nonce="{{NONCE}}" src="{{TOP_MENU_URI}}"></script>
+    <script nonce="{{NONCE}}" src="{{SIDE_PANEL_URI}}"></script>
+    <script nonce="{{NONCE}}" src="{{SCRIPT_URI}}"></script>
+</body>
+</html>

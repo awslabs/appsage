@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Graph Properties</title>
+    <link rel="stylesheet" href="{{STYLE_URI}}">
+</head>
+<body>
+    <div id="content">
+        <div class="no-selection">
+            Select a node or edge in the graph to view its properties
+        </div>
+    </div>
+
+    <script>
+        const vscode = acquireVsCodeApi();
+        
+        // Send ready message
+        vscode.postMessage({ command: 'ready' });
+        
+        // Handle messages from extension
+        window.addEventListener('message', event => {
+            const message = event.data;
+            
+            switch (message.command) {
+                case 'updateProperties':
+                    updatePropertiesDisplay(message.properties);
+                    break;
+            }
+        });
+        
+        function updatePropertiesDisplay(properties) {
+            const content = document.getElementById('content');
+            
+            if (!properties) {
+                content.innerHTML = '<div class="no-selection">Select a node or edge in the graph to view its properties</div>';
+                return;
+            }
+            
+            const typeBadgeClass = properties.type === 'node' ? 'type-node' : 'type-edge';
+            
+            let html = `
+                <div class="property-container">
+                    <div class="property-header">
+                        <span class="type-badge ${typeBadgeClass}">${properties.type}</span>
+                        Selected ${properties.type.charAt(0).toUpperCase() + properties.type.slice(1)}
+                    </div>
+                    
+                    <div class="property-row">
+                        <span class="property-label">ID:</span>
+                        <span class="property-value">${properties.id || 'N/A'}</span>
+                    </div>
+                    
+                    <div class="property-row">
+                        <span class="property-label">Type:</span>
+                        <span class="property-value">${properties.type || 'N/A'}</span>
+                    </div>
+                    
+                    <div class="property-row">
+                        <span class="property-label">Name:</span>
+                        <span class="property-value">${properties.name || 'N/A'}</span>
+                    </div>
+                </div>
+            `;
+            
+            // Add attributes section if attributes exist
+            if (properties.attributes && Object.keys(properties.attributes).length > 0) {
+                html += `
+                    <div class="property-container">
+                        <div class="property-header">Attributes</div>
+                        <div class="attributes-section">
+                `;
+                
+                for (const [key, value] of Object.entries(properties.attributes)) {
+                    const displayValue = typeof value === 'object' ? JSON.stringify(value) : String(value);
+                    html += `
+                        <div class="attribute-item">
+                            <span class="attribute-key">${key}:</span>
+                            <span class="attribute-value">${displayValue}</span>
+                        </div>
+                    `;
+                }
+                
+                html += `
+                        </div>
+                    </div>
+                `;
+            }
+            
+            content.innerHTML = html;
+        }
+    </script>
+</body>
+</html>

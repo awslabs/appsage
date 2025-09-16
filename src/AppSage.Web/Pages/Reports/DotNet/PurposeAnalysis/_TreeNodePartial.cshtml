@@ -1,0 +1,48 @@
+@model AppSage.Web.Pages.Reports.DotNet.PurposeAnalysis.TreeNode
+@{
+    string GetTreeNodeIcon(AppSage.Web.Pages.Reports.DotNet.PurposeAnalysis.NodeType nodeType)
+    {
+        return nodeType switch
+        {
+            AppSage.Web.Pages.Reports.DotNet.PurposeAnalysis.NodeType.Repository => "fa-solid fa-code-branch",
+            AppSage.Web.Pages.Reports.DotNet.PurposeAnalysis.NodeType.Folder => "fa-solid fa-folder",
+            AppSage.Web.Pages.Reports.DotNet.PurposeAnalysis.NodeType.File => "fa-solid fa-file-code",
+            _ => "fa-solid fa-file"
+        };
+    }
+    
+    // Debug info
+    var hasSummary = !string.IsNullOrEmpty(Model.Summary);
+    var summaryLength = Model.Summary?.Length ?? 0;
+}
+
+<div class="tree-node @(Model.Type.ToString().ToLower())-node @(!Model.IsLeaf ? "has-children" : "")"
+     data-node-id="@Model.Id"
+     data-node-path="@Model.Path"
+     data-node-name="@Model.Name"
+     data-node-type="@Model.Type"
+     data-has-summary="@hasSummary"
+     title="@(hasSummary ? $"Has summary ({summaryLength} chars)" : "No summary")">
+    
+    <i class="node-icon @GetTreeNodeIcon(Model.Type)"></i>
+    @Model.Name
+    
+    @if (hasSummary)
+    {
+        <i class="fa-solid fa-brain ms-2 text-primary" title="AI Analysis Available (@summaryLength chars)"></i>
+    }
+    else
+    {
+        <small class="text-muted ms-2">[No AI]</small>
+    }
+</div>
+
+@if (!Model.IsLeaf)
+{
+    <div class="tree-children">
+        @foreach (var child in Model.Children)
+        {
+            @await Html.PartialAsync("_TreeNodePartial", child)
+        }
+    </div>
+}

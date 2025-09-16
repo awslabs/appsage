@@ -1,0 +1,60 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = ".NET Solution Analysis";
+}
+@using AppSage.Core.Metric;
+@using AppSage.Web.Extensions;
+
+<style>
+    .card {
+        margin-bottom: 30px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(88, 87, 87, 0.1);
+    }
+
+    .card-header {
+        background-color: #7a8086;
+        color: white;
+        font-weight: bold;
+        border-radius: 8px 8px 0 0 !important;
+    }
+
+    .reference-header {
+        background-color: #5a6268;
+        color: white;
+    }
+</style>
+
+<div class="container-fluid px-4 px-xxl-5" style="max-width: 2400px; margin: 0 auto;">
+    <!-- Page header -->
+    <div class="page-header mb-4">
+        <h1 class="text-center"><i class="fa-solid fa-code me-2"></i>.NET Reference Analysis</h1>
+        <p class="text-center mb-0">Generated on @DateTime.Now.ToString("MMMM d, yyyy")</p>
+    </div>
+
+    <!-- Reference Details -->
+    <div class="card reference-card mb-4">
+        <div class="card-header reference-header">
+            <h2 class="mb-0 py-2"><i class="fa-solid fa-project-diagram me-2"></i>References</h2>
+        </div>
+        <div class="card-body">
+            @await Html.RenderDynamicTableAsync(
+                     Model.Dashboard.ReferenceApproximationMetricTableName,
+                     "ExternalReference Table",
+                     100,
+                     true,
+                     true
+                     )
+        </div>
+    </div>
+
+</div>
+
+@section Filters {
+    <div class="d-flex align-items-center gap-2">
+        @await Html.FilterPartialAsync(x => x.SegmentFilter, "basicFilterGroup", 600)
+        @await Html.FilterPartialAsync(x => x.ProviderFilter, "basicFilterGroup", 300)
+    </div>
+}
+

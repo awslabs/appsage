@@ -1,0 +1,97 @@
+{
+    "github.copilot.chat.codeGeneration.instructions": [
+        {
+          "file": "copilot-prompt.md" // import instructions from file `copilot-prompt.md`
+        }
+    ],
+    
+    // VS Code Extension Development Settings
+    "files.exclude": {
+        "**/node_modules": true,
+        "AppSage.VSCodeExtension/out": false,
+        "**/*.vsix": true
+    },
+    "search.exclude": {
+        "AppSage.VSCodeExtension/out": true,
+        "AppSage.VSCodeExtension/node_modules": true,
+        "**/*.vsix": true
+    },
+    
+    // File associations for AppSage files
+    "files.associations": {
+        "*.appsage.graph": "json",
+        "*.appsage.table": "json"
+    },
+    
+    // JSON schemas for AppSage files
+    "json.schemas": [
+        {
+            "fileMatch": [
+                "*.appsage.graph"
+            ],
+            "schema": {
+                "type": "object",
+                "properties": {
+                    "Nodes": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "Id": { "type": "string" },
+                                "Name": { "type": "string" },
+                                "Type": { "type": "string" },
+                                "Attributes": { "type": "object" }
+                            }
+                        }
+                    },
+                    "Edges": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "Source": { "type": "string" },
+                                "Target": { "type": "string" },
+                                "Type": { "type": "string" },
+                                "Attributes": { "type": "object" }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "fileMatch": [
+                "*.appsage.table"
+            ],
+            "schema": {
+                "type": "object",
+                "properties": {
+                    "columns": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "field": { "type": "string" },
+                                "headerName": { "type": "string" },
+                                "width": { "type": "number" },
+                                "sortable": { "type": "boolean" },
+                                "filter": { "type": "boolean" },
+                                "type": { "type": "string" }
+                            }
+                        }
+                    },
+                    "rows": {
+                        "type": "array",
+                        "items": { "type": "object" }
+                    },
+                    "metadata": { "type": "object" }
+                }
+            }
+        }
+    ],
+    
+    // TypeScript settings for extension development
+    "typescript.preferences.includePackageJsonAutoImports": "on",
+    "typescript.suggest.autoImports": true,
+    "typescript.updateImportsOnFileMove.enabled": "always"
+}

@@ -1,0 +1,150 @@
+{
+  "name": "appsage-vscode-extension",
+  "displayName": "AppSage Viewer",
+  "description": "Visual Studio Code extension for viewing AppSage graph and table files",
+  "version": "0.0.1",
+  "publisher": "appsage",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-org/appsage.git"
+  },
+  "engines": {
+    "vscode": "^1.75.0"
+  },
+  "categories": [
+    "Visualization",
+    "Other"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "views": {
+      "appsage-explorer": [
+        {
+          "id": "appsage.profileExplorer",
+          "name": "Profiles",
+          "when": "true"
+        }
+      ]
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "appsage-explorer",
+          "title": "AppSage",
+          "icon": "$(graph-line)"
+        }
+      ]
+    },
+    "customEditors": [
+      {
+        "viewType": "appsage.graphViewer",
+        "displayName": "AppSage Graph Viewer",
+        "selector": [
+          {
+            "filenamePattern": "*.appsage.graph"
+          }
+        ]
+      },
+      {
+        "viewType": "appsage.tableViewer",
+        "displayName": "AppSage Table Viewer",
+        "selector": [
+          {
+            "filenamePattern": "*.appsage.table"
+          }
+        ]
+      }
+    ],
+    "commands": [
+      {
+        "command": "appsage.showGraphProperties",
+        "title": "View Properties",
+        "category": "AppSage"
+      },
+      {
+        "command": "appsage.createProfile",
+        "title": "Create Profile",
+        "icon": "$(add)",
+        "category": "AppSage"
+      },
+      {
+        "command": "appsage.deleteProfile",
+        "title": "Delete Profile",
+        "icon": "$(trash)",
+        "category": "AppSage"
+      },
+      {
+        "command": "appsage.editProfile",
+        "title": "Edit Profile",
+        "icon": "$(edit)",
+        "category": "AppSage"
+      },
+      {
+        "command": "appsage.setActiveProfile",
+        "title": "Set Active Profile",
+        "icon": "$(check)",
+        "category": "AppSage"
+      },
+      {
+        "command": "appsage.refreshProfiles",
+        "title": "Refresh",
+        "icon": "$(refresh)",
+        "category": "AppSage"
+      },
+      {
+        "command": "appsage.selectProfileFromStatusBar",
+        "title": "Select Profile",
+        "category": "AppSage"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "appsage.createProfile",
+          "when": "view == appsage.profileExplorer",
+          "group": "navigation"
+        },
+        {
+          "command": "appsage.refreshProfiles",
+          "when": "view == appsage.profileExplorer",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "appsage.setActiveProfile",
+          "when": "view == appsage.profileExplorer && viewItem == profile",
+          "group": "profile@1"
+        },
+        {
+          "command": "appsage.editProfile",
+          "when": "view == appsage.profileExplorer && viewItem == profile",
+          "group": "profile@2"
+        },
+        {
+          "command": "appsage.deleteProfile",
+          "when": "view == appsage.profileExplorer && viewItem == profile",
+          "group": "profile@3"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "package": "vsce package --out release/",
+    "package:install": "npm install -g @vscode/vsce",
+    "release": "npm run compile && npm run package",
+    "postinstall": "powershell -Command \"if(!(Test-Path webview\\lib)) { New-Item -ItemType Directory -Path webview\\lib -Force }; Copy-Item node_modules\\cytoscape\\dist\\cytoscape.min.js webview\\lib\\; Copy-Item node_modules\\cytoscape-cose-bilkent\\cytoscape-cose-bilkent.js webview\\lib\\"
+  },
+  "dependencies": {
+    "cytoscape": "^3.26.0",
+    "cytoscape-cose-bilkent": "^4.1.0"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.75.0",
+    "@types/node": "16.x",
+    "typescript": "^4.9.4"
+  }
+}

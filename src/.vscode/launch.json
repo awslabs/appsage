@@ -1,0 +1,69 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": ".NET Core Launch (web)",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build-web",
+            "program": "${workspaceFolder}/AppSage.Web/bin/Debug/net8.0/AppSage.Web.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/AppSage.Web",
+            "stopAtEntry": false,
+            "serverReadyAction": {
+                "action": "openExternally",
+                "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
+            },
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            },
+            "sourceFileMap": {
+                "/Views": "${workspaceFolder}/Views"
+            }
+        },
+        {
+            "name": ".NET Core Launch (console)",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/AppSage.Run/bin/Debug/net8.0/AppSage.Run.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/AppSage.Run",
+            "console": "internalConsole",
+            "stopAtEntry": false
+        },
+        {
+            "name": ".NET Core Attach",
+            "type": "coreclr",
+            "request": "attach"
+        },
+        {
+            "name": "Run VS Code Extension",
+            "type": "extensionHost",
+            "request": "launch",
+            "args": [
+                "--extensionDevelopmentPath=${workspaceFolder}/AppSage.VSCodeExtension"
+            ],
+            "outFiles": [
+                "${workspaceFolder}/AppSage.VSCodeExtension/out/**/*.js"
+            ],
+            "preLaunchTask": "compile-vscode-extension"
+        },
+        {
+            "name": "Run VS Code Extension (Watch)",
+            "type": "extensionHost",
+            "request": "launch",
+            "args": [
+                "--extensionDevelopmentPath=${workspaceFolder}/AppSage.VSCodeExtension"
+            ],
+            "outFiles": [
+                "${workspaceFolder}/AppSage.VSCodeExtension/out/**/*.js"
+            ],
+            "preLaunchTask": "watch-vscode-extension",
+            "presentation": {
+                "group": "2_extension",
+                "order": 1
+            }
+        }
+    ]
+}

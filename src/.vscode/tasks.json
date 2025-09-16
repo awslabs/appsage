@@ -1,0 +1,189 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "${workspaceFolder}/AppSage.Run/AppSage.Run.csproj",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "publish",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "publish",
+                "${workspaceFolder}/AppSage.Run/AppSage.Run.csproj",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "watch",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "watch",
+                "run",
+                "--project",
+                "${workspaceFolder}/AppSage.Run/AppSage.Run.csproj"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "build-web",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "${workspaceFolder}/AppSage.Web/AppSage.Web.csproj",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "publish-web",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "publish",
+                "${workspaceFolder}/AppSage.Web/AppSage.Web.csproj",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "watch-web",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "watch",
+                "run",
+                "--project",
+                "${workspaceFolder}/AppSage.Web/AppSage.Web.csproj"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "compile-vscode-extension",
+            "type": "shell",
+            "command": "npm",
+            "args": ["run", "compile"],
+            "group": "build",
+            "presentation": {
+                "panel": "shared",
+                "reveal": "silent",
+                "clear": true
+            },
+            "options": {
+                "cwd": "${workspaceFolder}/AppSage.VSCodeExtension"
+            },
+            "problemMatcher": [
+                "$tsc"
+            ]
+        },
+        {
+            "label": "watch-vscode-extension",
+            "type": "shell",
+            "command": "npm",
+            "args": ["run", "watch"],
+            "group": "build",
+            "presentation": {
+                "panel": "dedicated",
+                "reveal": "never"
+            },
+            "isBackground": true,
+            "options": {
+                "cwd": "${workspaceFolder}/AppSage.VSCodeExtension"
+            },
+            "problemMatcher": [
+                {
+                    "pattern": [
+                        {
+                            "regexp": "\\b\\B",
+                            "file": 1,
+                            "location": 2,
+                            "message": 3
+                        }
+                    ],
+                    "background": {
+                        "activeOnStart": true,
+                        "beginsPattern": "^\\s*\\d{1,2}:\\d{1,2}:\\d{1,2}(?: AM| PM)? - File change detected\\. Starting incremental compilation\\.\\.\\.",
+                        "endsPattern": "^\\s*\\d{1,2}:\\d{1,2}:\\d{1,2}(?: AM| PM)? - Compilation complete\\. Watching for file changes\\."
+                    }
+                }
+            ]
+        },
+        {
+            "label": "install-vscode-extension-deps",
+            "type": "shell",
+            "command": "npm",
+            "args": ["install"],
+            "group": "build",
+            "presentation": {
+                "panel": "shared",
+                "reveal": "always",
+                "clear": true
+            },
+            "options": {
+                "cwd": "${workspaceFolder}/AppSage.VSCodeExtension"
+            }
+        },
+        {
+            "label": "install-vsce-tool",
+            "type": "shell",
+            "command": "npm",
+            "args": ["install", "-g", "@vscode/vsce"],
+            "group": "build",
+            "presentation": {
+                "panel": "shared",
+                "reveal": "always",
+                "clear": true
+            }
+        },
+        {
+            "label": "package-vscode-extension",
+            "type": "shell",
+            "command": "vsce",
+            "args": ["package", "--out", "release/"],
+            "group": "build",
+            "presentation": {
+                "panel": "shared",
+                "reveal": "always",
+                "clear": true
+            },
+            "options": {
+                "cwd": "${workspaceFolder}/AppSage.VSCodeExtension"
+            },
+            "dependsOn": ["compile-vscode-extension"]
+        },
+        {
+            "label": "publish-vscode-extension",
+            "type": "shell",
+            "command": "powershell",
+            "args": [
+                "-Command",
+                "if (!(Test-Path 'release')) { New-Item -ItemType Directory -Path 'release' }; if (!(Get-Command vsce -ErrorAction SilentlyContinue)) { Write-Host 'Installing vsce...'; npm install -g @vscode/vsce }; vsce package --out release/"
+            ],
+            "group": "build",
+            "presentation": {
+                "panel": "shared",
+                "reveal": "always",
+                "clear": true
+            },
+            "options": {
+                "cwd": "${workspaceFolder}/AppSage.VSCodeExtension"
+            },
+            "dependsOn": ["compile-vscode-extension"]
+        }
+    ]
+}

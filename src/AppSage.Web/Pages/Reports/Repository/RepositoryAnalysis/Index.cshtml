@@ -1,0 +1,489 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Executive Summary";
+}
+@using AppSage.Core.Metric;
+@using AppSage.Web.Extensions;
+
+<style>
+
+
+    .card {
+        margin-bottom: 30px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(88, 87, 87, 0.1);
+    }
+
+    .card-header {
+        background-color: #7a8086;
+        color: white;
+        font-weight: bold;
+        border-radius: 8px 8px 0 0 !important;
+    }
+
+    .metric-box {
+        border-left: 4px solid;
+        padding: 10px 15px;
+        margin-bottom: 15px;
+        background-color: #ffffff;
+        border-radius: 4px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+        .metric-box .metric-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            line-height: 1.2;
+        }
+
+        .metric-box .metric-label {
+            font-size: 0.85rem;
+            color: #6c757d;
+        }
+
+    .metric-primary {
+        border-color: #007bff;
+    }
+
+    .metric-success {
+        border-color: #28a745;
+    }
+
+    .metric-warning {
+        border-color: #ffc107;
+    }
+
+    .metric-danger {
+        border-color: #dc3545;
+    }
+
+    .metric-info {
+        border-color: #17a2b8;
+    }
+
+
+    .chart-container {
+        height: 300px;
+        margin-bottom: 20px;
+    }
+
+    .commit-activity-container {
+        height: 250px;
+    }
+
+    .language-distribution-container,
+    .contributor-distribution-container {
+        height: 250px;
+    }
+
+    /* Updated repo styling to match sampleReport-6 */
+    .repo-header {
+        cursor: pointer;
+        padding: 15px;
+        background-color: #6c757d;
+        color: white;
+        font-weight: bold;
+        border-radius: 8px;
+        margin-bottom: 10px;
+    }
+
+    .collapse-icon {
+        transition: transform 0.3s;
+    }
+
+    .collapsed .collapse-icon {
+        transform: rotate(-90deg);
+    }
+
+    .progress {
+        height: 25px;
+        border-radius: 5px;
+    }
+
+    .progress-bar {
+        border-radius: 5px;
+    }
+
+    .badge {
+        font-weight: 500;
+    }
+
+    .report-date {
+        font-size: 0.9rem;
+        color: white;
+    }
+
+    .stat-card {
+        text-align: center;
+        border-radius: 8px;
+        margin-bottom: 15px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .stat-value {
+        font-size: 2rem;
+        font-weight: bold;
+    }
+
+    .stat-label {
+        font-size: 0.9rem;
+        color: #6c757d;
+    }
+</style>
+
+<div class="container-fluid px-4 px-xxl-5" style="max-width: 2400px; margin: 0 auto;">
+    <!-- Segment Filter -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0"><i class="fa-solid fa-filter me-2"></i>Filter by Segments</h5>
+        </div>
+
+    </div>
+
+    <!-- Page header using sampleReport-6 style -->
+    <div class="page-header mb-4">
+        <h1 class="text-center"><i class="fa-brands fa-git-alt me-2"></i>Code Analytics Dashboard</h1>
+        <p class="text-center mb-0">Generated on @DateTime.Now.ToString("MMMM d, yyyy")</p>
+    </div>
+
+    <!-- Summary Section with new styling -->
+    <div class="card solution-card mb-4">
+        <div class="card-header solution-header">
+            <h2 class="mb-0 py-2"><i class="fa-solid fa-chart-pie me-2"></i>Executive Summary</h2>
+        </div>
+        <div class="card-body">
+            <!-- Quick Stats Row using new metric-box style -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="metric-box metric-primary">
+                        <div class="metric-value">@Model.Dashboard.RepositoryCount.Value</div>
+                        <div class="metric-label">Repositories</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="metric-box metric-info">
+                        <div class="metric-value">@Model.Dashboard.ContributorCount.Value</div>
+                        <div class="metric-label">Contributors</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="metric-box metric-success">
+                        <div class="metric-value">@Model.Dashboard.FileCount.ToShortFormat()</div>
+                        <div class="metric-label">Files</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="metric-box metric-warning">
+                        <div class="metric-value">@Model.Dashboard.LinesOfCode.Value.ToShortFormat()</div>
+                        <div class="metric-label">Lines of code</div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="metric-box metric-primary">
+                        <div class="metric-value">@Model.Dashboard.DatabaseCount.Value</div>
+                        <div class="metric-label">Databases</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="metric-box metric-info">
+                        <div class="metric-value">@Model.Dashboard.FirstCommitDate.Value</div>
+                        <div class="metric-label">Estimated First Commit Date</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="metric-box metric-success">
+                        <div class="metric-value">@Model.Dashboard.LastCommitDate.Value</div>
+                        <div class="metric-label">Estimated Last Commit Date</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="metric-box metric-warning">
+                        <div class="metric-value">@Model.Dashboard.BranchCount.Value.ToShortFormat()</div>
+                        <div class="metric-label">Branch Count</div>
+                    </div>
+                </div>
+
+
+            </div>
+
+            <div class="row">
+                <!-- Left Column - Charts -->
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-header solution-header">
+                            <h4 class="mb-0"><i class="fa-solid fa-chart-line me-2"></i>Commit Activity</h4>
+                        </div>
+                        <div class="card-body">
+                            <h5 class="mb-2">Commit Activity Summary</h5>
+                            <div class="chart-container commit-activity-container">
+                                <canvas id="commitActivitySummaryChart"></canvas>
+                            </div>
+                            <h5 class="mb-2 mt-4">Top Contributors</h5>
+                            <div class="chart-container contributor-distribution-container">
+                                <canvas id="contributorDistributionChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column - Distribution Charts -->
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-header solution-header">
+                            <h4 class="mb-0"><i class="fa-solid fa-code-branch me-2"></i>Repository Insights</h4>
+                        </div>
+                        <div class="card-body">
+                            <h5 class="mb-2">Technology Category</h5>
+                            <div class="chart-container language-distribution-container">
+                                <canvas id="technologyCategoryDistributionChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <h5 class="mb-2">Technology Sub Category</h5>
+                            <div class="chart-container language-distribution-container">
+                                <canvas id="technologySubCategoryDistributionChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tech Stack Breakdown Section -->
+    <div class="card solution-card mb-4">
+        <div class="card-body">
+            @await Html.RenderDynamicTableAsync(
+                        Model.Dashboard.TechDataMetricTableName,
+                     "Tech Stack Table",
+                     8,
+                     true,
+                     true
+                     )
+        </div>
+    </div>
+</div>
+
+@section Filters {
+    <div class="d-flex align-items-center gap-2">
+        @await Html.FilterPartialAsync(x => x.SegmentFilter, "basicFilterGroup", 600)
+        @await Html.FilterPartialAsync(x => x.ProviderFilter, "basicFilterGroup",300)
+    </div>
+}
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <script>
+        // Segment Filter Functionality
+
+        // Store chart instances so we can access them later
+        const chartInstances = {};
+
+        // Overall Commit Activity Chart (Summary)
+        if(document.getElementById('commitActivitySummaryChart')) {
+            const commitLabels = @Json.Serialize(Model.Dashboard.CommitSummary.XAxis);
+            const datasets = [];
+
+        @foreach (var dataset in Model.Dashboard.CommitSummary.YAxis)
+        {
+            <text>
+                    datasets.push({
+                        label: '@dataset.Label',
+                        data: @Json.Serialize(dataset.Data),
+                        borderColor: getRandomColor('@dataset.Label'),
+                        backgroundColor: 'rgba(' + getRandomRGB('@dataset.Label') + ', 0.1)',
+                        tension: 0.3,
+                        fill: false
+                    });
+            </text>
+        }
+
+            chartInstances.commitActivitySummaryChart = new Chart(document.getElementById('commitActivitySummaryChart'), {
+                type: 'line',
+                data: {
+                    labels: commitLabels,
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Number of Commits'
+                            },
+                            ticks: {
+                                stepSize: 20
+                            }
+                        },
+                        x: {
+                            display: true,
+                            title: {
+                                display: true,
+                                text: 'Month'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Contributor Distribution Chart
+        if(document.getElementById('contributorDistributionChart')) {
+            chartInstances.contributorDistributionChart = new Chart(document.getElementById('contributorDistributionChart'), {
+                type: 'bar',
+                data: {
+                    labels: @Json.Serialize(Model.Dashboard.TopContributors.Select(c => c.Name).ToList()),
+                    datasets: [{
+                        label: 'Commits',
+                        data: @Json.Serialize(Model.Dashboard.TopContributors.Select(c => c.CommitCount).ToList()),
+                        backgroundColor: '#0d6efd'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    plugins: {
+                        legend: {
+                            display: true
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Number of Commits'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+
+
+        // Technology category distribution chart
+        if(document.getElementById('technologyCategoryDistributionChart')) {
+            chartInstances.technologyCategoryDistributionChart = new Chart(document.getElementById('technologyCategoryDistributionChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: @Json.Serialize(Model.Dashboard.TechnologyDistribution.GroupBy(x => x.Category).Select(g => g.Key).ToList()),
+                    datasets: [{
+                        data: @Json.Serialize(Model.Dashboard.TechnologyDistribution.GroupBy(x => x.Category).Select(g => g.Sum(t => t.Count)).ToList()),
+                        backgroundColor: [
+                            '#0d6efd', '#20c997', '#ffc107', '#dc3545', '#6c757d'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right'
+                        }
+                    }
+                }
+            });
+        }
+
+
+        // Technology sub category distribution chart
+        if(document.getElementById('technologySubCategoryDistributionChart')) {
+            chartInstances.technologySubCategoryDistributionChart = new Chart(document.getElementById('technologySubCategoryDistributionChart'), {
+                type: 'bar',
+                data: {
+                    labels: @Json.Serialize(Model.Dashboard.TechnologyDistribution.GroupBy(x => x.SubCategory).Select(g => g.Key).ToList()),
+                    datasets: [{
+                        data: @Json.Serialize(Model.Dashboard.TechnologyDistribution.GroupBy(x => x.SubCategory).Select(g => g.Sum(t => t.Count)).ToList()),
+                        backgroundColor: [
+                            '#0d6efd', '#20c997', '#ffc107', '#dc3545', '#6c757d'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right'
+                        }
+                    }
+                }
+            });
+        }
+
+
+        // Handle chart resizing when collapsible sections are toggled
+        document.querySelectorAll('[data-bs-toggle="collapse"]').forEach(element => {
+            element.addEventListener('click', function() {
+                const target = document.querySelector(this.getAttribute('data-bs-target'));
+
+                // When Bootstrap's collapse animation completes, resize charts
+                target.addEventListener('shown.bs.collapse', function() {
+                    setTimeout(resizeAllCharts, 50);
+                });
+
+                target.addEventListener('hidden.bs.collapse', function() {
+                    setTimeout(resizeAllCharts, 50);
+                });
+            });
+        });        // Function to resize all charts
+        function resizeAllCharts() {
+            Object.values(chartInstances).forEach(chart => {
+                if (chart) {
+                    chart.resize ? chart.resize() : chart.update();
+                }
+            });
+        }
+
+        // Add window resize handler
+        window.addEventListener('resize', function() {
+            setTimeout(resizeAllCharts, 100);
+        });
+
+        // Helper functions to generate consistent colors from string
+        function getRandomColor(str) {
+            const hue = hashString(str) % 360;
+            return `hsl(${hue}, 70%, 50%)`;
+        }
+
+        function getRandomRGB(str) {
+            const hash = hashString(str);
+            const r = hash % 255;
+            const g = (hash * 7) % 255;
+            const b = (hash * 13) % 255;
+            return `${r}, ${g}, ${b}`;
+        }
+
+        function hashString(str) {
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) {
+                hash = ((hash << 5) - hash) + str.charCodeAt(i);
+                hash = hash & hash; // Convert to 32bit integer
+            }
+            return Math.abs(hash);
+        }
+    </script>
+}
+

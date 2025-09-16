@@ -1,0 +1,102 @@
+@using AppSage.Web.Extensions;
+@model AppSage.Web.Components.Filter.Table.TableModel
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+<div class="card" id="@Model.MetricTableName">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        @if (!string.IsNullOrEmpty(Model.Title))
+        {
+            <h4 class="mb-0">@Model.Title</h4>
+        }
+        
+        @if (Model.AllowExport)
+        {
+            <div class="btn-group">
+                <button type="button" class="btn btn-sm btn-outline-secondary" 
+                        onclick="exportTable('@Model.MetricTableName')">
+                    <i class="bi bi-download me-1"></i>Export CSV
+                </button>
+            </div>
+        }
+    </div>
+    <div class="card-body">
+        @if (Model.Table == null || Model.Table.Rows.Count == 0)
+        {
+            <div class="alert alert-info">No data available</div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            @foreach (var column in Model.ColumnsToShow)
+                            {
+                                <th scope="col">
+                                    <a href="#" 
+                                       onclick="sortTable('@Model.MetricTableName', '@column.ColumnName', '@(Model.SortColumn == column.ColumnName && Model.SortDirection == "asc" ? "desc" : "asc")'); return false;">
+                                        @column.ColumnName
+                                        @if (Model.SortColumn == column.ColumnName)
+                                        {
+                                            <i class="bi bi-arrow-@(Model.SortDirection == "asc" ? "up" : "down")"></i>
+                                        }
+                                    </a>
+                                </th>
+                            }
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var row in Model.DisplayRows)
+                        {
+                            <tr>
+                                @foreach (var column in Model.ColumnsToShow)
+                                {
+                                    <td>@row[column]</td>
+                                }
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            @if (Model.TotalPages > 1)
+            {
+                <nav aria-label="Table pagination">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item @(Model.CurrentPage == 1 ? "disabled" : "")">
+                            <a class="page-link" href="#" 
+                               onclick="navigateTable('@Model.MetricTableName', @(Model.CurrentPage - 1)); return false;">Previous</a>
+                        </li>
+                        @for (int i = Math.Max(1, Model.CurrentPage - 2); i <= Math.Min(Model.TotalPages, Model.CurrentPage + 2); i++)
+                        {
+                            <li class="page-item @(Model.CurrentPage == i ? "active" : "")">
+                                <a class="page-link" href="#" 
+                                   onclick="navigateTable('@Model.MetricTableName', @i); return false;">@i</a>
+                            </li>
+                        }
+                        <li class="page-item @(Model.CurrentPage == Model.TotalPages ? "disabled" : "")">
+                            <a class="page-link" href="#" 
+                               onclick="navigateTable('@Model.MetricTableName', @(Model.CurrentPage + 1)); return false;">Next</a>
+                        </li>
+                    </ul>
+                </nav>
+            }
+        }
+    </div>
+    @if (Model.ShowFooter && Model.Table != null)
+    {
+        <div class="card-footer text-muted">
+            <small>Showing @Model.Table.Rows.Count of @Model.TotalRowCount rows</small>
+        </div>
+    }
+</div>
+
+<script>
+    // Set table-specific data attributes (assumes global functions already loaded)
+    const tableElement = document.getElementById('@Model.MetricTableName');
+    tableElement.setAttribute('data-sort-column', '@Model.SortColumn');
+    tableElement.setAttribute('data-sort-direction', '@Model.SortDirection');
+    tableElement.setAttribute('data-page-size', '@Model.PageSize');
+</script>
+
+

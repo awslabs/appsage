@@ -1,0 +1,58 @@
+/* Bootstrap 5 CSS will be loaded from CDN or local copy */
+body {
+    font-family: var(--vscode-font-family);
+    color: var(--vscode-foreground);
+    background-color: var(--vscode-editor-background);
+}
+
+.btn {
+    background-color: var(--vscode-button-background);
+    color: var(--vscode-button-foreground);
+    border: 1px solid var(--vscode-button-background);
+}
+
+.btn:hover {
+    background-color: var(--vscode-button-hoverBackground);
+    color: var(--vscode-button-foreground);
+    border-color: var(--vscode-button-hoverBackground);
+}
+
+.form-control {
+    background-color: var(--vscode-input-background);
+    color: var(--vscode-input-foreground);
+    border: 1px solid var(--vscode-input-border);
+}
+
+.form-control:focus {
+    background-color: var(--vscode-input-background);
+    color: var(--vscode-input-foreground);
+    border-color: var(--vscode-focusBorder);
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.card {
+    background-color: var(--vscode-panel-background);
+    border: 1px solid var(--vscode-panel-border);
+}
+
+.navbar {
+    background-color: var(--vscode-panel-background) !important;
+    border-bottom: 1px solid var(--vscode-panel-border);
+}
+
+.navbar-brand, .nav-link {
+    color: var(--vscode-foreground) !important;
+}
+
+.table {
+    color: var(--vscode-foreground);
+}
+
+.table th {
+    background-color: var(--vscode-panel-background);
+    border-color: var(--vscode-panel-border);
+}
+
+.table td {
+    border-color: var(--vscode-panel-border);
+}

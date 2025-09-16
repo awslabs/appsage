@@ -1,0 +1,377 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = ".NET Solution Analysis";
+}
+@using AppSage.Core.Metric;
+@using AppSage.Web.Extensions;
+@using System.Text.Json;
+
+<style>
+    .card {
+        margin-bottom: 30px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(88, 87, 87, 0.1);
+    }
+
+    .card-header {
+        background-color: #7a8086;
+        color: white;
+        font-weight: bold;
+        border-radius: 8px 8px 0 0 !important;
+    }
+
+    .graph-header {
+        background-color: #5a6268;
+        color: white;
+    }
+
+ 
+
+ 
+</style>
+
+<div class="container-fluid px-4 px-xxl-5" style="max-width: 2400px; margin: 0 auto;">
+    <!-- Page header -->
+    <div class="page-header mb-4">
+        <h1 class="text-center"><i class="fa-solid fa-code me-2"></i>.NET Dependency Analysis Dashboard</h1>
+        <p class="text-center mb-0">Generated on @DateTime.Now.ToString("MMMM d, yyyy")</p>
+    </div>
+
+    <!-- Merged Dependencies Section -->
+    <div class="card mb-4">
+        <div class="card-header graph-header d-flex justify-content-between align-items-center">
+            <h2 class="mb-0 py-2"><i class="fa-solid fa-project-diagram me-2"></i>Merged Dependencies</h2>
+            <div class="d-flex align-items-center gap-2">
+                <small class="text-light">Filter Relations:</small>
+                <div class="btn-group" role="group">
+                    <input type="checkbox" class="btn-check relation-filter" id="merged-all" autocomplete="off" data-target="merged" data-relation="all" checked>
+                    <label class="btn btn-outline-light btn-sm" for="merged-all">All</label>
+                </div>
+                @foreach (var relType in Model.Dashboard.AllRelationTypes)
+                {
+                    var checkboxId = $"merged-{relType.ToLower()}";
+                    <div class="btn-group" role="group">
+                        <input type="checkbox" class="btn-check relation-filter" id="@checkboxId" autocomplete="off" data-target="merged" data-relation="@relType" checked>
+                        <label class="btn btn-outline-light btn-sm" for="@checkboxId">@relType</label>
+                    </div>
+                }
+            </div>
+        </div>
+        <div class="card-body">
+            @if (Model.Dashboard.MergedDependencyGraphs.Any())
+            {
+                @foreach (var graph in Model.Dashboard.MergedDependencyGraphs)
+                {
+                    var graphId = $"merged-graph-{Model.Dashboard.MergedDependencyGraphs.IndexOf(graph)}";
+                    <div class="graph-container mb-4">
+                        <h5 class="mb-3">@graph.Title</h5>
+                        <div id="@graphId" style="width: 100%; height: 600px; border: 1px solid #ddd; border-radius: 4px;"></div>
+                        <div class="mt-2 text-muted small">
+                            <i class="fa-solid fa-info-circle me-1"></i>
+                            @graph.Nodes.Count nodes, @graph.Edges.Count edges | Use mouse wheel to zoom, drag to pan, click and drag nodes to rearrange
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="text-center text-muted py-5">
+                    <i class="fa-solid fa-info-circle me-2"></i>No merged dependency data available
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Project Dependencies Section -->
+    <div class="card mb-4">
+        <div class="card-header graph-header d-flex justify-content-between align-items-center">
+            <h2 class="mb-0 py-2"><i class="fa-solid fa-sitemap me-2"></i>Project Dependencies</h2>
+            <div class="d-flex align-items-center gap-2">
+                <small class="text-light">Filter Relations:</small>
+                <div class="btn-group" role="group">
+                    <input type="checkbox" class="btn-check relation-filter" id="project-all" autocomplete="off" data-target="project" data-relation="all" checked>
+                    <label class="btn btn-outline-light btn-sm" for="project-all">All</label>
+                </div>
+                @foreach (var relType in Model.Dashboard.AllRelationTypes)
+                {
+                    var checkboxId = $"project-{relType.ToLower()}";
+                    <div class="btn-group" role="group">
+                        <input type="checkbox" class="btn-check relation-filter" id="@checkboxId" autocomplete="off" data-target="project" data-relation="@relType" checked>
+                        <label class="btn btn-outline-light btn-sm" for="@checkboxId">@relType</label>
+                    </div>
+                }
+            </div>
+        </div>
+        <div class="card-body">
+            @if (Model.Dashboard.ProjectDependencyGraphs.Any())
+            {
+                @foreach (var graph in Model.Dashboard.ProjectDependencyGraphs)
+                {
+                    var graphId = $"project-graph-{Model.Dashboard.ProjectDependencyGraphs.IndexOf(graph)}";
+                    <div class="graph-container mb-4">
+                        <h5 class="mb-3">@graph.Title</h5>
+                        <div id="@graphId" style="width: 100%; height: 600px; border: 1px solid #ddd; border-radius: 4px;"></div>
+                        <div class="mt-2 text-muted small">
+                            <i class="fa-solid fa-info-circle me-1"></i>
+                            @graph.Nodes.Count nodes, @graph.Edges.Count edges | Use mouse wheel to zoom, drag to pan, click and drag nodes to rearrange
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="text-center text-muted py-5">
+                    <i class="fa-solid fa-info-circle me-2"></i>No project dependency data available
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+
+
+@section Filters {
+    <div class="d-flex align-items-center gap-2">
+        @await Html.FilterPartialAsync(x => x.SegmentFilter, "basicFilterGroup", 600)
+        @await Html.FilterPartialAsync(x => x.ProviderFilter, "basicFilterGroup", 300)
+    </div>
+}
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.0/dist/echarts.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Store all chart instances for filtering
+            const chartInstances = {};
+            const graphData = {
+                merged: @Html.Raw(JsonSerializer.Serialize(Model.Dashboard.MergedDependencyGraphs, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase })),
+                project: @Html.Raw(JsonSerializer.Serialize(Model.Dashboard.ProjectDependencyGraphs, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }))
+            };
+            const allRelationTypes = @Html.Raw(JsonSerializer.Serialize(Model.Dashboard.AllRelationTypes));
+
+            // Initialize all graphs
+            initializeGraphs();
+
+            // Debug: Log all available relation types
+            console.log('All relation types:', allRelationTypes);
+            console.log('Graph data:', graphData);
+
+            // Setup relation filtering
+            setupRelationFiltering();
+
+            function initializeGraphs() {
+                // Initialize merged dependency graphs
+                graphData.merged.forEach((graph, index) => {
+                    const containerId = `merged-graph-${index}`;
+                    const container = document.getElementById(containerId);
+                    if (container) {
+                        const chart = echarts.init(container);
+                        chartInstances[containerId] = {
+                            instance: chart,
+                            originalData: graph,
+                            type: 'merged'
+                        };
+                        renderGraph(chart, graph);
+                    }
+                });
+
+                // Initialize project dependency graphs
+                graphData.project.forEach((graph, index) => {
+                    const containerId = `project-graph-${index}`;
+                    const container = document.getElementById(containerId);
+                    if (container) {
+                        const chart = echarts.init(container);
+                        chartInstances[containerId] = {
+                            instance: chart,
+                            originalData: graph,
+                            type: 'project'
+                        };
+                        renderGraph(chart, graph);
+                    }
+                });
+            }
+
+            function renderGraph(chart, graphData) {
+                const categories = graphData.categories.map((name, index) => ({
+                    name: name,
+                    itemStyle: {
+                        color: getColorForCategory(index)
+                    }
+                }));
+
+                const option = {
+                    title: {
+                        text: graphData.title,
+                        left: 'center',
+                        textStyle: {
+                            fontSize: 16,
+                            fontWeight: 'bold'
+                        }
+                    },
+                    tooltip: {
+                        trigger: 'item',
+                        formatter: function(params) {
+                            if (params.dataType === 'node') {
+                                return `<strong>${params.data.name}</strong><br/>
+                                       ID: ${params.data.id}<br/>
+                                       Category: ${categories[params.data.category].name}`;
+                            } else if (params.dataType === 'edge') {
+                                return `<strong>${params.data.label}</strong><br/>
+                                       ${params.data.source} → ${params.data.target}<br/>
+                                       Type: ${params.data.relationType}`;
+                            }
+                        }
+                    },
+                    legend: {
+                        data: categories.map(c => c.name),
+                        orient: 'horizontal',
+                        left: 'center',
+                        top: 30
+                    },
+                    series: [{
+                        type: 'graph',
+                        layout: 'force',
+                        data: graphData.nodes.map(node => ({
+                            id: node.id,
+                            name: node.name,
+                            category: node.category,
+                            symbolSize: node.symbolSize,
+                            draggable: true,
+                            itemStyle: {
+                                borderColor: '#fff',
+                                borderWidth: 2
+                            },
+                            label: {
+                                show: true,
+                                position: 'right',
+                                formatter: '{b}',
+                                fontSize: 10
+                            }
+                        })),
+                        links: graphData.edges.map(edge => ({
+                            source: edge.source,
+                            target: edge.target,
+                            label: {
+                                show: false,
+                                formatter: edge.label
+                            },
+                            relationType: edge.relationType,
+                            lineStyle: {
+                                color: getColorForRelationType(edge.relationType),
+                                width: 2,
+                                curveness: 0.1
+                            }
+                        })),
+                        categories: categories,
+                        roam: true, // Enable zoom and pan
+                        focusNodeAdjacency: true,
+                        force: {
+                            repulsion: 1000,
+                            gravity: 0.1,
+                            edgeLength: 100,
+                            layoutAnimation: true
+                        },
+                        emphasis: {
+                            focus: 'adjacency',
+                            lineStyle: {
+                                width: 4
+                            }
+                        }
+                    }]
+                };
+
+                chart.setOption(option);
+                
+                // Handle window resize
+                chart.on('click', function(params) {
+                    if (params.dataType === 'node') {
+                        console.log('Node clicked:', params.data);
+                    }
+                });
+                
+                window.addEventListener('resize', function() {
+                    chart.resize();
+                });
+            }
+
+            function setupRelationFiltering() {
+                document.querySelectorAll('.relation-filter').forEach(checkbox => {
+                    checkbox.addEventListener('change', function() {
+                        const target = this.dataset.target;
+                        const relation = this.dataset.relation;
+                        
+                        if (relation === 'all') {
+                            // Handle "All" checkbox
+                            const allCheckboxes = document.querySelectorAll(`[data-target="${target}"]`);
+                            allCheckboxes.forEach(cb => {
+                                if (cb !== this) {
+                                    cb.checked = this.checked;
+                                }
+                            });
+                        } else {
+                            // Handle individual relation checkboxes
+                            const allCheckbox = document.querySelector(`[data-target="${target}"][data-relation="all"]`);
+                            const individualCheckboxes = document.querySelectorAll(`[data-target="${target}"][data-relation!="all"]`);
+                            const checkedCount = Array.from(individualCheckboxes).filter(cb => cb.checked).length;
+                            
+                            if (allCheckbox) {
+                                allCheckbox.checked = checkedCount === individualCheckboxes.length;
+                            }
+                        }
+                        
+                        // Apply filters
+                        filterGraphsByRelationType(target);
+                    });
+                });
+            }
+
+            function filterGraphsByRelationType(target) {
+                const checkedRelations = Array.from(document.querySelectorAll(`[data-target="${target}"][data-relation!="all"]:checked`))
+                    .map(cb => cb.dataset.relation);
+
+                console.log('Filtering relations:', checkedRelations); // Debug log
+
+                // Filter and re-render graphs
+                Object.keys(chartInstances).forEach(chartId => {
+                    const chartInfo = chartInstances[chartId];
+                    if (chartInfo.type === target) {
+                        const filteredData = {
+                            ...chartInfo.originalData,
+                            edges: chartInfo.originalData.edges.filter(edge => {
+                                console.log('Edge relation type:', edge.relationType); // Debug log
+                                return checkedRelations.includes(edge.relationType);
+                            })
+                        };
+                        console.log('Original edges:', chartInfo.originalData.edges.length, 'Filtered edges:', filteredData.edges.length); // Debug log
+                        renderGraph(chartInfo.instance, filteredData);
+                    }
+                });
+            }
+
+            function getColorForCategory(index) {
+                const colors = [
+                    '#5470c6', '#91cc75', '#fac858', '#ee6666', '#73c0de',
+                    '#3ba272', '#fc8452', '#9a60b4', '#ea7ccc', '#ff9f7f'
+                ];
+                return colors[index % colors.length];
+            }
+
+            function getColorForRelationType(relationType) {
+                const relationColors = {
+                    'Inherits': '#e74c3c',
+                    'Implements': '#3498db',
+                    'Uses': '#2ecc71',
+                    'Calls': '#f39c12',
+                    'Accesses': '#9b59b6',
+                    'Creates': '#1abc9c',
+                    'Declares': '#34495e',
+                    'ProjectReference': '#e67e22',
+                    'AssemblyReference': '#95a5a6'
+                };
+                return relationColors[relationType] || '#7f8c8d';
+            }
+        });
+    </script>
+}
+

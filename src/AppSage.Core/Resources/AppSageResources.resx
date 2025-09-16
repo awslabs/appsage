@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- Top-level constants -->
+  <data name="AppSage.Core.Localization.ConstString.UNKNOWN" xml:space="preserve">
+    <value>Unknown Bingo</value>
+  </data>
+  <data name="AppSage.Core.Localization.ConstString.UNDEFINED" xml:space="preserve">
+    <value>Undefined</value>
+  </data>
+  <data name="AppSage.Core.Localization.ConstString.UNCATEGORIZED" xml:space="preserve">
+    <value>Uncategorized</value>
+  </data>
+  <data name="AppSage.Core.Localization.ConstString.OTHER" xml:space="preserve">
+    <value>Other</value>
+  </data>
+  <data name="AppSage.Core.Localization.ConstString.FRAMEWORK" xml:space="preserve">
+    <value>Framework</value>
+  </data>
+  <data name="AppSage.Core.Localization.ConstString.AGGREGATE" xml:space="preserve">
+    <value>Aggregate</value>
+  </data>
+  
+  <!-- Nested class constants -->
+  <data name="AppSage.Core.Localization.ConstString+DotNet+Reference+Attributes.Name" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="AppSage.Core.Localization.ConstString+DotNet+Reference+Attributes.Version" xml:space="preserve">
+    <value>Version</value>
+  </data>
+  <data name="AppSage.Core.Localization.ConstString+DotNet+Reference+Attributes.Category" xml:space="preserve">
+    <value>Category</value>
+  </data>
+  <data name="AppSage.Core.Localization.ConstString+DotNet+Reference+Attributes.ReferenceType" xml:space="preserve">
+    <value>Reference Type</value>
+  </data>
+  <data name="AppSage.Core.Localization.ConstString+DotNet+Reference+ReferenceType.NUGET" xml:space="preserve">
+    <value>NuGet</value>
+  </data>
+  <data name="AppSage.Core.Localization.ConstString+DotNet+Reference+ReferenceType.DLL" xml:space="preserve">
+    <value>DLL</value>
+  </data>
+</root>

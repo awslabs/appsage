@@ -1,0 +1,285 @@
+﻿@using AppSage.Web;
+@using AppSage.Web.Components.Filter
+@using AppSage.Web.Models.Shared
+@model FilterModel
+@{
+    string filterId = ViewData[ConstString.VIEWDATA_FILTER_ID]?.ToString();
+    string filterName = ViewData[ConstString.VIEWDATA_FILTER_NAME]?.ToString();
+    string filterGroupId = ViewData[ConstString.VIEWDATA_FILTER_GROUP_ID]?.ToString() ?? "default";
+
+    string dropdownWidth = (ViewData[ConstString.VIEWDATA_FILTER_WIDTH]?.ToString() ?? "450")+"px";
+
+}
+
+@Html.RenderAssetOnce($"{GetType().FullName}_Style",
+@<style>
+    .filter-list {
+        max-height: 250px;
+        overflow-y: auto;
+        padding: 10px 15px;
+    }
+
+    .filter-item {
+        margin-bottom: 5px;
+    }
+
+    .filter-counter {
+        font-size: 0.875em;
+        color: #6c757d;
+    }
+
+    /* Dynamic dropdown width for AppSage modern SaaS look */
+    #@(filterId)DropdownMenu {
+        min-width: @dropdownWidth !important;
+        max-width: calc(@dropdownWidth + 150px) !important;
+        width: auto !important;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1) !important;
+        border: 1px solid #e9ecef !important;
+        border-radius: 8px !important;
+    }
+    
+    /* Responsive width adjustments */
+    @@media (min-width: 768px) {
+        #@(filterId)DropdownMenu {
+            min-width: calc(@dropdownWidth + 50px) !important;
+        }
+    }
+    
+    @@media (min-width: 1200px) {
+        #@(filterId)DropdownMenu {
+            min-width: calc(@dropdownWidth + 100px) !important;
+        }
+    }
+</style>
+)
+
+<div class="card-body">
+    <form id="@(filterId)Form" method="post" data-filter-group="@filterGroupId">
+        <div class="dropdown w-100" id="@(filterId)Dropdown">
+            <button class="btn btn-outline-secondary dropdown-toggle w-100 d-flex align-items-center"
+                    type="button"
+                    id="@(filterId)DropdownBtn"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                    data-filter-id="@filterId"
+                    data-filter-group="@filterGroupId">
+                <span class="me-auto">Filter by @filterName </span>
+                <span class="filter-counter"> (<span id="@(filterId)SelectedCount">@(Model.SelectedValues?.Count ?? 0)</span>) items were selected </span>
+            </button>
+            <div class="dropdown-menu p-3"
+                 style="min-width: @dropdownWidth;"
+                 aria-labelledby="@(filterId)DropdownBtn"
+                 id="@(filterId)DropdownMenu"
+                 data-filter-id="@filterId"
+                 data-filter-group="@filterGroupId">
+                <div class="d-flex align-items-center mb-3">
+                    <button type="button" class="btn btn-outline-primary btn-sm me-2 select-all-btn"
+                            id="@(filterId)SelectAllBtn"
+                            data-filter-id="@filterId">
+                        Select All
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm me-2 clear-all-btn"
+                            id="@(filterId)ClearAllBtn"
+                            data-filter-id="@filterId">
+                        Clear All
+                    </button>
+                    <button type="submit" class="btn btn-primary btn-sm apply-filter-btn" data-filter-group="@filterGroupId">Apply Filter</button>
+                </div>
+                <div class="mb-3">
+                    <input type="text"
+                           class="form-control form-control-sm filter-search"
+                           id="@(filterId)Search"
+                           placeholder="Search @filterName.ToLower()..."
+                           data-filter-id="@filterId">
+                </div>
+                <div class="filter-list" id="@(filterId)List" style="max-height: 250px; overflow-y: auto;">
+                    @if (Model.Values != null && Model.Values.Any())
+                    {
+                        @foreach (var item in Model.Values)
+                        {
+                            <div class="filter-item">
+                                <div class="form-check">
+                                    <input class="form-check-input @(filterId)-checkbox"
+                                           type="checkbox"
+                                           name="@(filterId)_@item.GetHashCode()"
+                                           value="true"
+                                           id="@(filterId)_@item.GetHashCode()"
+                                           data-filter-id="@filterId"
+                                    @(Model.SelectedValues.Contains(item) ? "checked" : "")>
+                                    <label class="form-check-label" for="@(filterId)_@item.GetHashCode()">
+                                        @item
+                                    </label>
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="alert alert-info">No items available</div>
+                    }
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+
+
+@Html.RenderAssetOnce($"{GetType().FullName}_Script",
+@<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        /**
+         * Initialize all filter dropdowns on the page
+         */
+        function initializeFilters() {
+            // Find all filter dropdowns
+            document.querySelectorAll('[id$="DropdownBtn"]').forEach(dropdownBtn => {
+                const filterId = dropdownBtn.dataset.filterId;
+                if (!filterId) return;
+
+                initializeFilter(filterId);
+            });
+            
+            // Initialize apply filter button for group submission
+            initializeFilterGroups();
+        }
+        
+        /**
+         * Initialize filter groups to ensure all filters in a group are submitted together
+         */
+        function initializeFilterGroups() {
+            // Get all apply filter buttons
+            document.querySelectorAll('.apply-filter-btn').forEach(applyBtn => {
+                applyBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Get the filter group ID
+                    const filterGroupId = this.dataset.filterGroup;
+                    if (!filterGroupId) return;
+                    
+                    // Find all forms in this filter group
+                    const groupForms = document.querySelectorAll(`form[data-filter-group="${filterGroupId}"]`);
+                    if (!groupForms || groupForms.length === 0) return;
+                    
+                    // Submit the first form which will include all inputs from all forms in the group
+                    const mainForm = groupForms[0];
+                    
+                    // Clone all inputs from other forms in the group and add them to the first form
+                    for (let i = 1; i < groupForms.length; i++) {
+                        const form = groupForms[i];
+                        const inputs = form.querySelectorAll('input[type="checkbox"]:checked');
+                        
+                        inputs.forEach(input => {
+                            // Create a hidden input with the same name and value
+                            const hiddenInput = document.createElement('input');
+                            hiddenInput.type = 'hidden';
+                            hiddenInput.name = input.name;
+                            hiddenInput.value = input.value;
+                            
+                            // Add the hidden input to the main form
+                            mainForm.appendChild(hiddenInput);
+                        });
+                    }
+                    
+                    // Submit the main form
+                    mainForm.submit();
+                });
+            });
+        }
+
+        function initializeFilter(filterId) {
+            const selectAllBtn = document.getElementById(`${filterId}SelectAllBtn`);
+            const clearAllBtn = document.getElementById(`${filterId}ClearAllBtn`);
+            const searchInput = document.getElementById(`${filterId}Search`);
+            const checkboxes = document.querySelectorAll(`.${filterId}-checkbox`);
+            const selectedCountElement = document.getElementById(`${filterId}SelectedCount`);
+            const dropdownBtn = document.getElementById(`${filterId}DropdownBtn`);
+            const dropdownMenu = document.getElementById(`${filterId}DropdownMenu`);
+
+            // Initialize Bootstrap dropdown
+            if (typeof bootstrap !== 'undefined' && dropdownBtn) {
+                const dropdown = new bootstrap.Dropdown(dropdownBtn);
+            }
+
+            // Prevent dropdown from closing when clicking inside it
+            if (dropdownMenu) {
+                dropdownMenu.addEventListener('click', function(e) {
+                    if (e.target.type !== 'submit') {
+                        e.stopPropagation();
+                    }
+                });
+            }
+
+            // Update checkbox counter
+            function updateSelectedCount() {
+                if (!selectedCountElement) return;
+
+                let count = 0;
+                checkboxes.forEach(checkbox => {
+                    if (checkbox.checked) {
+                        count++;
+                    }
+                });
+                selectedCountElement.textContent = count;
+            }
+
+            // Select all visible items
+            if (selectAllBtn) {
+                selectAllBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    checkboxes.forEach(checkbox => {
+                        const item = checkbox.closest('.filter-item');
+                        if (!item || item.style.display !== 'none') {
+                            checkbox.checked = true;
+                        }
+                    });
+                    updateSelectedCount();
+                });
+            }
+
+            // Clear all visible items
+            if (clearAllBtn) {
+                clearAllBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    checkboxes.forEach(checkbox => {
+                        const item = checkbox.closest('.filter-item');
+                        if (!item || item.style.display !== 'none') {
+                            checkbox.checked = false;
+                        }
+                    });
+                    updateSelectedCount();
+                });
+            }
+
+            // Search functionality
+            if (searchInput) {
+                searchInput.addEventListener('input', function() {
+                    const searchTerm = this.value.toLowerCase();
+                    const list = document.getElementById(`${filterId}List`);
+
+                    if (!list) return;
+
+                    Array.from(list.querySelectorAll('.filter-item')).forEach(item => {
+                        const label = item.querySelector('label');
+                        if (!label) return;
+
+                        const itemText = label.textContent.trim().toLowerCase();
+                        item.style.display = itemText.includes(searchTerm) ? '' : 'none';
+                    });
+                });
+            }
+
+            // Add event listeners to checkboxes
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', updateSelectedCount);
+            });
+
+            // Initial count update
+            updateSelectedCount();
+        }
+
+        // Initialize all filters when the page loads
+        initializeFilters();
+    });
+
+</script>)

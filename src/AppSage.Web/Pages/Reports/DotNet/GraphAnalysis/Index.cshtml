@@ -1,0 +1,460 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Graph Analysis";
+    
+    string GetNodeShapeStyle(string shape)
+    {
+        return shape switch
+        {
+            "rectangle" => "border-radius: 0px;",
+            "square" => "border-radius: 0px; width: 16px; height: 16px;",
+            "ellipse" => "border-radius: 50%;",
+            "triangle" => "border-radius: 0px; width: 0; height: 0; border-left: 8px solid transparent; border-right: 8px solid transparent; border-bottom: 16px solid; background: transparent !important;",
+            "diamond" => "border-radius: 0px; transform: rotate(45deg);",
+            "hexagon" => "border-radius: 0px; clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);",
+            "pentagon" => "border-radius: 0px; clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);",
+            "star" => "border-radius: 0px; clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);",
+            "octagon" => "border-radius: 0px; clip-path: polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%);",
+            "roundrectangle" => "border-radius: 8px;",
+            _ => "border-radius: 50%;"
+        };
+    }
+}
+
+@using AppSage.Core.Metric;
+@using AppSage.Web.Extensions;
+@using System.Text.Json;
+@using AppSage.Web.Pages.Reports.DotNet.GraphAnalysis;
+
+<style>
+    .card {
+        margin-bottom: 30px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(88, 87, 87, 0.1);
+    }
+
+    .card-header {
+        background-color: #7a8086;
+        color: white;
+        font-weight: bold;
+        border-radius: 8px 8px 0 0 !important;
+    }
+
+    .graph-header {
+        background-color: #5a6268;
+        color: white;
+    }
+
+    .filter-panel {
+        background-color: #f8f9fa;
+        border: 1px solid #e9ecef;
+        border-radius: 6px;
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+
+    .filter-group {
+        margin-bottom: 15px;
+    }
+
+    .filter-group:last-child {
+        margin-bottom: 0;
+    }
+
+    .filter-label {
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 8px;
+        display: block;
+    }
+
+    .distance-control {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 10px;
+    }
+
+    .distance-control label {
+        min-width: 120px;
+        margin-bottom: 0;
+    }
+
+    .distance-control input[type="range"] {
+        flex: 1;
+    }
+
+    .distance-control .distance-value {
+        min-width: 40px;
+        text-align: center;
+        font-weight: bold;
+    }
+
+    .grouping-control {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 10px;
+    }
+
+    .grouping-control label {
+        margin-bottom: 0;
+        cursor: pointer;
+    }
+
+    #graph-container {
+        width: 100%;
+        height: 800px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        background-color: #ffffff;
+    }
+
+    .graph-controls {
+        margin-bottom: 15px;
+        padding: 10px;
+        background-color: #f8f9fa;
+        border-radius: 6px;
+    }
+
+    .btn-graph-control {
+        margin-right: 10px;
+        margin-bottom: 5px;
+    }
+
+    .legend {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-top: 10px;
+        padding: 15px;
+        background-color: #f8f9fa;
+        border-radius: 6px;
+        border: 1px solid #e9ecef;
+    }
+
+    .legend-section {
+        margin-bottom: 20px;
+    }
+
+    .legend-section h6 {
+        margin-bottom: 10px;
+        color: #495057;
+        font-weight: 600;
+    }
+
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 12px;
+        background-color: #ffffff;
+        border-radius: 4px;
+        border: 1px solid #dee2e6;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .legend-item:hover {
+        background-color: #e3f2fd;
+        border-color: #1976d2;
+    }
+
+    .legend-item.disabled {
+        opacity: 0.5;
+        background-color: #f8f9fa;
+    }
+
+    .legend-symbol {
+        width: 16px;
+        height: 16px;
+        flex-shrink: 0;
+        border: 1px solid rgba(0,0,0,0.1);
+    }
+
+    .node-symbol {
+        display: inline-block;
+    }
+
+    .edge-symbol {
+        display: inline-block;
+        border: none !important;
+    }
+
+    .edge-arrow {
+        width: 0;
+        height: 0;
+    }
+
+    .legend-label {
+        flex-grow: 1;
+        font-size: 14px;
+        color: #495057;
+        user-select: none;
+    }
+
+    .legend-toggle {
+        margin-left: auto;
+        cursor: pointer;
+    }
+
+    .legend-color {
+        width: 16px;
+        height: 16px;
+        border-radius: 3px;
+    }
+
+    .stats-panel {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 15px;
+        padding: 10px;
+        background-color: #e3f2fd;
+        border-radius: 6px;
+    }
+
+    .stat-item {
+        text-align: center;
+    }
+
+    .stat-value {
+        font-size: 1.5em;
+        font-weight: bold;
+        color: #1976d2;
+    }
+
+    .stat-label {
+        font-size: 0.9em;
+        color: #666;
+    }
+
+    .legend-section {
+        margin-bottom: 20px;
+    }
+
+    .legend-symbol {
+        width: 24px;
+        height: 24px;
+        display: inline-block;
+        margin-right: 8px;
+        border-radius: 4px;
+    }
+
+    .edge-arrow {
+        width: 0;
+        height: 0;
+        border-left: 6px solid transparent;
+        border-right: 6px solid transparent;
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+    }
+</style>
+
+<div class="container-fluid px-4 px-xxl-5" style="max-width: 2400px; margin: 0 auto;">
+    <!-- Page header -->
+    <div class="page-header mb-4">
+        <h1 class="text-center"><i class="fa-solid fa-project-diagram me-2"></i>Graph Analysis Dashboard</h1>
+        <p class="text-center mb-0">Generated on @DateTime.Now.ToString("MMMM d, yyyy")</p>
+    </div>
+
+    <!-- Statistics Panel -->
+    <div class="stats-panel">
+        <div class="stat-item">
+            <div class="stat-value" id="node-count">@Model.Dashboard.MainGraph.Nodes.Count</div>
+            <div class="stat-label">Nodes</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value" id="edge-count">@Model.Dashboard.MainGraph.Edges.Count</div>
+            <div class="stat-label">Edges</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value" id="visible-nodes">@Model.Dashboard.MainGraph.Nodes.Count</div>
+            <div class="stat-label">Visible Nodes</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value" id="visible-edges">@Model.Dashboard.MainGraph.Edges.Count</div>
+            <div class="stat-label">Visible Edges</div>
+        </div>
+    </div>
+
+    <!-- Filters Section -->
+    <div class="row">
+        <div class="col-lg-3">
+            <div class="filter-panel">
+                <h5><i class="fa-solid fa-filter me-2"></i>Filters & Controls</h5>
+                
+                <!-- Node Filters -->
+                <div class="filter-group">
+                    <h6 class="text-primary"><i class="fa-solid fa-circle me-2"></i>Node Types</h6>
+                    
+                    <div class="filter-checkbox-container" style="max-height: 200px; overflow-y: auto; border: 1px solid #dee2e6; border-radius: 4px; padding: 8px;">
+                        @foreach (var legendItem in Model.Dashboard.NodeLegend)
+                        {
+                            <div class="filter-checkbox-item" style="display: flex; align-items: center; gap: 8px; padding: 4px 0; cursor: pointer;">
+                                <input type="checkbox" class="form-check-input node-filter-checkbox" 
+                                       id="node-@legendItem.Type" 
+                                       data-node-type="@legendItem.Type" 
+                                       checked 
+                                       style="margin: 0;">
+                                <div class="legend-symbol" 
+                                     style="background-color: @legendItem.Color; 
+                                            @GetNodeShapeStyle(legendItem.Shape)
+                                            width: 16px; 
+                                            height: 16px; 
+                                            border: 1px solid rgba(0,0,0,0.1); 
+                                            flex-shrink: 0;">
+                                </div>
+                                <label class="form-check-label" for="node-@legendItem.Type" 
+                                       style="font-size: 13px; cursor: pointer; margin: 0;" 
+                                       title="@legendItem.Description">
+                                    @legendItem.DisplayName
+                                </label>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- Edge Filters -->
+                <div class="filter-group">
+                    <h6 class="text-success"><i class="fa-solid fa-arrow-right me-2"></i>Edge Types</h6>
+                    
+                    <div class="filter-checkbox-container" style="max-height: 200px; overflow-y: auto; border: 1px solid #dee2e6; border-radius: 4px; padding: 8px;">
+                        @foreach (var legendItem in Model.Dashboard.EdgeLegend)
+                        {
+                            <div class="filter-checkbox-item" style="display: flex; align-items: center; gap: 8px; padding: 4px 0; cursor: pointer;">
+                                <input type="checkbox" class="form-check-input edge-filter-checkbox" 
+                                       id="edge-@legendItem.Type" 
+                                       data-edge-type="@legendItem.Type" 
+                                       checked 
+                                       style="margin: 0;">
+                                <div class="legend-symbol edge-symbol" 
+                                     style="border-bottom: @(legendItem.Width)px @legendItem.LineStyle @legendItem.Color; 
+                                            width: 24px; 
+                                            height: @(legendItem.Width/2 + 2)px; 
+                                            position: relative; 
+                                            flex-shrink: 0;"
+                                     title="@legendItem.Description">
+                                    <div class="edge-arrow" 
+                                         style="border-left: 4px solid @legendItem.Color; 
+                                                border-top: 2px solid transparent; 
+                                                border-bottom: 2px solid transparent; 
+                                                position: absolute; 
+                                                right: 0; 
+                                                top: 50%; 
+                                                transform: translateY(-50%);">
+                                    </div>
+                                </div>
+                                <label class="form-check-label" for="edge-@legendItem.Type" 
+                                       style="font-size: 13px; cursor: pointer; margin: 0;" 
+                                       title="@legendItem.Description">
+                                    @legendItem.DisplayName
+                                </label>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- Grouping Controls -->
+                <div class="filter-group">
+                    <h6 class="text-warning"><i class="fa-solid fa-layer-group me-2"></i>Grouping</h6>
+                    @foreach (var grouping in Model.Dashboard.GroupingConfigs)
+                    {
+                        <div class="grouping-control">
+                            <input type="checkbox" class="form-check-input grouping-checkbox" 
+                                   id="grouping-@grouping.Key" 
+                                   data-grouping-key="@grouping.Key"
+                                   @(grouping.Value.Enabled ? "checked" : "")>
+                            <label class="form-check-label" for="grouping-@grouping.Key">
+                                @grouping.Value.Name
+                            </label>
+                        </div>
+                    }
+                </div>
+
+                <!-- Edge Distance Controls -->
+                <div class="filter-group">
+                    <h6 class="text-info"><i class="fa-solid fa-expand-arrows-alt me-2"></i>Edge Distances</h6>
+                    @foreach (var distance in Model.Dashboard.EdgeDistances)
+                    {
+                        <div class="distance-control">
+                            <label>@distance.Key:</label>
+                            <input type="range" class="form-range distance-slider" 
+                                   min="0" max="100" value="@distance.Value"
+                                   data-edge-type="@distance.Key">
+                            <span class="distance-value">@distance.Value</span>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Graph Visualization -->
+        <div class="col-lg-9">
+            <div class="card">
+                <div class="card-header graph-header">
+                    <h2 class="mb-0 py-2"><i class="fa-solid fa-project-diagram me-2"></i>Dependencies Graph</h2>
+                </div>
+                <div class="card-body">
+                    <!-- Graph Controls -->
+                    <div class="graph-controls">
+                        <button type="button" class="btn btn-outline-primary btn-sm btn-graph-control" id="btn-fit">
+                            <i class="fa-solid fa-expand me-1"></i>Fit to Screen
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary btn-sm btn-graph-control" id="btn-center">
+                            <i class="fa-solid fa-crosshairs me-1"></i>Center
+                        </button>
+                        <button type="button" class="btn btn-outline-info btn-sm btn-graph-control" id="btn-layout">
+                            <i class="fa-solid fa-sitemap me-1"></i>Re-layout
+                        </button>
+                        <button type="button" class="btn btn-outline-success btn-sm btn-graph-control" id="btn-export">
+                            <i class="fa-solid fa-download me-1"></i>Export PNG
+                        </button>
+                        <div class="btn-group btn-graph-control" role="group">
+                            <input type="radio" class="btn-check" name="layout" id="layout-cose" autocomplete="off" checked>
+                            <label class="btn btn-outline-dark btn-sm" for="layout-cose">Cose</label>
+                            <input type="radio" class="btn-check" name="layout" id="layout-circle" autocomplete="off">
+                            <label class="btn btn-outline-dark btn-sm" for="layout-circle">Circle</label>
+                            <input type="radio" class="btn-check" name="layout" id="layout-grid" autocomplete="off">
+                            <label class="btn btn-outline-dark btn-sm" for="layout-grid">Grid</label>
+                        </div>
+                    </div>
+
+                    <!-- Graph Container -->
+                    <div id="graph-container"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Filters {
+    <div class="d-flex align-items-center gap-2">
+        @await Html.FilterPartialAsync(x => x.SegmentFilter, "basicFilterGroup", 600)
+        @await Html.FilterPartialAsync(x => x.ProviderFilter, "basicFilterGroup", 300)
+    </div>
+}
+
+@section Scripts {
+    <script src="https://unpkg.com/cytoscape@3.28.1/dist/cytoscape.min.js"></script>
+   
+    <script src="~/js/reports/dotnet/graph-analysis/graph-analysis.js"></script>
+    
+    <script>
+        // Configuration data passed from Razor to JavaScript
+        const graphAnalysisConfig = {
+            graphData: @Html.Raw(JsonSerializer.Serialize(Model.Dashboard.MainGraph, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase })),
+            edgeDistances: @Html.Raw(JsonSerializer.Serialize(Model.Dashboard.EdgeDistances, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase })),
+            groupingConfigs: @Html.Raw(JsonSerializer.Serialize(Model.Dashboard.GroupingConfigs, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase })),
+            nodeLegend: @Html.Raw(JsonSerializer.Serialize(Model.Dashboard.NodeLegend, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase })),
+            edgeLegend: @Html.Raw(JsonSerializer.Serialize(Model.Dashboard.EdgeLegend, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }))
+        };
+
+        // Initialize the graph analysis when DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            window.initializeGraphAnalysis(graphAnalysisConfig);
+        });
+    </script>
+}
+

@@ -1,0 +1,68 @@
+{
+  "columns": [
+    {
+      "field": "fileName",
+      "headerName": "File Name",
+      "width": 200,
+      "sortable": true,
+      "filter": true,
+      "type": "text"
+    },
+    {
+      "field": "linesOfCode",
+      "headerName": "Lines of Code",
+      "width": 120,
+      "sortable": true,
+      "filter": true,
+      "type": "number"
+    },
+    {
+      "field": "complexity",
+      "headerName": "Complexity",
+      "width": 100,
+      "sortable": true,
+      "filter": true,
+      "type": "number"
+    },
+    {
+      "field": "lastModified",
+      "headerName": "Last Modified",
+      "width": 150,
+      "sortable": true,
+      "filter": true,
+      "type": "date"
+    }
+  ],
+  "rows": [
+    {
+      "fileName": "Program.cs",
+      "linesOfCode": 245,
+      "complexity": 8,
+      "lastModified": "2025-09-07"
+    },
+    {
+      "fileName": "Startup.cs",
+      "linesOfCode": 156,
+      "complexity": 5,
+      "lastModified": "2025-09-06"
+    },
+    {
+      "fileName": "Controller.cs",
+      "linesOfCode": 389,
+      "complexity": 12,
+      "lastModified": "2025-09-08"
+    },
+    {
+      "fileName": "Service.cs",
+      "linesOfCode": 298,
+      "complexity": 9,
+      "lastModified": "2025-09-05"
+    }
+  ],
+  "metadata": {
+    "title": "Code Metrics Summary",
+    "description": "Overview of code complexity and statistics",
+    "totalRows": 4,
+    "source": "AppSage Analysis"
+  }
+}

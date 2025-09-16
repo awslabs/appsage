@@ -1,0 +1,57 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Configurations>Debug;Release;Bingo</Configurations>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Pages\Reports\Database\MSSQL\**" />
+    <Compile Remove="Pages\Reports\Database\Postgres\**" />
+    <Compile Remove="Pages\Reports\DotNet\TestCoverageAnalysis\**" />
+    <Compile Remove="Pages\Reports\Java\GradleAnalysis\**" />
+    <Compile Remove="Pages\Reports\Java\MavenAnalysis\**" />
+    <Content Remove="Pages\Reports\Database\MSSQL\**" />
+    <Content Remove="Pages\Reports\Database\Postgres\**" />
+    <Content Remove="Pages\Reports\DotNet\TestCoverageAnalysis\**" />
+    <Content Remove="Pages\Reports\Java\GradleAnalysis\**" />
+    <Content Remove="Pages\Reports\Java\MavenAnalysis\**" />
+    <EmbeddedResource Remove="Pages\Reports\Database\MSSQL\**" />
+    <EmbeddedResource Remove="Pages\Reports\Database\Postgres\**" />
+    <EmbeddedResource Remove="Pages\Reports\DotNet\TestCoverageAnalysis\**" />
+    <EmbeddedResource Remove="Pages\Reports\Java\GradleAnalysis\**" />
+    <EmbeddedResource Remove="Pages\Reports\Java\MavenAnalysis\**" />
+    <None Remove="Pages\Reports\Database\MSSQL\**" />
+    <None Remove="Pages\Reports\Database\Postgres\**" />
+    <None Remove="Pages\Reports\DotNet\TestCoverageAnalysis\**" />
+    <None Remove="Pages\Reports\Java\GradleAnalysis\**" />
+    <None Remove="Pages\Reports\Java\MavenAnalysis\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ClosedXML" Version="0.105.0" />
+    <PackageReference Include="Serilog.AspNetCore" Version="9.0.0" />
+    <PackageReference Include="Serilog.Enrichers.Environment" Version="3.0.1" />
+    <PackageReference Include="Serilog.Enrichers.Thread" Version="4.0.0" />
+    <PackageReference Include="Serilog.Settings.Configuration" Version="9.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AppSage.Core\AppSage.Core.csproj" />
+    <ProjectReference Include="..\AppSage.Providers\AppSage.Providers.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Pages\Reports\DotNet\PurposeAnalysis\" />
+    <Folder Include="Pages\Reports\DotNet\PackageAnalysis\" />
+    <Folder Include="Pages\Reports\JavaScript\ReactAnalysis\" />
+    <Folder Include="Pages\Reports\JavaScript\NodeAnalysis\" />
+    <Folder Include="Pages\Reports\Ruby\" />
+    <Folder Include="Pages\Reports\PHP\" />
+    <Folder Include="Pages\Reports\Python\" />
+    <Folder Include="Views\Shared\Components\" />
+  </ItemGroup>
+
+</Project>

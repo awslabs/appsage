@@ -1,0 +1,167 @@
+@using AppSage.Web.Extensions;
+@model AppSage.Web.Components.Filter.Table.TableLoadingModel
+
+<div id="@Model.ContainerId" class="table-container" data-metric-name="@Model.MetricTableName" data-page-size="@Model.PageSize">
+    <div class="d-flex justify-content-center align-items-center p-4">
+        <div class="spinner-border text-primary me-3" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <span>Loading @(Model.Title ?? Model.MetricTableName)...</span>
+    </div>
+</div>
+
+@* Global table functions - loaded once per page *@
+@Html.RenderAssetOnce("TableGlobalFunctions",
+@<script>
+    // Global table functions
+    window.navigateTable = function(metricTableName, selectedPageIndex) {
+        console.log('navigateTable called:', metricTableName, selectedPageIndex, 'selectedPageIndex type:', typeof selectedPageIndex);
+        
+        const tableElement = document.getElementById(metricTableName);
+        if (!tableElement) {
+            console.error('Table element not found:', metricTableName);
+            return;
+        }
+        
+        const sortColumn = tableElement.getAttribute('data-sort-column') || '';
+        const sortDirection = tableElement.getAttribute('data-sort-direction') || 'asc';
+        
+        // Get page size from the table container or fallback to finding the container
+        let pageSize = tableElement.getAttribute('data-page-size');
+        if (!pageSize) {
+            // Try to find the container that has the page size data
+            const containerElement = document.querySelector(`[data-metric-name="${metricTableName}"]`);
+            pageSize = containerElement ? containerElement.getAttribute('data-page-size') : '10';
+        }
+
+        // Ensure selectedPageIndex is converted to string
+        const selectedPageIndexStr = String(selectedPageIndex);
+        
+        const currentUrl = new URL(window.location);
+        currentUrl.searchParams.set('handler', 'Table');
+        currentUrl.searchParams.set('metricTableName', metricTableName);
+        currentUrl.searchParams.set('selectedPageIndex', selectedPageIndexStr);
+        currentUrl.searchParams.set('pageSize', pageSize);
+        currentUrl.searchParams.set('sortColumn', sortColumn);
+        currentUrl.searchParams.set('sortDirection', sortDirection);
+
+        console.log('URL being fetched:', currentUrl.toString());
+
+        fetch(currentUrl.toString())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.text();
+            })
+            .then(html => {
+                tableElement.outerHTML = html;
+            })
+            .catch(error => {
+                console.error('Error loading table:', error);
+                if (tableElement) {
+                    tableElement.innerHTML = '<div class="alert alert-danger">Error loading table data. Please refresh the page.</div>';
+                }
+            });
+    };
+
+    window.sortTable = function(metricTableName, column, direction) {
+        console.log('sortTable called:', metricTableName, column, direction);
+        
+        const tableElement = document.getElementById(metricTableName);
+        if (!tableElement) {
+            console.error('Table element not found:', metricTableName);
+            return;
+        }
+
+        // Get page size from the table element or fallback to finding the container
+        let pageSize = tableElement.getAttribute('data-page-size');
+        if (!pageSize) {
+            // Try to find the container that has the page size data
+            const containerElement = document.querySelector(`[data-metric-name="${metricTableName}"]`);
+            pageSize = containerElement ? containerElement.getAttribute('data-page-size') : '10';
+        }
+
+        const currentUrl = new URL(window.location);
+        currentUrl.searchParams.set('handler', 'Table');
+        currentUrl.searchParams.set('metricTableName', metricTableName);
+        currentUrl.searchParams.set('selectedPageIndex', '1');
+        currentUrl.searchParams.set('pageSize', pageSize);
+        currentUrl.searchParams.set('sortColumn', column);
+        currentUrl.searchParams.set('sortDirection', direction);
+
+        fetch(currentUrl.toString())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.text();
+            })
+            .then(html => {
+                tableElement.outerHTML = html;
+            })
+            .catch(error => {
+                console.error('Error sorting table:', error);
+                if (tableElement) {
+                    tableElement.innerHTML = '<div class="alert alert-danger">Error sorting table. Please refresh the page.</div>';
+                }
+            });
+    };
+
+    window.exportTable = function(metricTableName) {
+        console.log('exportTable called:', metricTableName);
+        
+        const currentUrl = new URL(window.location);
+        currentUrl.searchParams.set('handler', 'TableExport');
+        currentUrl.searchParams.set('metricTableName', metricTableName);
+        
+        window.location.href = currentUrl.toString();
+    };
+
+    console.log('Table functions registered globally');
+</script>
+)
+
+@Html.RenderAssetOnce($"table-loading-{Model.MetricTableName}",
+@<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        loadTableData('@Model.MetricTableName', '@Model.ContainerId', @Model.PageSize, '@Model.Title', @Model.AllowExport.ToString().ToLower(), @Model.ShowFooter.ToString().ToLower());
+    });
+    
+    function loadTableData(metricTableName, containerId, pageSize, title, allowExport, showFooter) {
+        console.log('Loading table data for:', metricTableName);
+        
+        const currentUrl = new URL(window.location);
+        currentUrl.searchParams.set('handler', 'Table');
+        currentUrl.searchParams.set('metricTableName', metricTableName);
+        currentUrl.searchParams.set('selectedPageIndex', '1');
+        currentUrl.searchParams.set('pageSize', pageSize);
+        currentUrl.searchParams.set('sortColumn', '');
+        currentUrl.searchParams.set('sortDirection', 'asc');
+        
+        fetch(currentUrl.toString())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.text();
+            })
+            .then(html => {
+                const container = document.getElementById(containerId);
+                if (container) {
+                    container.innerHTML = html;
+                    console.log('Table loaded successfully for:', metricTableName);
+                } else {
+                    console.error('Container not found:', containerId);
+                }
+            })
+            .catch(error => {
+                console.error('Error loading table:', error);
+                const container = document.getElementById(containerId);
+                if (container) {
+                    container.innerHTML = '<div class="alert alert-danger">Error loading table data. Please refresh the page.</div>';
+                }
+            });
+    }
+</script>
+)
