@@ -1,5 +1,6 @@
 ﻿using Amazon.Runtime;
 using Amazon.Runtime.CredentialManagement;
+using AppSage.Core.Configuration;
 using AppSage.Core.Logging;
 using AppSage.Infrastructure;
 
@@ -7,27 +8,32 @@ namespace AppSage.Run
 {
     internal class AWSCredentialProvider:IAWSCredentialProvider
     {
-        private const string DEFAULT_PROFILE = "appsage-profile";
         IAppSageLogger _logger;
-        public AWSCredentialProvider(IAppSageLogger logger)
+        IAppSageConfiguration _config;
+        public AWSCredentialProvider(IAppSageLogger logger,IAppSageConfiguration config)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger), "Logger cannot be null. Please provide a valid logger instance.");
+            _config = config ?? throw new ArgumentNullException(nameof(config), "Configuration cannot be null. Please provide a valid configuration instance.");
         }
         public AWSCredentials GetCredentials()
-        {
-             
-            // Set the AWS_PROFILE environment variable for this process. For the development purpose only. 
-            //Environment.SetEnvironmentVariable("AWS_PROFILE", DEFAULT_PROFILE, EnvironmentVariableTarget.Process);
-             
+        {             
             AWSCredentials? credentials = null;
 
             try
             {
+                string[] profileNameList = _config.Get<string[]>("AppSage.Infrastructure.AWS:CredentialProfileNames");
+
                 // Attempt to retrieve AWS credentials using the credential management store
                 var profileChain = new CredentialProfileStoreChain();
-                if (!profileChain.TryGetAWSCredentials(DEFAULT_PROFILE, out credentials))
+                
+                if(profileNameList == null || profileNameList.Length == 0)
                 {
-                    // Fallback to environment variables and default credential chain
+                    //If no profile name is given, fall back to default credential chain on the running machine
+                    credentials = new EnvironmentVariablesAWSCredentials();
+                }
+                else if (!profileChain.TryGetAWSCredentials(profileNameList[0], out credentials)) 
+                {
+                    // If the credential profile is invalid or non existing, fallback to environment variables and default credential chain
                     credentials = new EnvironmentVariablesAWSCredentials();
                 }
                 
