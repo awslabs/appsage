@@ -12,7 +12,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AppSage.Run.CommandSet.Providers
+namespace AppSage.Run.CommandSet.Provider
 {
     internal class Start
     {

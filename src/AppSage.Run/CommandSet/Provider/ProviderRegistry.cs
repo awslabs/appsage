@@ -6,7 +6,7 @@ using AppSage.Providers.DotNet.DependencyAnalysis;
 using AppSage.Providers.Repository;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace AppSage.Run.CommandSet.Providers
+namespace AppSage.Run.CommandSet.Provider
 {
     public static class ProviderRegistry
     {

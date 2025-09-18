@@ -28,25 +28,6 @@ namespace AppSage.MCPServer
 
         private static IServiceCollection InitializeCoreServices(IServiceCollection services)
         {
-            // Get the current assembly directory
-            string directory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            string configDirectory = Path.Combine(directory, "Configuration");
-
-#if DEBUG
-            string configFileName = "appsettings.Development.json";
-#elif RELEASE
-            string configFileName = "appsettings.Production.json";
-#else
-            throw new InvalidOperationException("Unknown build configuration. Please define DEBUG or RELEASE. Make sure you have the correct configuration file.");
-#endif
-
-            var config = new ConfigurationBuilder()
-                .SetBasePath(configDirectory)
-                .AddJsonFile(configFileName, optional: true, reloadOnChange: true)
-                .Build();
-
-            // Add the configuration to the service collection
-            services.AddSingleton<IConfiguration>(sp => config);
             services.AddSingleton<IAppSageConfiguration, AppSageConfiguration>();
 
             IServiceProvider preSetupProvider = services.BuildServiceProvider();

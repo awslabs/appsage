@@ -2,7 +2,7 @@
 using AppSage.Core.Logging;
 using AppSage.Core.Metric;
 
-namespace AppSage.Run.CommandSet.Providers
+namespace AppSage.Run.CommandSet.Provider
 {
     public class Runner
     {
