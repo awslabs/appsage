@@ -60,8 +60,7 @@ namespace AppSage.Run.CommandSet.Init
                 di = new DirectoryInfo(Environment.CurrentDirectory);
             }
 
-            AppSageWorkspaceManager wsManager = new AppSageWorkspaceManager(di.FullName, _logger);
-            return wsManager.Initialize();
+            return AppSageWorkspaceManager.Initialize(di.FullName, _logger);
         }
 
 

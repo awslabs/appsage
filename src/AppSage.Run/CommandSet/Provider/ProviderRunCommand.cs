@@ -5,48 +5,62 @@ using AppSage.Core.Metric;
 using AppSage.Core.Workspace;
 using AppSage.Infrastructure.Caching;
 using AppSage.Infrastructure.Workspace;
+using AppSage.Run.CommandSet.Root;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
+using System.CommandLine;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace AppSage.Run.CommandSet.Provider
 {
-    internal class Start
+    public record ProviderRunOptions
     {
 
-        public static void Execute(IServiceCollection services)
+    }
+    public sealed class ProviderRunCommand : ISubCommand<ProviderOptions>
+    {
+        private Runner _runner;
+        public ProviderRunCommand(IServiceCollection services)
         {
             var serviceProvider = services.BuildServiceProvider();
-            //this now has all the services including providers
-            var appSageConfig = serviceProvider.GetRequiredService<IAppSageConfiguration>();
-            string workspaceRoot = appSageConfig.Get<string>("AppSage.Core:WorkspaceRoot");
-            
-            services.AddSingleton<IAppSageWorkspace>(sp =>
-            {
-                var logger = sp.GetRequiredService<IAppSageLogger>();
-                return new AppSageWorkspaceManager(workspaceRoot, logger);
-            });
-
             ProviderRegistry.RegisterProviders(services);
-            services.AddSingleton<IAppSageCache, FileSystemCache>();
-
             //tentatively registering all metric providers they will be added later based on configuration
             services.AddTransient<IMetricProvider[]>(sp => sp.GetServices<IMetricProvider>().ToArray());
-
             // Register the main runner service that will execute all providers
             services.AddTransient<Runner>();
 
-            //_logger.LogInformation("Registering providers");
             serviceProvider = services.BuildServiceProvider();
 
-            //_logger.LogInformation("Building final service collection");
-           
             // Get the runner service and execute it to run the registered providers
-            var runner = serviceProvider.GetRequiredService<Runner>();
-            runner.Run();
+            _runner = serviceProvider.GetRequiredService<Runner>();
         }
+
+        public string Name => "run";
+        public string Description => "Run the set of AppSage providers";
+
+        public Command Build()
+        {
+            var cmd = new Command(this.Name, this.Description);
+            var argWorkspaceFolder = AppSageRootCommand.GetWorkspaceArgument();
+            cmd.Add(argWorkspaceFolder);
+            cmd.SetAction(pr =>
+            {
+                ProviderOptions options = new ProviderOptions();
+                return this.Execute(options);
+            });
+            return cmd;
+        }
+        public int Execute(ProviderOptions opt)
+        {
+            _runner.Run();
+
+
+            return 0;
+        }
+
+
     }
 }

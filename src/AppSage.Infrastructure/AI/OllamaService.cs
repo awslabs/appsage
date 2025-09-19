@@ -19,7 +19,6 @@ namespace AppSage.Infrastructure.AI
             _logger = logger;
             _cache = cache;
             var baseUrl = _configuration.Get<string>("AppSage.Infrastructure.AI.OllamaService:BaseUrl");
-            _logger.LogInformation($"Ollama base url {baseUrl}");
         }
 
         public static class Models

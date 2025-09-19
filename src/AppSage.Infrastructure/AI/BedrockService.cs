@@ -34,7 +34,7 @@ namespace AppSage.Infrastructure.AI
             _logger = logger ?? throw new ArgumentNullException(nameof(logger), "Logger cannot be null. Please provide a valid logger instance.");
             _awsCredentialProvider = credentialProvider ?? throw new ArgumentNullException(nameof(credentialProvider), "Credential provider cannot be null. Please provide a valid credential provider instance.");
             _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration), "Configuration cannot be null. Please provide a valid configuration instance.");
-            _semaphore = new SemaphoreSlim(_configuration.Get<int>("AppSage.Infrastructure.AI.Bedrock:MaxConcurrency"));
+            _semaphore = new SemaphoreSlim(_configuration.Get<int>("AppSage.Infrastructure.AI.Bedrock:MaxConcurrentThreads"));
         }
 
         public static class Models

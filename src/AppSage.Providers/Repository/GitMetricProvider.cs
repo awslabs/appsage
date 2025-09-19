@@ -24,6 +24,8 @@ namespace AppSage.Providers.Repository
 
         public string FullQualifiedName => GetType().FullName;
 
+        public string Description => "Provide Git based repository statistics and information.";
+
         public void Run(IMetricCollector metrics)
         {
 

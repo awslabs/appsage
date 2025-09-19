@@ -12,6 +12,8 @@ using AppSage.Run.CommandSet.Root;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
+using Serilog.Events;
+using Serilog.Formatting.Display;
 using System.CommandLine;
 using System.Globalization;
 using System.Net.NetworkInformation;
@@ -28,10 +30,10 @@ namespace AppSage.Run
             // Initialize the counting sink BEFORE configuring services
             _countingSink = new CountingSink();
             IServiceCollection services = new ServiceCollection();
-            services = InitializeCoreServices(services);
+            services = InitializeCoreServices(services,null);
             var serviceProvider = services.BuildServiceProvider();
             var logger = serviceProvider.GetRequiredService<IAppSageLogger>();
-            var config = serviceProvider.GetRequiredService<IAppSageConfiguration>();
+
 
             try
             {
@@ -39,7 +41,7 @@ namespace AppSage.Run
                 //args=new string[] {"init"};
                 //args = new string[] { "init", "-ws", @"C:\Temp\bingo2" };
                 //args = new string[] { "init" };
-                args = new string[] { "provider", "-ws", "C:\\Temp\\bingo2\\Logs" };
+                args = new string[] { "provider","run","-ws", "C:\\Temp\\bingo" };
 
                 RootCommand rootCommand = new RootCommand
                 {
@@ -48,30 +50,20 @@ namespace AppSage.Run
                 var argWorkspaceFolder = AppSageRootCommand.GetWorkspaceArgument();
                 rootCommand.Add(argWorkspaceFolder);
 
-
                 ISubCommand initSubCommand = new InitCommand(logger);
-
-                ISubCommand[] subCommands = new ISubCommand[]
-                {
-                    initSubCommand
-                };
-
-                foreach (var subCommand in subCommands)
-                {
-                    rootCommand.Add(subCommand.Build());
-                }
-
+                rootCommand.Add(initSubCommand.Build());
                 var parseResult = rootCommand.Parse(args);
-
-                //We need to handle the init command differently because unlike other commands it does not need a resolved appsage workspace
                 var initCommand = rootCommand.Children.OfType<Command>().FirstOrDefault(c => c.Name == (initSubCommand.Name));
+
                 if (parseResult.CommandResult.Command == initCommand)
                 {
+                    //We need to handle the init command differently because unlike other commands it does not need a resolved AppSage workspace
                     return parseResult.Invoke();
                 }
                 else
-                {
+                {   //All other commands need an AppSage workspace. The workspace has to be resolved first.
                     var workspaceRoot = ResolveWorkspaceRoot(args);
+
                     if (string.IsNullOrEmpty(workspaceRoot))
                     {
                         logger.LogError("Failed to resolve the workspace root folder. Ensure that the specified folder is a valid AppSage workspace or contains an AppSage workspace.");
@@ -80,19 +72,34 @@ namespace AppSage.Run
                     }
                     else
                     {
-                        //All other commands need a workspace. The workspace has to be resolved first. 
+                        IAppSageWorkspace appSageWorkspace = new AppSageWorkspaceManager(workspaceRoot, logger);
+                        IAppSageConfiguration appSageConfig = new AppSageConfiguration(appSageWorkspace.AppSageConfigFilePath);
+                        //Re-initialize core services with the configuration now
+                        //Dispose the previous service provider
+                        if (serviceProvider is IDisposable disposable)
+                        {
+                            disposable.Dispose();
+                        }
+                        services = new ServiceCollection();
+                        services.AddSingleton<IAppSageWorkspace>(appSageWorkspace);
+                        services.AddSingleton<IAppSageConfiguration>(appSageConfig);
+                        services = InitializeCoreServices(services, appSageConfig);
+
+                        var commandRegistry = GetCommandRegistry(services);
+                        foreach (var cmd in commandRegistry)
+                        {
+                            rootCommand.Add(cmd.Build());
+                        }
+
                         logger.LogInformation($"Using workspace root folder: {workspaceRoot}");
                         var aliases = new List<string>() { argWorkspaceFolder.Name };
                         aliases.AddRange(argWorkspaceFolder.Aliases);
                         var newArgs = ForceOptionValue(args, workspaceRoot, aliases.ToArray());
-                        var parse2Result = rootCommand.Parse(newArgs);
-
-                        return parse2Result.Invoke();
+                        parseResult = rootCommand.Parse(newArgs);
+                        
+                        return parseResult.Invoke();
                     }
                 }
-
-
-
             }
             catch (Exception ex)
             {
@@ -115,6 +122,16 @@ namespace AppSage.Run
             Console.WriteLine("Press any key to exit...");
             Console.ReadKey();
             return 0;
+        }
+
+        private static List<ISubCommand> GetCommandRegistry(IServiceCollection serviceCollection)
+        {
+            var commands = new List<ISubCommand>();
+           
+            commands.Add(new ProviderCommand(serviceCollection));
+
+
+            return commands;
         }
 
         private static string[] ForceOptionValue(string[] args,string forcedValue,string[] optionAliases)
@@ -165,57 +182,32 @@ namespace AppSage.Run
             return workspaceRoot;
         }
 
-
-
-        /// <summary>
-        /// Configure core services like logging, configuration, caching, localization & workspace mangement
-        /// </summary>
-        /// <returns>Service collection</returns>
-        /// 
-
-
-        private static IServiceCollection InitializeCoreServices(IServiceCollection services)
-        {
-            services.AddSingleton<IAppSageConfiguration, AppSageConfiguration>();
-
-            IServiceProvider preSetupProvider = services.BuildServiceProvider();
-            var appSageConfig = preSetupProvider.GetService<IAppSageConfiguration>();
-            ConfigureSerilog(appSageConfig);
-            // Add Serilog
-            services.AddSingleton(Log.Logger);
-            // Register the logger as a singleton (one instance for the entire application)
-            services.AddSingleton<IAppSageLogger, AppSageLogger>();
-
-            preSetupProvider = services.BuildServiceProvider();
-
-            // Add services required for localization
-
-
-            //Initialize the localization
-            var cultureName = Environment.GetEnvironmentVariable("APPSAGE_CULTURE") ?? "en-US";
-            Thread.CurrentThread.CurrentCulture = new CultureInfo(cultureName);
-            Thread.CurrentThread.CurrentUICulture = new CultureInfo(cultureName);
-            // Initialize all LocalizationManager derived classes automatically
-            LocalizationManager.InitializeAll();
-
-
-            return services;
-        }
-        private static void ConfigureSerilog(IAppSageConfiguration config)
+        private static IServiceCollection InitializeCoreServices(IServiceCollection services,IAppSageConfiguration appSageConfig)
         {
             var logger = new LoggerConfiguration()
-                .WriteTo.Sink(_countingSink)
-                .MinimumLevel.Debug()
-                .WriteTo.Console()
-                .Enrich.FromLogContext()
-                .Enrich.WithThreadId()
-                .Enrich.WithMachineName();
+           .WriteTo.Sink(_countingSink)
+           .MinimumLevel.Debug()
+           .Enrich.FromLogContext()
+           .Enrich.WithThreadId()
+           .Enrich.WithMachineName();
+
+            //We will always log to the console with the look and feel of a Console.WriteLine for Information level messages. 
+            logger.WriteTo.Logger(lc => lc
+                        .Filter.ByIncludingOnly(e => e.Level == LogEventLevel.Information)
+                        .WriteTo.Console(formatter: new MessageTemplateTextFormatter("{Message:lj}{NewLine}", null)
+            ));
+            // Console sink for all *non-Information* levels (default format)
+            logger.WriteTo.Logger(lc => lc
+                .Filter.ByExcluding(e => e.Level == LogEventLevel.Information)
+                .WriteTo.Console() // default Serilog console theme/formatter
+            );
+
 
             string logKey = "AppSage.Core:LogFolder";
 
-            if (config.KeyExist(logKey))
+            if (appSageConfig != null && appSageConfig.KeyExist(logKey))
             {
-                string logFolder = config.Get<string>(logKey);
+                string logFolder = appSageConfig.Get<string>(logKey);
                 if (!string.IsNullOrWhiteSpace(logFolder) && Directory.Exists(logFolder))
                 {
                     logger.WriteTo.File(Path.Combine(logFolder, "appSage-.log"), rollingInterval: RollingInterval.Day);
@@ -227,6 +219,21 @@ namespace AppSage.Run
             }
             // Create Serilog logger
             Log.Logger = logger.CreateLogger();
+
+
+            // Add Serilog
+            services.AddSingleton(Log.Logger);
+            // Register the logger as a singleton (one instance for the entire application)
+            services.AddSingleton<IAppSageLogger, AppSageLogger>();
+
+            //Initialize the localization
+            var cultureName = Environment.GetEnvironmentVariable("APPSAGE_CULTURE") ?? "en-US";
+            Thread.CurrentThread.CurrentCulture = new CultureInfo(cultureName);
+            Thread.CurrentThread.CurrentUICulture = new CultureInfo(cultureName);
+            // Initialize all LocalizationManager derived classes automatically
+            LocalizationManager.InitializeAll();
+
+            return services;
         }
 
 

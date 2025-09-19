@@ -1,6 +1,13 @@
 ﻿namespace AppSage.Core.Workspace
 {
-    public interface IAppSageWorkspace
+    public interface IAppSageWorkspace: IAppSageWorkspacePaths
+    {
+        string GetResourceName(string path);
+
+        string GetRepositoryName(string path);
+    }
+
+    public interface IAppSageWorkspacePaths
     {
         //input folders
         protected const string REPOSITORIES_ROOT_FOLDER_NAME = "Repositories";
@@ -20,6 +27,7 @@
 
         //Hidden AppSage config folder
         protected const string APPSAGE_CONFIG_ROOT_FOLDER_NAME = ".AppSageConfig";
+        protected const string APPSAGE_CONFIG_FILENAME = "AppSageConfig.json";
 
         string RootFolder { get; }
 
@@ -36,12 +44,7 @@
         string ProviderFolder => Path.Combine(RootFolder, PROVIDER_ROOT_FOLDER_NAME);
 
         string AppSageConfigFolder => Path.Combine(RootFolder, APPSAGE_CONFIG_ROOT_FOLDER_NAME);
+        string AppSageConfigFilePath => Path.Combine(AppSageConfigFolder, APPSAGE_CONFIG_FILENAME);
         string CacheFolder => Path.Combine(RootFolder, CACHE_ROOT_FOLDER_NAME);
-
-        
-
-        string GetResourceName(string path);
-
-        string GetRepositoryName(string path);
     }
 }

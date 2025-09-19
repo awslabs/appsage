@@ -60,6 +60,8 @@ namespace AppSage.Providers.DotNet.DependencyAnalysis
 
         public string FullQualifiedName => GetType().FullName;
 
+        public string Description => "Provides advanced .NET code dependency analysis";
+
         public void Run(IMetricCollector collector)
         {
             try

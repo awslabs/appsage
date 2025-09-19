@@ -37,6 +37,8 @@ namespace AppSage.Providers.DotNet.BasicCodeAnalysis
 
         public string FullQualifiedName => GetType().FullName;
 
+        public string Description => "Provides basic .NET code analysis";
+
         public void Run(IMetricCollector metrics)
         {
             try

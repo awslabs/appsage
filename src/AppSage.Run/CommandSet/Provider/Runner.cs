@@ -9,15 +9,12 @@ namespace AppSage.Run.CommandSet.Provider
         private readonly IAppSageConfiguration _configure;
         private readonly IAppSageLogger _logger;
         private readonly IMetricProvider[] _providers;
-
-
         public Runner(IAppSageLogger logger, IMetricProvider[] providers,  IAppSageConfiguration config)
         {
             _logger = logger;
             _providers = providers;
             _configure = config;
         }
-
         public void Run()
         {
 

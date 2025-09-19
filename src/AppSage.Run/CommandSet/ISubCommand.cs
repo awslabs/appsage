@@ -14,4 +14,9 @@ namespace AppSage.Run.CommandSet
     {
         int Execute(TOptions options);
     }
+
+    public interface  ISubCommandWithNoOptions:ISubCommand
+    {
+        int Execute();
+    }
 }

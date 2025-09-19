@@ -6,13 +6,28 @@ namespace AppSage.Infrastructure.Workspace
 {
     public class AppSageWorkspaceManager : IAppSageWorkspace
     {
- 
-        private const string _APPSAGE_CONFIG_FILENAME = "AppSageConfig.json";
+        private class AppSageWorkspacePathProvider : IAppSageWorkspacePaths
+        {
+            private readonly string _rootFolder;
+            public AppSageWorkspacePathProvider(string rootFolder)
+            {
+                _rootFolder = rootFolder;
+            }
+            string IAppSageWorkspacePaths.RootFolder => _rootFolder;
+        }
+
+      
 
         private readonly string _rootFolder;
         private readonly IAppSageLogger _logger;
         public AppSageWorkspaceManager(string rootFolder, IAppSageLogger logger)
         {
+            string resolvedFolder = ResolveWorkspaceRootFolder(rootFolder, logger);
+            if(string.IsNullOrEmpty(resolvedFolder))
+            {
+                throw new ArgumentException($"The specified folder [{rootFolder}] is not part of an existing AppSage workspace. Please initialize the workspace first by running 'appsage init -ws <folder>'");
+            }
+
             _rootFolder = rootFolder;
             _logger = logger;
         }
@@ -21,83 +36,86 @@ namespace AppSage.Infrastructure.Workspace
 
 
 
-        public int Initialize()
+        public static int Initialize(string rootFolder, IAppSageLogger logger)
         {
-            DirectoryInfo di = new DirectoryInfo(_rootFolder);
-            
+            DirectoryInfo di = new DirectoryInfo(rootFolder);
+            string resolvedFolder = ResolveWorkspaceRootFolder(rootFolder, logger);
             string messagePrefix = "Creating";
-            
-            if (di.Exists && !IsExistingAppSageWorkspace() && (di.EnumerateDirectories().Any() || di.GetFiles().Any()))
+
+            if (String.IsNullOrEmpty(resolvedFolder))
             {
-                _logger.LogError($"The specified workspace folder [{di.FullName}] already exists and is not empty. Please specify a non-existing or empty folder.");
-                return -1;
+                logger.LogInformation($"The specified folder [{di.FullName}] is not part of an existing AppSage workspace.");
             }
-            else if(IsExistingAppSageWorkspace())
+            else
             {
-                _logger.LogInformation($"The specified workspace folder [{di.FullName}] is already an AppSage workspace. We will repair it, if it is broken.");
+                logger.LogInformation($"The specified folder [{di.FullName}] is already a part of an existing AppSage workspace at [{resolvedFolder}].");
+                logger.LogInformation($"You can't have nested AppSage workspaces. We will use [{resolvedFolder} as the workspace. If it is corrupted, we will try to repair it.]");
+                di= new DirectoryInfo(resolvedFolder);
                 messagePrefix = "Repairing";
             }
 
-            _logger.LogInformation("Initializing workspace");
+            if (di.Exists && String.IsNullOrEmpty(resolvedFolder) && (di.EnumerateDirectories().Any() || di.GetFiles().Any()))
+            {
+                logger.LogError($"The specified workspace folder [{di.FullName}] already exists and is not empty. Please specify a non-existing or empty folder.");
+                return -1;
+            }
+       
+
+            logger.LogInformation("Initializing workspace");
 
             try
             {
-                IAppSageWorkspace ws = this as IAppSageWorkspace;
+                IAppSageWorkspacePaths ws = new AppSageWorkspacePathProvider(di.FullName);
 
-                _logger.LogInformation($"{messagePrefix} [{ws.RootFolder}]. This is the root of your workspace");
-                Directory.CreateDirectory(RootFolder);
-                _logger.LogInformation($"{messagePrefix} [{ws.RepositoryFolder}]. This is where you put all your code repositories. You have to keep seperate folders for each repository.");
+
+                logger.LogInformation($"{messagePrefix} [{ws.RootFolder}]. This is the root of your workspace");
+                Directory.CreateDirectory(ws.RootFolder);
+                logger.LogInformation($"{messagePrefix} [{ws.RepositoryFolder}]. This is where you put all your code repositories. You have to keep seperate folders for each repository.");
                 Directory.CreateDirectory(ws.RepositoryFolder);
-                _logger.LogInformation($"{messagePrefix} [{ws.DatabaseSchemaFolder}]. This is where you keep your database schemas. You have to keep seperate folders for each database.");
+                logger.LogInformation($"{messagePrefix} [{ws.DatabaseSchemaFolder}]. This is where you keep your database schemas. You have to keep seperate folders for each database.");
                 Directory.CreateDirectory(ws.DatabaseSchemaFolder);
 
-                _logger.LogInformation($"{messagePrefix} [{ws.ProviderOutputFolder}]. This is where all tooling output after code scan will be saved.");
+                logger.LogInformation($"{messagePrefix} [{ws.ProviderOutputFolder}]. This is where all tooling output after code scan will be saved.");
                 Directory.CreateDirectory(ws.ProviderOutputFolder);
 
-                _logger.LogInformation($"{messagePrefix} [{ws.MCPServerOutputFolder}]. If a query to AppSage MCP server generates a file/files, this is where those files will be saved.");
+                logger.LogInformation($"{messagePrefix} [{ws.MCPServerOutputFolder}]. If a query to AppSage MCP server generates a file/files, this is where those files will be saved.");
                 Directory.CreateDirectory(ws.MCPServerOutputFolder);
 
-                _logger.LogInformation($"{messagePrefix} [{ws.LogsFolder}]. This is where all logs will be saved.");
+                logger.LogInformation($"{messagePrefix} [{ws.LogsFolder}]. This is where all logs will be saved.");
                 Directory.CreateDirectory(ws.LogsFolder);
 
-                _logger.LogInformation($"{messagePrefix} [{ws.ProviderFolder}]. This is where all provider plugins should be placed. One folder for each plugin.");
+                logger.LogInformation($"{messagePrefix} [{ws.ProviderFolder}]. This is where all provider plugins should be placed. One folder for each plugin.");
                 Directory.CreateDirectory(ws.ProviderFolder);
 
 
-                _logger.LogInformation($"{messagePrefix} hidden AppSage config folder folder [{ws.AppSageConfigFolder}]. Used by AppSage to identify configuration.");
+                logger.LogInformation($"{messagePrefix} hidden AppSage config folder folder [{ws.AppSageConfigFolder}]. Used by AppSage to identify configuration.");
                 Directory.CreateDirectory(ws.AppSageConfigFolder);
                 File.SetAttributes(ws.AppSageConfigFolder, File.GetAttributes(ws.AppSageConfigFolder) | FileAttributes.Hidden);
 
                 //Copyt the default config file
                 string defaultConfigFile =AppSageConfiguration.GetDefaultConfigFilePath();
-                string destinationConfigFile = Path.Combine(ws.AppSageConfigFolder, _APPSAGE_CONFIG_FILENAME);
+                string destinationConfigFile = ws.AppSageConfigFilePath;
+                logger.LogInformation($"{messagePrefix} the AppSage config file [{destinationConfigFile}]. This is where workspace related AppSage configurations are kept.");
                 File.Copy(defaultConfigFile, destinationConfigFile, true);
                 IAppSageConfigurationWriter writer= new AppSageConfiguration(destinationConfigFile);
                 writer.Set("AppSage.Core:WorkspaceRootFolder", ws.RootFolder);
                 writer.Set("AppSage.Core:LogFolder", ws.LogsFolder);
 
-                _logger.LogInformation($"{messagePrefix} hidden cache folder [{ws.CacheFolder}]. Used by AppSage for internal caching.");
+                logger.LogInformation($"{messagePrefix} hidden cache folder [{ws.CacheFolder}]. Used by AppSage for internal caching.");
                 Directory.CreateDirectory(ws.CacheFolder);
                 File.SetAttributes(ws.CacheFolder, File.GetAttributes(ws.CacheFolder) | FileAttributes.Hidden);
-                _logger.LogInformation($"AppSage workspace succefully initialized at [{RootFolder}]");
+                logger.LogInformation($"AppSage workspace succefully initialized at [{ws.RootFolder}]");
             }
             catch (Exception ex)
             {
-                _logger.LogError("Error initializing workspace", ex);
+                logger.LogError("Error initializing workspace", ex);
                 return -1;
             }
             return 0;
         }
 
-        private bool IsExistingAppSageWorkspace()
-        {
-            //we check for the presence of the AppSageConfig.json file to determine if this is an existing workspace
-            IAppSageWorkspace ws = this as IAppSageWorkspace;
-            string appsageConfigFile = Path.Combine(ws.AppSageConfigFolder, _APPSAGE_CONFIG_FILENAME);
-            return File.Exists(appsageConfigFile);
-        }
 
-        public static  string ResolveWorkspaceRootFolder(string folder)
+        public static  string ResolveWorkspaceRootFolder(string folder, IAppSageLogger logger=null)
         {
             string resolvedWorkspaceRootFolder = null; 
             //we check for the presence of the AppSageConfig.json file to determine if this is an existing workspace
@@ -106,18 +124,23 @@ namespace AppSage.Infrastructure.Workspace
             while (foldersToCheck.Count > 0) { 
                 string currentFolder = foldersToCheck.Pop();
                 DirectoryInfo currentDi = new DirectoryInfo(currentFolder);
-                string appsageConfigFile = Path.Combine(currentDi.FullName, IAppSageWorkspace.APPSAGE_CONFIG_ROOT_FOLDER_NAME, _APPSAGE_CONFIG_FILENAME);
+                string appsageConfigFile = Path.Combine(currentDi.FullName, IAppSageWorkspace.APPSAGE_CONFIG_ROOT_FOLDER_NAME, IAppSageWorkspace.APPSAGE_CONFIG_FILENAME);
                 if (File.Exists(appsageConfigFile))
                 {
-                    IAppSageConfiguration config= new AppSageConfiguration(appsageConfigFile);
+                    var config= new AppSageConfiguration(appsageConfigFile);
                     string rootFolderKey = "AppSage.Core:WorkspaceRootFolder";
                     if (config.KeyExist(rootFolderKey))
                     {
                         string configuredRootFolder = config.Get<string>(rootFolderKey);
                         DirectoryInfo configValue = new DirectoryInfo(configuredRootFolder);
-                        if (configValue.FullName != currentDi.FullName)
+                        if ((configValue.FullName != currentDi.FullName) && logger!=null)
                         {
-                            throw new InvalidOperationException($"The configuration file [{appsageConfigFile}]'s key {rootFolderKey} indicates that the workspace root folder is [{configuredRootFolder}], but it was found in [{currentFolder}]. This is an invalid state. Please fix the configuration file or move it to the correct location.");
+                            logger.LogWarning($"""
+                                The AppSage configuration file [{appsageConfigFile}]'s key {rootFolderKey} indicates that the workspace root folder is [{configuredRootFolder}].
+                                But it was found in [{currentDi.FullName}]. This is an invalid state & can sometimes happen when you copy folders. 
+                                Please repair the configuration by running [appsage init -ws {currentDi.FullName}].
+                                """);
+                           
                         }
                         return configuredRootFolder;
                     }

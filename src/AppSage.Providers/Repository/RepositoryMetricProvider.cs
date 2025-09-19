@@ -13,6 +13,8 @@ namespace AppSage.Providers.Repository
         private int MAX_PARALLEL_SCANS = Math.Min(4, Environment.ProcessorCount);
         public string FullQualifiedName => this.GetType().FullName;
 
+        public string Description => "Provides basic repository information. It identifies content based on file types";
+
         private Dictionary<string, FileExtensionClassification> _fileExtensionClassification = FileExtensionClassification.GetComprehensiveFileTypes();
         public RepositoryMetricProvider(IAppSageLogger logger, IAppSageWorkspace workspace)
         {

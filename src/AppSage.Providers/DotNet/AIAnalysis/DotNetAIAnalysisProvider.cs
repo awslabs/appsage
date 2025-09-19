@@ -24,6 +24,8 @@ namespace AppSage.Providers.DotNet.AIAnalysis
         private IAIQuery _aiQuery;
         public string FullQualifiedName => GetType().FullName;
 
+        public string Description => "Provide advaned .NET analysis with AI";
+
         public DotNetAIAnalysisProvider(IAppSageLogger logger, IServiceProvider serviceProvider, IAppSageWorkspace workspace, IAppSageConfiguration configuration)
         {
 
