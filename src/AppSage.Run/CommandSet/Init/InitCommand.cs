@@ -1,11 +1,7 @@
-﻿using AppSage.Core.Configuration;
-using AppSage.Core.Logging;
-using AppSage.Infrastructure;
+﻿using AppSage.Core.Logging;
 using AppSage.Infrastructure.Workspace;
 using AppSage.Run.CommandSet.Root;
-using Microsoft.Extensions.DependencyInjection;
 using System.CommandLine;
-using System.Security.Cryptography;
 namespace AppSage.Run.CommandSet.Init
 {
     public record InitOptions
