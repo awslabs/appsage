@@ -26,10 +26,6 @@ public static class SampleGraphFilter2
             var adjacentNodes = sourceGraph.GetAdjacentNodes(originalNode).ToList();
             var predecessors = sourceGraph.GetPredecessors(originalNode).ToList();
 
-            // Add calculated connectivity attributes
-            enhancedNode.AddOrUpdateAttribute("InDegree", incomingEdges.Count.ToString());
-            enhancedNode.AddOrUpdateAttribute("OutDegree", outgoingEdges.Count.ToString());
-            enhancedNode.AddOrUpdateAttribute("TotalDegree", (incomingEdges.Count + outgoingEdges.Count).ToString());
 
             // Calculate dependency ratios
             var dependencyRatio = totalNodes > 1 ? (double)outgoingEdges.Count / (totalNodes - 1) : 0.0;
@@ -37,20 +33,8 @@ public static class SampleGraphFilter2
             enhancedNode.AddOrUpdateAttribute("DependencyRatio", dependencyRatio.ToString("F3"));
             enhancedNode.AddOrUpdateAttribute("DependentRatio", dependentRatio.ToString("F3"));
 
-            // Calculate centrality measures
-            var betweennessCentrality = CalculateBetweennessCentrality(originalNode, sourceGraph);
-            enhancedNode.AddOrUpdateAttribute("BetweennessCentrality", betweennessCentrality.ToString("F3"));
 
-            // Add type frequency information
-            if (nodesByType.ContainsKey(originalNode.Type))
-            {
-                var typeFrequency = nodesByType[originalNode.Type];
-                var typePercentage = (double)typeFrequency / totalNodes * 100;
-                enhancedNode.AddOrUpdateAttribute("TypeFrequency", typeFrequency.ToString());
-                enhancedNode.AddOrUpdateAttribute("TypePercentage", typePercentage.ToString("F1"));
-            }
-
-            // Calculate complexity score based on various factors
+            // Calculate custom complexity score based on various factors
             var complexityScore = CalculateComplexityScore(originalNode, incomingEdges, outgoingEdges);
             enhancedNode.AddOrUpdateAttribute("ComplexityScore", complexityScore.ToString("F2"));
 
@@ -73,19 +57,6 @@ public static class SampleGraphFilter2
                     {
                         var normalizedValue = (double)intValue / maxValue;
                         enhancedNode.AddOrUpdateAttribute(attr.Key + "_Normalized", normalizedValue.ToString("F3"));
-                    }
-
-                    // Add percentile ranking
-                    var allValues = sourceGraph.Nodes
-                        .Where(n => n.Attributes.ContainsKey(attr.Key))
-                        .Select(n => int.TryParse(n.Attributes[attr.Key], out int val) ? val : 0)
-                        .OrderBy(v => v)
-                        .ToList();
-
-                    if (allValues.Count > 0)
-                    {
-                        var percentile = (double)allValues.Count(v => v <= intValue) / allValues.Count * 100;
-                        enhancedNode.AddOrUpdateAttribute(attr.Key + "_Percentile", percentile.ToString("F1"));
                     }
                 }
             }
@@ -136,29 +107,6 @@ public static class SampleGraphFilter2
         metadataNode.AddOrUpdateAttribute("ProcessedAt", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
 
         return result;
-    }
-
-    private static double CalculateBetweennessCentrality(INode node, DirectedGraph graph)
-    {
-        // Simplified betweenness centrality calculation
-        var nodeId = node.Id;
-        double centrality = 0.0;
-        var allNodes = graph.Nodes.Where(n => n.Id != nodeId).ToList();
-
-        foreach (var source in allNodes)
-        {
-            foreach (var target in allNodes.Where(n => n.Id != source.Id))
-            {
-                var paths = graph.FindAllPaths(source, target).ToList();
-                if (paths.Any())
-                {
-                    var pathsThroughNode = paths.Count(path => path.Any(n => n.Id == nodeId));
-                    centrality += (double)pathsThroughNode / paths.Count;
-                }
-            }
-        }
-
-        return centrality;
     }
 
     private static double CalculateComplexityScore(INode node, List<IEdge> incomingEdges, IList<IEdge> outgoingEdges)

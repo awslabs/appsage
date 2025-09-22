@@ -15,7 +15,7 @@ namespace AppSage.MCPServer.Capabilty.Tools.CodeGraph
     [CapabilityRegistration("CodeGraph", @"Tools\CodeGraph")]
     public class CodeGraphGenerator
     {
-
+        static object _padlock = new object();
         static DirectedGraph _graph = null;
 
         IAppSageLogger _logger;
@@ -29,13 +29,18 @@ namespace AppSage.MCPServer.Capabilty.Tools.CodeGraph
             _workspace = workspace;
             _metricReader = metricReader;
         }
-        [McpServerTool, Description("Run the code against the graph and generate data table")]
+        [McpServerTool, Description("Run the code against the code graph and generate data table")]
         public IEnumerable<DataTable> ExecuteTableQuery(string codeToCompileAndRun) {
             if (string.IsNullOrEmpty(codeToCompileAndRun)) {
                 _logger.LogError("No code is provided to execute against the graph.");
             }
+
             if (_graph == null) { 
-                LoadGraphData();
+                lock(_padlock) {
+                    if (_graph == null) { 
+                        LoadGraphData();
+                    }
+                }
             }
             var result= _compiler.CompileAndExecute<IEnumerable<DataTable>>(codeToCompileAndRun, _graph);
             return result;

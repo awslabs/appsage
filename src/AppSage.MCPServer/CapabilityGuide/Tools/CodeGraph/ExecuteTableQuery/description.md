@@ -1,12 +1,12 @@
-﻿CodeGraph can run custom analyis on the code graph data by executing the C# code given in the parameter codeToCompileAndRun.
+﻿CodeGraph run custom analyis on the code graph data by executing the C# code given in the parameter ```codeToCompileAndRun```.
 It will return an excel file with the results of the analysis.
-codeToCompileAndRun will have a custom code you want to execute on the code graph data. 
+```codeToCompileAndRun``` will have a custom code you want to execute on the code graph data. 
 
-codeToCompileAndRun must have a .NET C# public class ```public class MyQuery``` with a  public static method with the following signature:
+```codeToCompileAndRun``` must have a .NET C# public class ```public class MyQuery``` with a  public static method with the following signature:
 ```public static IEnumerable<DataTable> Execute(IDirectedGraph graph)```. 
 
 
-It's super important that the method signature is exactly as specified above and that the class is called MyQuery.
+It's critical that the method signature is exactly as specified above and that the class is called MyQuery.
 
 Interface definitions are given below for reference:
 ```csharp

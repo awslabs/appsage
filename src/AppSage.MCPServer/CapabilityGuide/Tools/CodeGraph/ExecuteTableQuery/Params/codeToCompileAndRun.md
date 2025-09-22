@@ -1,19 +1,19 @@
-﻿codeToCompileAndRun must have a .NET C# public class ```public class MyQuery``` with a  public static method with the following signature:
+﻿```codeToCompileAndRun``` must have a .NET C# public class ```public class MyQuery``` with a  public static method with the following signature:
 ```public static IEnumerable<DataTable> Execute(IDirectedGraph graph)```
 
-An example value for the parameter codeToCompileAndRun is given at the end at "codeToCompileAndRun Complete Example"
+An example value for the parameter ```codeToCompileAndRun``` is given at the end at "codeToCompileAndRun Complete Example"
 
 
-It's super important that the method signature is exactly as specified above and that the class is called MyQuery.
+It's critical that the method signature is exactly as specified above and that the class is called ```MyQuery```.
 
-Inside the method, you can use LINQ to query the graph and return one or more DataTables with the results of your analysis.
-The code for the analysis must be written in C# based on the what the user has requested.
+Inside the method, you can use LINQ to query the graph and return one or more ```DataTables``` with the results of your analysis.
+The code for the analysis must be written in C#, based on the what the user has requested.
 You must explicityly import any namespaces you use in the code with using statement.
-The codeToCompileAndRun must be self-contained C# content and must not depend on any external files or resources. It must be compilable.  
+The ```codeToCompileAndRun``` must be self-contained C# content and must not depend on any external files or resources. It must be compilable.  
 
 # DirectedGraph Dependency Analysis Documentation
 
-This document describes the structure of the IDirectedGraph. The graph represents dependencies across multiple levels: repository ,solution , project ,assembly ,class & method.
+This document describes the structure of the ```IDirectedGraph```. The graph represents dependencies across multiple levels: repository ,solution , project ,assembly ,class & method.
 
 ## Node Types
 
