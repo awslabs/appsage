@@ -51,11 +51,11 @@ namespace AppSage.MCPServer
             LocalizationManager.InitializeAll();
 
             string workspaceRoot = appSageConfig.Get<string>("AppSage.Core:WorkspaceRoot");
-            services.AddSingleton<IAppSageWorkspace>(sp =>
-            {
-                var logger = sp.GetRequiredService<IAppSageLogger>();
-                return new AppSageWorkspaceManager(workspaceRoot, logger);
-            });
+            //services.AddSingleton<IAppSageWorkspace>(sp =>
+            //{
+            //    var logger = sp.GetRequiredService<IAppSageLogger>();
+            //    return new AppSageWorkspaceManager(workspaceRoot, logger);
+            //});
             return services;
         }
         private static void ConfigureSerilog(IAppSageConfiguration config)

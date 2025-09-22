@@ -1,12 +1,15 @@
-﻿using AppSage.Core.Const;
+﻿using AppSage.Core.Configuration;
 using AppSage.Core.Metric;
+using AppSage.Core.Workspace;
 using AppSage.Web.Components.Filter.Table;
-using AppSage.Web.Pages.Reports.DotNet.SolutionAnalysis;
 using ClosedXML.Excel;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Newtonsoft.Json;
 using System.Data;
+using AppSage.Infrastructure.Workspace;
+using AppSage.Core.Logging;
+using System.Security.Cryptography.Xml;
 namespace AppSage.Web.Components.Filter
 {
     public abstract class MetricFilterPageModel : PageModel
@@ -20,11 +23,23 @@ namespace AppSage.Web.Components.Filter
         [IdName("provider", "Provider")]
         public FilterModel ProviderFilter { get; set; } = new FilterModel();
 
+        private IAppSageLogger _logger;
+        private IAppSageConfiguration _config;
+        private IAppSageWorkspace _workspace;
 
-        public MetricFilterPageModel()
+        public MetricFilterPageModel(IAppSageLogger logger, IAppSageConfiguration config,IAppSageWorkspace workspace)
         {
+            _logger = logger;
+            _config = config;
+            _workspace = workspace;
             PopulateFilters();
+          
         }
+
+        //public MetricFilterPageModel()
+        //{
+        //    PopulateFilters();
+        //}
 
         /// <summary>
         /// Default handler for GET requests. This can be overridden in derived classes to customize the initial data loading.
@@ -141,25 +156,32 @@ namespace AppSage.Web.Components.Filter
         /// <exception cref="DirectoryNotFoundException"></exception>
         protected IEnumerable<IMetric> GetAllMetrics()
         {
+            bool takeDataFromLastRun = _config.Get<bool>("AppSage.Web:TakeDataFromLatestRun");
+            DirectoryInfo dataDir = null;
 
-
-
-            string metricFolder = @"C:\Dev\SampleAppSageWorkspace\Output\LastRun";
-            //string metricFolder = @"C:\Dev\SampleAppSageWorkspace1\Output";
-            if (!Directory.Exists(metricFolder))
-            {
-                throw new DirectoryNotFoundException($"The directory {metricFolder} does not exist.");
+            if (takeDataFromLastRun) {
+                DirectoryInfo outputFolder = new DirectoryInfo(_workspace.ProviderOutputFolder);
+                dataDir = outputFolder.GetDirectories("*", SearchOption.TopDirectoryOnly).OrderByDescending(d => d.Name).FirstOrDefault();
             }
-            var fileSet = Directory.GetFiles(metricFolder, "*.json", System.IO.SearchOption.AllDirectories);
+            else
+            {
+                dataDir = new DirectoryInfo(_workspace.ProviderOutputFolder);
+            }
 
+            if (!dataDir.Exists)
+            {
+                throw new DirectoryNotFoundException($"The directory {dataDir.FullName} does not exist.");
+            }
+            _logger.LogInformation($"---   Loading metrics from [{dataDir.FullName}]   ---");
 
+            var fileSet = dataDir.GetFiles("*.json", System.IO.SearchOption.AllDirectories);
 
             List<IMetric> result = new List<IMetric>();
             foreach (var file in fileSet)
             {
-                if (System.IO.File.Exists(file))
+                if (file.Exists)
                 {
-                    string json = System.IO.File.ReadAllText(file);
+                    string json = System.IO.File.ReadAllText(file.FullName);
                     var settings = new JsonSerializerSettings
                     {
                         Formatting = Formatting.Indented,

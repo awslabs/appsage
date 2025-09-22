@@ -1,23 +1,18 @@
 ﻿using AppSage.Core.Configuration;
 using AppSage.Core.Localization;
 using AppSage.Core.Logging;
-using AppSage.Core.Metric;
 using AppSage.Core.Workspace;
-using AppSage.Infrastructure.Caching;
 using AppSage.Infrastructure.Workspace;
 using AppSage.Run.CommandSet;
 using AppSage.Run.CommandSet.Init;
 using AppSage.Run.CommandSet.Provider;
 using AppSage.Run.CommandSet.Root;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using Serilog.Events;
 using Serilog.Formatting.Display;
 using System.CommandLine;
 using System.Globalization;
-using System.Net.NetworkInformation;
-using System.Reflection;
 namespace AppSage.Run
 {
 
@@ -30,7 +25,7 @@ namespace AppSage.Run
             // Initialize the counting sink BEFORE configuring services
             _countingSink = new CountingSink();
             IServiceCollection services = new ServiceCollection();
-            services = InitializeCoreServices(services,null);
+            services = InitializeCoreServices(services, null);
             var serviceProvider = services.BuildServiceProvider();
             var logger = serviceProvider.GetRequiredService<IAppSageLogger>();
 
@@ -39,9 +34,9 @@ namespace AppSage.Run
             {
 
                 //args=new string[] {"init"};
-                //args = new string[] { "init", "-ws", @"C:\Temp\bingo2" };
+                //args = new string[] { "init", "-ws", @"C:\temp\bingo" };
                 //args = new string[] { "init" };
-                args = new string[] { "provider","run","-ws", "C:\\Temp\\bingo" };
+                //args = new string[] { "provider","run","-ws", "C:\\Temp\\bingo" };
 
                 RootCommand rootCommand = new RootCommand
                 {
@@ -64,7 +59,7 @@ namespace AppSage.Run
                 {   //All other commands need an AppSage workspace. The workspace has to be resolved first.
                     var workspaceRoot = ResolveWorkspaceRoot(args);
 
-                    if (string.IsNullOrEmpty(workspaceRoot))
+                    if (workspaceRoot==null)
                     {
                         logger.LogError("Failed to resolve the workspace root folder. Ensure that the specified folder is a valid AppSage workspace or contains an AppSage workspace.");
                         logger.LogError($"If you want to initalize an AppSage workspace in a given empty folder you may use the command {initSubCommand.Name}");
@@ -83,7 +78,7 @@ namespace AppSage.Run
                         services = new ServiceCollection();
                         services.AddSingleton<IAppSageWorkspace>(appSageWorkspace);
                         services.AddSingleton<IAppSageConfiguration>(appSageConfig);
-                        services = InitializeCoreServices(services, appSageConfig);
+                        services = InitializeCoreServices(services, appSageWorkspace);
 
                         var commandRegistry = GetCommandRegistry(services);
                         foreach (var cmd in commandRegistry)
@@ -94,9 +89,9 @@ namespace AppSage.Run
                         logger.LogInformation($"Using workspace root folder: {workspaceRoot}");
                         var aliases = new List<string>() { argWorkspaceFolder.Name };
                         aliases.AddRange(argWorkspaceFolder.Aliases);
-                        var newArgs = ForceOptionValue(args, workspaceRoot, aliases.ToArray());
+                        var newArgs = ForceOptionValue(args, workspaceRoot.FullName, aliases.ToArray());
                         parseResult = rootCommand.Parse(newArgs);
-                        
+
                         return parseResult.Invoke();
                     }
                 }
@@ -127,14 +122,14 @@ namespace AppSage.Run
         private static List<ISubCommand> GetCommandRegistry(IServiceCollection serviceCollection)
         {
             var commands = new List<ISubCommand>();
-           
+
             commands.Add(new ProviderCommand(serviceCollection));
 
 
             return commands;
         }
 
-        private static string[] ForceOptionValue(string[] args,string forcedValue,string[] optionAliases)
+        private static string[] ForceOptionValue(string[] args, string forcedValue, string[] optionAliases)
         {
             var result = new List<string>();
             var skipNext = false;
@@ -164,7 +159,7 @@ namespace AppSage.Run
             return result.ToArray();
         }
 
-        private static string ResolveWorkspaceRoot(string[] args)
+        private static DirectoryInfo ResolveWorkspaceRoot(string[] args)
         {
             //if the workspace argument is provided, use it. If not, use the current directory
             RootCommand parseCommand = new RootCommand();
@@ -176,13 +171,14 @@ namespace AppSage.Run
             {
                 value = Environment.CurrentDirectory;
             }
+            var argDictory=new DirectoryInfo(value);
 
-            string workspaceRoot = AppSageWorkspaceManager.ResolveWorkspaceRootFolder(value);
+            var workspaceRoot = AppSageWorkspaceManager.ResolveWorkspaceRootFolder(argDictory);
 
             return workspaceRoot;
         }
 
-        private static IServiceCollection InitializeCoreServices(IServiceCollection services,IAppSageConfiguration appSageConfig)
+        private static IServiceCollection InitializeCoreServices(IServiceCollection services, IAppSageWorkspace workspace)
         {
             var logger = new LoggerConfiguration()
            .WriteTo.Sink(_countingSink)
@@ -202,20 +198,9 @@ namespace AppSage.Run
                 .WriteTo.Console() // default Serilog console theme/formatter
             );
 
-
-            string logKey = "AppSage.Core:LogFolder";
-
-            if (appSageConfig != null && appSageConfig.KeyExist(logKey))
+            if (workspace != null && !String.IsNullOrEmpty(workspace.LogsFolder) && Directory.Exists(workspace.LogsFolder))
             {
-                string logFolder = appSageConfig.Get<string>(logKey);
-                if (!string.IsNullOrWhiteSpace(logFolder) && Directory.Exists(logFolder))
-                {
-                    logger.WriteTo.File(Path.Combine(logFolder, "appSage-.log"), rollingInterval: RollingInterval.Day);
-                }
-                else
-                {
-                    Console.WriteLine($"Warning: Log folder '{logFolder}' does not exist. Logs will be written to the console only.");
-                }
+             logger.WriteTo.File(Path.Combine(workspace.LogsFolder, "appSage-.log"), rollingInterval: RollingInterval.Day);
             }
             // Create Serilog logger
             Log.Logger = logger.CreateLogger();

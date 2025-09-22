@@ -3,11 +3,15 @@ using AppSage.Web.Components.Filter;
 using AppSage.Core.ComplexType.Graph;
 using AppSage.Core.Const;
 using System.Text.Json;
+using AppSage.Core.Configuration;
+using AppSage.Core.Logging;
+using AppSage.Core.Workspace;
 
 namespace AppSage.Web.Pages.Reports.DotNet.DependencyAnalysis
 {
     public class IndexModel : MetricFilterPageModel
     {
+        public IndexModel(IAppSageLogger logger,IAppSageConfiguration config,IAppSageWorkspace workspace) : base(logger,config,workspace) { }
         public IndexViewModel Dashboard { get; set; } = new IndexViewModel();   
 
         public override List<IMetric> GetMyMetrics()

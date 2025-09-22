@@ -1,6 +1,9 @@
 using AppSage.Core.ComplexType;
+using AppSage.Core.Configuration;
 using AppSage.Core.Const;
+using AppSage.Core.Logging;
 using AppSage.Core.Metric;
+using AppSage.Core.Workspace;
 using AppSage.Providers.Repository;
 using AppSage.Web.Components.Filter;
 using System.Data;
@@ -9,14 +12,13 @@ namespace AppSage.Web.Pages.Reports.Repository.RepositoryAnalysis
 {
     public class IndexModel : MetricFilterPageModel
     {
-        private readonly ILogger<IndexModel> _logger;
+        private readonly IAppSageLogger _logger;
 
         public IndexViewModel Dashboard { get; set; }
 
-        public IndexModel(ILogger<IndexModel> logger)
+        public IndexModel(IAppSageLogger logger, IAppSageConfiguration config, IAppSageWorkspace workspace) : base(logger, config, workspace) 
         {
             _logger = logger;
-
         }
         private void PopulateMetricBoxes(IEnumerable<IMetric> metrics, ref IndexViewModel model)
         {

@@ -18,48 +18,53 @@ namespace AppSage.Infrastructure.Workspace
 
       
 
-        private readonly string _rootFolder;
+        private readonly DirectoryInfo _rootFolder;
         private readonly IAppSageLogger _logger;
-        public AppSageWorkspaceManager(string rootFolder, IAppSageLogger logger)
+        public AppSageWorkspaceManager(DirectoryInfo rootFolder, IAppSageLogger logger)
         {
-            string resolvedFolder = ResolveWorkspaceRootFolder(rootFolder, logger);
-            if(string.IsNullOrEmpty(resolvedFolder))
+            var resolvedFolder = ResolveWorkspaceRootFolder(rootFolder, logger);
+            if(resolvedFolder==null)
             {
                 throw new ArgumentException($"The specified folder [{rootFolder}] is not part of an existing AppSage workspace. Please initialize the workspace first by running 'appsage init -ws <folder>'");
             }
 
-            _rootFolder = rootFolder;
+            _rootFolder = resolvedFolder;
             _logger = logger;
         }
-        public string RootFolder => _rootFolder;
+        public string RootFolder => _rootFolder.FullName;
 
 
 
 
-        public static int Initialize(string rootFolder, IAppSageLogger logger)
+        public static int Initialize(DirectoryInfo rootFolder, IAppSageLogger logger)
         {
-            DirectoryInfo di = new DirectoryInfo(rootFolder);
-            string resolvedFolder = ResolveWorkspaceRootFolder(rootFolder, logger);
+            DirectoryInfo di = rootFolder;
+            var resolvedFolder = ResolveWorkspaceRootFolder(rootFolder, logger);
             string messagePrefix = "Creating";
 
-            if (String.IsNullOrEmpty(resolvedFolder))
+            if (resolvedFolder==null)
             {
                 logger.LogInformation($"The specified folder [{di.FullName}] is not part of an existing AppSage workspace.");
             }
             else
             {
-                logger.LogInformation($"The specified folder [{di.FullName}] is already a part of an existing AppSage workspace at [{resolvedFolder}].");
-                logger.LogInformation($"You can't have nested AppSage workspaces. We will use [{resolvedFolder} as the workspace. If it is corrupted, we will try to repair it.]");
-                di= new DirectoryInfo(resolvedFolder);
+                logger.LogInformation($"The specified folder [{di.FullName}] is already a part of an existing AppSage workspace at [{resolvedFolder.FullName}].");
+                logger.LogInformation($"You can't have nested AppSage workspaces. We will use [{resolvedFolder.FullName} as the workspace. If it is corrupted, we will try to repair it.]");
+                di= resolvedFolder;
                 messagePrefix = "Repairing";
             }
 
-            if (di.Exists && String.IsNullOrEmpty(resolvedFolder) && (di.EnumerateDirectories().Any() || di.GetFiles().Any()))
+            if (di.Parent == null)
+            {
+                logger.LogError($"The specified folder [{di.FullName}] is not valid. You can't create an AppSage workspace at the root of your driver/mount. Create the workspace inside a folder");
+                return -1;
+            }
+
+            if (di.Exists && resolvedFolder==null && (di.EnumerateDirectories().Any() || di.GetFiles().Any()))
             {
                 logger.LogError($"The specified workspace folder [{di.FullName}] already exists and is not empty. Please specify a non-existing or empty folder.");
                 return -1;
             }
-       
 
             logger.LogInformation("Initializing workspace");
 
@@ -92,14 +97,15 @@ namespace AppSage.Infrastructure.Workspace
                 Directory.CreateDirectory(ws.AppSageConfigFolder);
                 File.SetAttributes(ws.AppSageConfigFolder, File.GetAttributes(ws.AppSageConfigFolder) | FileAttributes.Hidden);
 
-                //Copyt the default config file
-                string defaultConfigFile =AppSageConfiguration.GetDefaultConfigFilePath();
+                //Copy the default config file
+                string defaultConfigFile =AppSageConfiguration.GetDefaultConfigTemplateFilePath();
                 string destinationConfigFile = ws.AppSageConfigFilePath;
                 logger.LogInformation($"{messagePrefix} the AppSage config file [{destinationConfigFile}]. This is where workspace related AppSage configurations are kept.");
                 File.Copy(defaultConfigFile, destinationConfigFile, true);
                 IAppSageConfigurationWriter writer= new AppSageConfiguration(destinationConfigFile);
-                writer.Set("AppSage.Core:WorkspaceRootFolder", ws.RootFolder);
-                writer.Set("AppSage.Core:LogFolder", ws.LogsFolder);
+                writer.Set("AppSage.Core:IsAppSageWorkspace", true);
+                writer.Set("AppSage.Core:CreatedDateTime", DateTime.Now.ToUniversalTime().ToString());
+                writer.Set("AppSage.Core:CreatedBy", Environment.UserName);
 
                 logger.LogInformation($"{messagePrefix} hidden cache folder [{ws.CacheFolder}]. Used by AppSage for internal caching.");
                 Directory.CreateDirectory(ws.CacheFolder);
@@ -115,45 +121,38 @@ namespace AppSage.Infrastructure.Workspace
         }
 
 
-        public static  string ResolveWorkspaceRootFolder(string folder, IAppSageLogger logger=null)
+        public static  DirectoryInfo ResolveWorkspaceRootFolder(DirectoryInfo folder, IAppSageLogger logger=null)
         {
-            string resolvedWorkspaceRootFolder = null; 
+            DirectoryInfo resolvedWorkspaceRootFolder = null; 
             //we check for the presence of the AppSageConfig.json file to determine if this is an existing workspace
-            Stack<string> foldersToCheck = new Stack<string>();
+            Stack<DirectoryInfo> foldersToCheck = new Stack<DirectoryInfo>();
             foldersToCheck.Push(folder);
             while (foldersToCheck.Count > 0) { 
-                string currentFolder = foldersToCheck.Pop();
-                DirectoryInfo currentDi = new DirectoryInfo(currentFolder);
+                DirectoryInfo currentDi = foldersToCheck.Pop();
                 string appsageConfigFile = Path.Combine(currentDi.FullName, IAppSageWorkspace.APPSAGE_CONFIG_ROOT_FOLDER_NAME, IAppSageWorkspace.APPSAGE_CONFIG_FILENAME);
                 if (File.Exists(appsageConfigFile))
                 {
                     var config= new AppSageConfiguration(appsageConfigFile);
-                    string rootFolderKey = "AppSage.Core:WorkspaceRootFolder";
-                    if (config.KeyExist(rootFolderKey))
+                    string fingerPrintKey = "AppSage.Core:IsAppSageWorkspace";
+                    if (config.KeyExist(fingerPrintKey))
                     {
-                        string configuredRootFolder = config.Get<string>(rootFolderKey);
-                        DirectoryInfo configValue = new DirectoryInfo(configuredRootFolder);
-                        if ((configValue.FullName != currentDi.FullName) && logger!=null)
+                        bool isAppSageWorkspace = config.Get<bool>(fingerPrintKey);
+                        if(isAppSageWorkspace && currentDi.Parent!=null)
                         {
-                            logger.LogWarning($"""
-                                The AppSage configuration file [{appsageConfigFile}]'s key {rootFolderKey} indicates that the workspace root folder is [{configuredRootFolder}].
-                                But it was found in [{currentDi.FullName}]. This is an invalid state & can sometimes happen when you copy folders. 
-                                Please repair the configuration by running [appsage init -ws {currentDi.FullName}].
-                                """);
-                           
+                            resolvedWorkspaceRootFolder = currentDi;
+                            break;
                         }
-                        return configuredRootFolder;
+                        else
+                        {
+                            logger?.LogWarning($"The folder [{currentDi.FullName}] contains an AppSage configuration file but it is not marked as an AppSage workspace. Continuing to look in parent folders.");
+                        }
                     }
-                   
-                    resolvedWorkspaceRootFolder = currentFolder;
-                    break;
                 }
                 else
                 {
-                    DirectoryInfo di = new DirectoryInfo(currentFolder);
-                    if (di.Parent != null)
+                    if (currentDi.Parent != null)
                     {
-                        foldersToCheck.Push(di.Parent.FullName);
+                        foldersToCheck.Push(currentDi.Parent);
                     }
                 }
             }

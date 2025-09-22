@@ -2,6 +2,7 @@
 using AppSage.Core.Const;
 using AppSage.Core.Logging;
 using AppSage.Core.Metric;
+using AppSage.Core.Workspace;
 using Newtonsoft.Json;
 using System.Collections.Concurrent;
 
@@ -16,21 +17,23 @@ namespace AppSage.Run
         private int _totalCollectedMetricCount = 0;
         private int _outputFileIndex = 0;
 
+        private static string _runFolderId =$"Run_{DateTime.UtcNow.ToString("yyyyMMdd_HHmmss")}";
+
         ConcurrentQueue<IMetric> _metrics = new ConcurrentQueue<IMetric>();
         bool _isCompleted = false;
         private bool _isDisposed = false;
 
         public int TotalCollectedMetricCount => _totalCollectedMetricCount;
 
-        public MetricCollector(string providerName,string providerVersion,IAppSageLogger logger, IAppSageConfiguration config)
+        public MetricCollector(string providerName,string providerVersion,IAppSageLogger logger,IAppSageWorkspace workspace, IAppSageConfiguration config)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _providerName = providerName ?? throw new ArgumentNullException(nameof(providerName));
             _providerVersion = providerVersion;
-            _config.AddProviderNameToOutputFile = config.Get<bool>("AppSage.Run.Runner:AddProviderNameToOutputFile");
-            _config.OutputMetricsPerFile = config.Get<int>("AppSage.Run.Runner:MaxOutputMetricsPerFile");
-            _config.OutputFilePrefix = config.Get<string>("AppSage.Run.Runner:OutputFilePrefix");
-            _config.OutputFolder= config.Get<string>("AppSage.Run.Runner:OutputFolder");
+            _config.AddProviderNameToOutputFile = config.Get<bool>("AppSage.Run.MetricCollector:AddProviderNameToOutputFile");
+            _config.OutputMetricsPerFile = config.Get<int>("AppSage.Run.MetricCollector:MaxOutputMetricsPerFile");
+            _config.OutputFilePrefix = config.Get<string>("AppSage.Run.MetricCollector:OutputFilePrefix");
+            _config.OutputFolder =Path.Combine(workspace.ProviderOutputFolder,_runFolderId);
             AddRoolRunInfo();
         }
 
@@ -130,6 +133,7 @@ namespace AppSage.Run
 
                     // Ensure the output directory exists
                     Directory.CreateDirectory(_config.OutputFolder);
+                    string dateTimeStamp = DateTime.UtcNow.ToString("yyyyMMdd_HHmmss");
 
 
 

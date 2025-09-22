@@ -12,7 +12,7 @@ namespace AppSage.Core.Configuration
         private string _configFilePath;
 
         [ActivatorUtilitiesConstructor]
-        public AppSageConfiguration(): this(GetDefaultConfigFilePath())
+        public AppSageConfiguration(): this(GetDefaultConfigTemplateFilePath())
         {
             
         }
@@ -35,7 +35,7 @@ namespace AppSage.Core.Configuration
         }
 
 
-        public static string GetDefaultConfigFilePath()
+        public static string GetDefaultConfigTemplateFilePath()
         {
             // Get the current assembly directory
             string directory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);

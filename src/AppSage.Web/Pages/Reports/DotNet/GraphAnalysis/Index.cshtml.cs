@@ -1,12 +1,16 @@
-using AppSage.Core.Metric;
-using AppSage.Web.Components.Filter;
 using AppSage.Core.ComplexType.Graph;
+using AppSage.Core.Configuration;
 using AppSage.Core.Const;
+using AppSage.Core.Logging;
+using AppSage.Core.Metric;
+using AppSage.Core.Workspace;
+using AppSage.Web.Components.Filter;
 
 namespace AppSage.Web.Pages.Reports.DotNet.GraphAnalysis
 {
     public class IndexModel : MetricFilterPageModel
     {
+        public IndexModel(IAppSageLogger logger, IAppSageConfiguration config, IAppSageWorkspace workspace) : base(logger, config, workspace) { }
         public IndexViewModel Dashboard { get; set; } = new IndexViewModel();
         private static DirectedGraph _lazyGraph;
         public override List<IMetric> GetMyMetrics()

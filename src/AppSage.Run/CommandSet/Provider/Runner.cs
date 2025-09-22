@@ -1,18 +1,21 @@
 ﻿using AppSage.Core.Configuration;
 using AppSage.Core.Logging;
 using AppSage.Core.Metric;
+using AppSage.Core.Workspace;
 
 namespace AppSage.Run.CommandSet.Provider
 {
     public class Runner
     {
         private readonly IAppSageConfiguration _configure;
+        private readonly IAppSageWorkspace _workspace;
         private readonly IAppSageLogger _logger;
         private readonly IMetricProvider[] _providers;
-        public Runner(IAppSageLogger logger, IMetricProvider[] providers,  IAppSageConfiguration config)
+        public Runner(IAppSageLogger logger, IMetricProvider[] providers,IAppSageWorkspace workspace,  IAppSageConfiguration config)
         {
             _logger = logger;
             _providers = providers;
+            _workspace = workspace;
             _configure = config;
         }
         public void Run()
@@ -27,7 +30,7 @@ namespace AppSage.Run.CommandSet.Provider
 
                 try
                 {
-                    using (MetricCollector collector = new MetricCollector(provider.FullQualifiedName,providerVersion, _logger, _configure))
+                    using (MetricCollector collector = new MetricCollector(provider.FullQualifiedName,providerVersion, _logger, _workspace, _configure))
                     {
                         provider.Run(collector);
                         _logger.LogInformation($"Finished running the provider: {provider.GetType().FullName}. Collected Metrics {collector.TotalCollectedMetricCount}");
@@ -44,7 +47,7 @@ namespace AppSage.Run.CommandSet.Provider
             string appSageType = System.Reflection.Assembly.GetExecutingAssembly().GetName().Name;
             string appSageRunnerVersion = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
 
-            using (MetricCollector collector = new MetricCollector(appSageType,appSageRunnerVersion, _logger, _configure))
+            using (MetricCollector collector = new MetricCollector(appSageType,appSageRunnerVersion, _logger, _workspace, _configure))
             {
                 _logger.LogInformation($"AppSage Fingerprint");
             }
