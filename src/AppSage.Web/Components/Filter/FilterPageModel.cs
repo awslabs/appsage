@@ -1,14 +1,15 @@
 ﻿using AppSage.Core.Configuration;
+using AppSage.Core.Logging;
 using AppSage.Core.Metric;
 using AppSage.Core.Workspace;
+using AppSage.Infrastructure.Metric;
+using AppSage.Infrastructure.Workspace;
 using AppSage.Web.Components.Filter.Table;
 using ClosedXML.Excel;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Newtonsoft.Json;
 using System.Data;
-using AppSage.Infrastructure.Workspace;
-using AppSage.Core.Logging;
 using System.Security.Cryptography.Xml;
 namespace AppSage.Web.Components.Filter
 {
@@ -23,15 +24,11 @@ namespace AppSage.Web.Components.Filter
         [IdName("provider", "Provider")]
         public FilterModel ProviderFilter { get; set; } = new FilterModel();
 
-        private IAppSageLogger _logger;
-        private IAppSageConfiguration _config;
-        private IAppSageWorkspace _workspace;
+        IMetricReader _metircReader;
 
-        public MetricFilterPageModel(IAppSageLogger logger, IAppSageConfiguration config,IAppSageWorkspace workspace)
+        public MetricFilterPageModel(IMetricReader metricReader)
         {
-            _logger = logger;
-            _config = config;
-            _workspace = workspace;
+            _metircReader= metricReader ?? throw new ArgumentNullException(nameof(metricReader));
             PopulateFilters();
           
         }
@@ -156,43 +153,7 @@ namespace AppSage.Web.Components.Filter
         /// <exception cref="DirectoryNotFoundException"></exception>
         protected IEnumerable<IMetric> GetAllMetrics()
         {
-            bool takeDataFromLastRun = _config.Get<bool>("AppSage.Web:TakeDataFromLatestRun");
-            DirectoryInfo dataDir = null;
-
-            if (takeDataFromLastRun) {
-                DirectoryInfo outputFolder = new DirectoryInfo(_workspace.ProviderOutputFolder);
-                dataDir = outputFolder.GetDirectories("*", SearchOption.TopDirectoryOnly).OrderByDescending(d => d.Name).FirstOrDefault();
-            }
-            else
-            {
-                dataDir = new DirectoryInfo(_workspace.ProviderOutputFolder);
-            }
-
-            if (!dataDir.Exists)
-            {
-                throw new DirectoryNotFoundException($"The directory {dataDir.FullName} does not exist.");
-            }
-            _logger.LogInformation($"---   Loading metrics from [{dataDir.FullName}]   ---");
-
-            var fileSet = dataDir.GetFiles("*.json", System.IO.SearchOption.AllDirectories);
-
-            List<IMetric> result = new List<IMetric>();
-            foreach (var file in fileSet)
-            {
-                if (file.Exists)
-                {
-                    string json = System.IO.File.ReadAllText(file.FullName);
-                    var settings = new JsonSerializerSettings
-                    {
-                        Formatting = Formatting.Indented,
-                        TypeNameHandling = TypeNameHandling.All,
-                        NullValueHandling = NullValueHandling.Ignore
-                    };
-                    var metrics = JsonConvert.DeserializeObject<IEnumerable<IMetric>>(json, settings);
-                    result.AddRange(metrics);
-                }
-            }
-            return result;
+            return _metircReader.GetMetricSet();
         }
 
 

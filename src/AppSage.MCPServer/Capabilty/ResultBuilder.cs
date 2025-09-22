@@ -1,5 +1,6 @@
 ﻿using AppSage.Core.Configuration;
 using AppSage.Core.Logging;
+using AppSage.Core.Workspace;
 using ClosedXML.Excel;
 using ModelContextProtocol.Protocol;
 using Newtonsoft.Json.Linq;
@@ -12,11 +13,11 @@ namespace AppSage.MCPServer.Capabilty
     {
         IAppSageLogger _logger;
         private readonly (int MaxReturnedBlobSizeInBytes,string ResultOutputFolder) _config;
-        public ResultBuilder(IAppSageLogger logger, IAppSageConfiguration configuration)
+        public ResultBuilder(IAppSageLogger logger, IAppSageConfiguration configuration,IAppSageWorkspace workspace)
         {
             _logger = logger;
             _config.MaxReturnedBlobSizeInBytes = configuration.Get<int>("AppSage.MCPServer.Capabilty.Utility:MaxBase64EncodedReturnBlobSizeInKB") * 1024;
-            _config.ResultOutputFolder = configuration.Get<string>("AppSage.MCPServer.Capabilty.Utility:ResultOutputFolder");
+            _config.ResultOutputFolder = workspace.MCPServerOutputFolder;
             if(!Directory.Exists(_config.ResultOutputFolder))
             {
                 Directory.CreateDirectory(_config.ResultOutputFolder);

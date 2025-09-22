@@ -6,9 +6,9 @@ using AppSage.Core.Workspace;
 using Newtonsoft.Json;
 using System.Collections.Concurrent;
 
-namespace AppSage.Run
+namespace AppSage.Infrastructure.Metric
 {
-    internal class MetricCollector : IMetricCollector,IDisposable
+    public class MetricCollector : IMetricCollector,IDisposable
     {
         private (bool AddProviderNameToOutputFile, int OutputMetricsPerFile, string OutputFilePrefix, string OutputFolder) _config;
         private readonly IAppSageLogger _logger;
@@ -30,9 +30,9 @@ namespace AppSage.Run
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _providerName = providerName ?? throw new ArgumentNullException(nameof(providerName));
             _providerVersion = providerVersion;
-            _config.AddProviderNameToOutputFile = config.Get<bool>("AppSage.Run.MetricCollector:AddProviderNameToOutputFile");
-            _config.OutputMetricsPerFile = config.Get<int>("AppSage.Run.MetricCollector:MaxOutputMetricsPerFile");
-            _config.OutputFilePrefix = config.Get<string>("AppSage.Run.MetricCollector:OutputFilePrefix");
+            _config.AddProviderNameToOutputFile = config.Get<bool>("AppSage.Infrastructure.Metric.MetricCollector:AddProviderNameToOutputFile");
+            _config.OutputMetricsPerFile = config.Get<int>("AppSage.Infrastructure.Metric.MetricCollector:MaxOutputMetricsPerFile");
+            _config.OutputFilePrefix = config.Get<string>("AppSage.Infrastructure.Metric.MetricCollector:OutputFilePrefix");
             _config.OutputFolder =Path.Combine(workspace.ProviderOutputFolder,_runFolderId);
             AddRoolRunInfo();
         }

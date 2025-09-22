@@ -1,21 +1,26 @@
 ﻿using AppSage.Core.Logging;
+using AppSage.Core.Metric;
 using AppSage.Run.CommandSet.Root;
 using Microsoft.Extensions.DependencyInjection;
 using System.CommandLine;
 
-namespace AppSage.Run.CommandSet.Provider
+namespace AppSage.Run.CommandSet.MCP
 {
-    public sealed class ProviderInstallCommand : ISubCommandWithNoOptions
+
+    public sealed class MCPServerListCommand : ISubCommandWithNoOptions
     {
+        private IMetricProvider[] _providers;
         private readonly IAppSageLogger _logger;
-        public ProviderInstallCommand(IServiceCollection services)
+        public MCPServerListCommand(IServiceCollection services)
         {
             var serviceProvider = services.BuildServiceProvider();
+
+            _providers= serviceProvider.GetRequiredService<IMetricProvider[]>();
             _logger = serviceProvider.GetRequiredService<IAppSageLogger>();
         }
 
-        public string Name => "install";
-        public string Description => "Install providers";
+        public string Name => "list";
+        public string Description => "List the availble mcp capabilities";
 
         public Command Build()
         {
@@ -30,8 +35,12 @@ namespace AppSage.Run.CommandSet.Provider
         }
         public int Execute()
         {
-            _logger.LogInformation($"Nothing happens. Installation of providers is not yet implemented.");
+            _logger.LogInformation($"Not implemented yet.");
+             
+
             return 0;
         }
+
+
     }
 }

@@ -28,13 +28,14 @@
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.9" />
     <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="9.0.9" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.9" />
-    <PackageReference Include="Serilog" Version="3.0.1" />
+    <PackageReference Include="Serilog" Version="4.3.0" />
     <PackageReference Include="System.CommandLine" Version="2.0.0-rc.1.25451.107" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\AppSage.Core\AppSage.Core.csproj" />
     <ProjectReference Include="..\AppSage.Infrastructure\AppSage.Infrastructure.csproj" />
+    <ProjectReference Include="..\AppSage.MCPServer\AppSage.MCPServer.csproj" />
     <ProjectReference Include="..\AppSage.Providers\AppSage.Providers.csproj" />
   </ItemGroup>
 
@@ -45,10 +46,6 @@
     <None Update="Configuration\appsettings.Development.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="CommandSet\MCP\" />
   </ItemGroup>
 
 </Project>

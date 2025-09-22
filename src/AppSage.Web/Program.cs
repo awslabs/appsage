@@ -3,7 +3,9 @@ namespace AppSage.Web
     using AppSage.Core.Configuration;
     using AppSage.Core.Localization;
     using AppSage.Core.Logging;
+    using AppSage.Core.Metric;
     using AppSage.Core.Workspace;
+    using AppSage.Infrastructure.Metric;
     using AppSage.Infrastructure.Workspace;
     using AppSage.Web.Components.DataExport;
     using AppSage.Web.Components.Filter.Table;
@@ -100,6 +102,10 @@ namespace AppSage.Web
 
                 return new AppSageWorkspaceManager(new DirectoryInfo(workspaceFolder), sp.GetRequiredService<IAppSageLogger>());
             });
+
+            services.AddSingleton<IMetricReader, MetricReader>();
+
+
 
             //Initialize the localization
             var cultureName = Environment.GetEnvironmentVariable("APPSAGE_CULTURE") ?? "en-US";

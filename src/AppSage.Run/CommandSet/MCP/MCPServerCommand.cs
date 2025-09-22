@@ -2,25 +2,25 @@
 using Microsoft.Extensions.DependencyInjection;
 using System.CommandLine;
 
-namespace AppSage.Run.CommandSet.Provider
+namespace AppSage.Run.CommandSet.MCP
 {
-    public record ProviderOptions
+    public record MCPServerOptions
     {
-        public Command ProviderCommand { get; set; }
+        public Command MCPCommand { get; set; }
     }
-    public sealed class ProviderCommand : ISubCommand<ProviderOptions>
+    public sealed class MCPServerCommand : ISubCommand<MCPServerOptions>
     {
         IServiceCollection _serviceCollection;
         IAppSageLogger _logger;
-        public ProviderCommand(IServiceCollection serviceCollection)
+        public MCPServerCommand(IServiceCollection serviceCollection)
         {
             _serviceCollection = serviceCollection;
             ServiceProvider provider = serviceCollection.BuildServiceProvider();
             _logger = provider.GetService<IAppSageLogger>();
         }
 
-        public string Name => "provider";
-        public string Description => "Perform provider related tasks";
+        public string Name => "mcpserver";
+        public string Description => "Perform  related tasks";
 
         public Command Build()
         {
@@ -29,10 +29,8 @@ namespace AppSage.Run.CommandSet.Provider
             cmd.TreatUnmatchedTokensAsErrors = false;
 
             var subCommandRegistry = new List<ISubCommand>();
-            subCommandRegistry.Add(new ProviderListCommand(_serviceCollection));
-            subCommandRegistry.Add(new ProviderInstallCommand(_serviceCollection));
-            subCommandRegistry.Add(new ProviderUninstallCommand(_serviceCollection));
-            subCommandRegistry.Add(new ProviderRunCommand(_serviceCollection));
+            subCommandRegistry.Add(new MCPServerListCommand(_serviceCollection));
+            subCommandRegistry.Add(new MCPServerRunCommand(_serviceCollection));
 
             subCommandRegistry.ForEach(c =>
             {
@@ -44,16 +42,16 @@ namespace AppSage.Run.CommandSet.Provider
                 var cmd = pr.CommandResult.Command;
                 cmd.SetAction(pr =>
                 {
-                    ProviderOptions options = new ProviderOptions();
-                    options.ProviderCommand = pr.CommandResult.Command;
+                    MCPServerOptions options = new MCPServerOptions();
+                    options.MCPCommand = pr.CommandResult.Command;
                     this.Execute(options);
                 });
             });
             return cmd;
         }
-        public int Execute(ProviderOptions opt)
+        public int Execute(MCPServerOptions opt)
         {
-             var cmd = opt.ProviderCommand;
+             var cmd = opt.MCPCommand;
             _logger.LogInformation($"Select the sub command of '{cmd.Name}' ");
             string message = $"""
                     {cmd.Name} : {cmd.Description}

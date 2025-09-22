@@ -16,7 +16,7 @@ namespace AppSage.Web.Pages.Reports.Repository.RepositoryAnalysis
 
         public IndexViewModel Dashboard { get; set; }
 
-        public IndexModel(IAppSageLogger logger, IAppSageConfiguration config, IAppSageWorkspace workspace) : base(logger, config, workspace) 
+        public IndexModel(IAppSageLogger logger, IMetricReader metricReader) : base(metricReader) 
         {
             _logger = logger;
         }

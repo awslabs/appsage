@@ -28,7 +28,7 @@ namespace AppSage.Run.CommandSet.Provider
         }
 
         public string Name => "run";
-        public string Description => "Run the set of AppSage providers";
+        public string Description => "Run a set of AppSage metric providers";
 
         public Command Build()
         {

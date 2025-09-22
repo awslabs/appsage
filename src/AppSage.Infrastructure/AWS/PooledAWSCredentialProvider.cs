@@ -2,11 +2,10 @@
 using Amazon.Runtime.CredentialManagement;
 using AppSage.Core.Configuration;
 using AppSage.Core.Logging;
-using AppSage.Infrastructure;
 
-namespace AppSage.Run
+namespace AppSage.Infrastructure.AWS
 {
-    internal class PooledAWSCredentialProvider : IAWSCredentialProvider
+    public class PooledAWSCredentialProvider : IAWSCredentialProvider
     {
         private long _currentIndex = 0;
         IAppSageLogger _logger;

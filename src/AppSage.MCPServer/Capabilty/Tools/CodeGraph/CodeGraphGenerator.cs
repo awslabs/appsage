@@ -2,6 +2,7 @@
 using AppSage.Core.Const;
 using AppSage.Core.Logging;
 using AppSage.Core.Metric;
+using AppSage.Core.Workspace;
 using DocumentFormat.OpenXml.Wordprocessing;
 using ModelContextProtocol.Server;
 using Newtonsoft.Json;
@@ -14,22 +15,24 @@ namespace AppSage.MCPServer.Capabilty.Tools.CodeGraph
     [CapabilityRegistration("CodeGraph", @"Tools\CodeGraph")]
     public class CodeGraphGenerator
     {
-        static string _currentGraphLocation = null;
 
-        DirectedGraph _graph = null;
+        static DirectedGraph _graph = null;
 
         IAppSageLogger _logger;
+        IAppSageWorkspace _workspace;
+        IMetricReader _metricReader;
         IDynamicCompiler _compiler;
-        public CodeGraphGenerator(IAppSageLogger logger,IDynamicCompiler compiler)
+        public CodeGraphGenerator(IAppSageLogger logger,IDynamicCompiler compiler,IAppSageWorkspace workspace,IMetricReader metricReader)
         {
-            _currentGraphLocation = @"C:\Dev\SampleAppSageWorkspace\Output\LastRun";
             _logger = logger;
             _compiler = compiler;
+            _workspace = workspace;
+            _metricReader = metricReader;
         }
         [McpServerTool, Description("Run the code against the graph and generate data table")]
         public IEnumerable<DataTable> ExecuteTableQuery(string codeToCompileAndRun) {
-            if (string.IsNullOrEmpty(codeToCompileAndRun)) { 
-                throw new ArgumentNullException("The code cannot be empty");
+            if (string.IsNullOrEmpty(codeToCompileAndRun)) {
+                _logger.LogError("No code is provided to execute against the graph.");
             }
             if (_graph == null) { 
                 LoadGraphData();
@@ -38,99 +41,35 @@ namespace AppSage.MCPServer.Capabilty.Tools.CodeGraph
             return result;
         }
 
-   
 
+        [McpServerTool, Description("Get the current appsage workspace folder where the data are loaded from")]
+        public string GetWorkspaceRootFolder()
+        {
+            return _workspace.RootFolder;
+        }
 
-        [McpServerTool, Description("Get the folder path where the current code graph data will be loaded from")]
-        public string GetCurrentGraphLocation()
-        {
-            if (string.IsNullOrEmpty(_currentGraphLocation))
-            {
-                return "No graph location is found";
-            }
-            if (!System.IO.Directory.Exists(_currentGraphLocation))
-            {
-                return $"The current graph location '{_currentGraphLocation}' does not exist";
-            }
-            return _currentGraphLocation;
-        }
-        [McpServerTool, Description("Set the folder path where the code graph data will be loaded from.")]
-        public string SetCurrentGraphLocation(
-            [Description("Valid forlder path that points to graph data. The directory should exits.")]string location
-            )
-        {
-            if (string.IsNullOrEmpty(location))
-            {
-                throw new ArgumentNullException("The location cannot be empty");
-            }
-            if (!System.IO.Directory.Exists(location))
-            {
-                throw new ArgumentNullException($"The location '{location}' does not exist");
-            }
-            _currentGraphLocation = location;
-            return $"The current graph location is set to '{_currentGraphLocation}'";
-        }
-        [McpServerTool, Description("Load the graph data from the graph location. Make sure you have first called set current graph location first to set the graph data path")]
+        [McpServerTool, Description("Load the data and refresh the current graph metrics.")]
         public string LoadGraphData()
         {
-
-            if (string.IsNullOrEmpty(_currentGraphLocation))
-            {
-                throw new ArgumentNullException("The current code graph location is not properly set. Set the current graph location first");
-            }
-            if (!System.IO.Directory.Exists(_currentGraphLocation))
-            {
-                throw new ArgumentNullException($"The location {_currentGraphLocation} does not exist. Ensure you set the curretn graph location to a valid directory");
-            }
-
-            _graph = LoadGraphData(_currentGraphLocation);
-            if(_graph == null)
-            {
-                return $"No graph data is found in '{_currentGraphLocation}'";
-            }
-            return $"Graph data is loaded from '{_currentGraphLocation}'. Found {_graph.Nodes.Count} nodes and {_graph.Edges.Count} edges";
-        }
-
-        private DirectedGraph LoadGraphData(string metricFolder)
-        {
-            var metrics = GetAllMetrics(metricFolder);
+            _logger.LogInformation("Loading graph data from the metric store.");
+            var metrics = _metricReader.GetMetricSet();
             string providerName = "AppSage.Providers.DotNet.DependencyAnalysis.DotNetDependencyAnalysisProvider";
 
             var projectDependencies = metrics
                 .Where(x => x.Provider == providerName)
                 .Where(x => x.Name == MetricName.DotNet.Project.CODE_DEPENDENCY_GRAPH)
-                .Cast<IResourceMetricValue<DirectedGraph>>().Select(r=>r.Value);
-        
-            return DirectedGraph.MergeGraph(projectDependencies);
+                .Cast<IResourceMetricValue<DirectedGraph>>().Select(r => r.Value);
+
+            _graph= DirectedGraph.MergeGraph(projectDependencies);
+            _logger.LogInformation("Loading completed.");
+
+            if (_graph == null)
+            {
+                return $"No graph data is found in '{_workspace.ProviderOutputFolder}'";
+            }
+            return $"Graph data is loaded from '{_workspace.ProviderOutputFolder}'. Found {_graph.Nodes.Count} nodes and {_graph.Edges.Count} edges";
         }
 
-        protected IEnumerable<IMetric> GetAllMetrics(string metricFolder )
-        {
-            if (!Directory.Exists(metricFolder))
-            {
-                throw new DirectoryNotFoundException($"The directory {metricFolder} does not exist.");
-            }
-            var fileSet = Directory.GetFiles(metricFolder, "*.json", System.IO.SearchOption.AllDirectories);
-
-
-
-            List<IMetric> result = new List<IMetric>();
-            foreach (var file in fileSet)
-            {
-                if (System.IO.File.Exists(file))
-                {
-                    string json = System.IO.File.ReadAllText(file);
-                    var settings = new JsonSerializerSettings
-                    {
-                        Formatting = Formatting.Indented,
-                        TypeNameHandling = TypeNameHandling.All,
-                        NullValueHandling = NullValueHandling.Ignore
-                    };
-                    var metrics = JsonConvert.DeserializeObject<IEnumerable<IMetric>>(json, settings);
-                    result.AddRange(metrics);
-                }
-            }
-            return result;
-        }
+       
     }
 }

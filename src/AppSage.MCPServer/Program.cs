@@ -4,11 +4,11 @@ using AppSage.Core.Logging;
 using AppSage.Core.Workspace;
 using AppSage.Infrastructure.Workspace;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
+using Serilog.Events;
+using Serilog.Formatting.Display;
 using System.Globalization;
-using System.Reflection;
 
 namespace AppSage.MCPServer
 {
@@ -17,31 +17,67 @@ namespace AppSage.MCPServer
         private static IAppSageLogger _logger;
         public static async Task Main(string[] args)
         {
+            IServiceCollection bootstrapCollection = new ServiceCollection();
+            bootstrapCollection = InitializeCoreServices(bootstrapCollection, null);
+            var bootstrapService = bootstrapCollection.BuildServiceProvider();
+            IAppSageWorkspace workspace = bootstrapService.GetRequiredService<IAppSageWorkspace>();
+            IAppSageLogger logger = bootstrapService.GetRequiredService<IAppSageLogger>();
+            bootstrapService.Dispose();
+
+            logger.LogInformation($"AppSage workspace folder is [{workspace.RootFolder}]");
+
             var builder = WebApplication.CreateBuilder(args);
-            InitializeCoreServices(builder.Services);
+            var serviceCollection= InitializeCoreServices(builder.Services, workspace);
             
-            Runner runner = new Runner(builder.Services);
+            Runner runner = new Runner(serviceCollection);
             await runner.Run(builder);
         }
 
-      
 
-        private static IServiceCollection InitializeCoreServices(IServiceCollection services)
+
+        private static IServiceCollection InitializeCoreServices(IServiceCollection services, IAppSageWorkspace workspace)
         {
-            services.AddSingleton<IAppSageConfiguration, AppSageConfiguration>();
+            var logger = new LoggerConfiguration()
+           .MinimumLevel.Debug()
+           .Enrich.FromLogContext()
+           .Enrich.WithThreadId()
+           .Enrich.WithMachineName();
 
-            IServiceProvider preSetupProvider = services.BuildServiceProvider();
-            var appSageConfig = preSetupProvider.GetService<IAppSageConfiguration>();
-            ConfigureSerilog(appSageConfig);
+            //We will always log to the console with the look and feel of a Console.WriteLine for Information level messages. 
+            logger.WriteTo.Logger(lc => lc
+                        .Filter.ByIncludingOnly(e => e.Level == LogEventLevel.Information)
+                        .WriteTo.Console(formatter: new MessageTemplateTextFormatter("{Message:lj}{NewLine}", null)
+            ));
+            // Console sink for all *non-Information* levels (default format)
+            logger.WriteTo.Logger(lc => lc
+                .Filter.ByExcluding(e => e.Level == LogEventLevel.Information)
+                .WriteTo.Console() // default Serilog console theme/formatter
+            );
+
+            if (workspace != null && !String.IsNullOrEmpty(workspace.LogsFolder) && Directory.Exists(workspace.LogsFolder))
+            {
+                logger.WriteTo.File(Path.Combine(workspace.LogsFolder, "appSage-.log"), rollingInterval: RollingInterval.Day);
+            }
+            // Create Serilog logger
+            Log.Logger = logger.CreateLogger();
+
+
             // Add Serilog
             services.AddSingleton(Log.Logger);
             // Register the logger as a singleton (one instance for the entire application)
             services.AddSingleton<IAppSageLogger, AppSageLogger>();
 
-            preSetupProvider = services.BuildServiceProvider();
 
-            // Add services required for localization
-            services.AddLocalization();
+            IAppSageConfiguration appSageConfiguration = new AppSageConfiguration(AppSageConfiguration.GetDefaultConfigTemplateFilePath());
+            services.AddSingleton<IAppSageConfiguration>(appSageConfiguration);
+
+            services.AddSingleton<IAppSageWorkspace>(sp =>
+            {
+                IAppSageConfiguration config = sp.GetRequiredService<IAppSageConfiguration>();
+                string workspaceFolder = config.Get<string>("AppSage.MCPServer.Program:WorkspaceRootFolder");
+
+                return new AppSageWorkspaceManager(new DirectoryInfo(workspaceFolder), sp.GetRequiredService<IAppSageLogger>());
+            });
 
             //Initialize the localization
             var cultureName = Environment.GetEnvironmentVariable("APPSAGE_CULTURE") ?? "en-US";
@@ -50,30 +86,9 @@ namespace AppSage.MCPServer
             // Initialize all LocalizationManager derived classes automatically
             LocalizationManager.InitializeAll();
 
-            string workspaceRoot = appSageConfig.Get<string>("AppSage.Core:WorkspaceRoot");
-            //services.AddSingleton<IAppSageWorkspace>(sp =>
-            //{
-            //    var logger = sp.GetRequiredService<IAppSageLogger>();
-            //    return new AppSageWorkspaceManager(workspaceRoot, logger);
-            //});
             return services;
         }
-        private static void ConfigureSerilog(IAppSageConfiguration config)
-        {
-            string logFolder = config.Get<string>("AppSage.Core:LogFolder");
-            // Ensure logs directory exists
-            Directory.CreateDirectory(logFolder);
 
-            // Create Serilog logger
-            Log.Logger = new LoggerConfiguration()
-                .MinimumLevel.Debug()
-                .WriteTo.Console()
-                .WriteTo.File(Path.Combine(logFolder, "appSage-.log"), rollingInterval: RollingInterval.Day)
-                .Enrich.FromLogContext()
-                .Enrich.WithThreadId()
-                .Enrich.WithMachineName()
-                .CreateLogger();
-        }
 
 
 

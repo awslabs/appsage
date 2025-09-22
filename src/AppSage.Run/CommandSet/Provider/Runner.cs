@@ -2,6 +2,7 @@
 using AppSage.Core.Logging;
 using AppSage.Core.Metric;
 using AppSage.Core.Workspace;
+using AppSage.Infrastructure.Metric;
 
 namespace AppSage.Run.CommandSet.Provider
 {
@@ -53,9 +54,6 @@ namespace AppSage.Run.CommandSet.Provider
             }
 
         }
-
-      
-
 
     }
 }

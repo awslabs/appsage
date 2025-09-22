@@ -10,7 +10,7 @@ namespace AppSage.Web.Pages.Reports.DotNet.GraphAnalysis
 {
     public class IndexModel : MetricFilterPageModel
     {
-        public IndexModel(IAppSageLogger logger, IAppSageConfiguration config, IAppSageWorkspace workspace) : base(logger, config, workspace) { }
+        public IndexModel(IMetricReader metricReader) : base(metricReader) { }
         public IndexViewModel Dashboard { get; set; } = new IndexViewModel();
         private static DirectedGraph _lazyGraph;
         public override List<IMetric> GetMyMetrics()

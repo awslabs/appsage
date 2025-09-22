@@ -1,5 +1,6 @@
 ﻿using AppSage.Core.Configuration;
 using AppSage.Core.Logging;
+using AppSage.Core.Workspace;
 using AppSage.McpServer.Support;
 using AppSage.MCPServer.Capabilty;
 using Microsoft.Extensions.DependencyInjection;
@@ -24,14 +25,16 @@ public class ToolDiscovery
 
     private IAppSageLogger _logger;
     private IAppSageConfiguration _config;
+    private IAppSageWorkspace _workspace;
     private IServiceProvider _services;
     ResultBuilder _utility;
-    public ToolDiscovery(IAppSageLogger logger, IServiceProvider services,IAppSageConfiguration config)
+    public ToolDiscovery(IAppSageLogger logger, IServiceProvider services,IAppSageConfiguration config,IAppSageWorkspace workspace)
     {
-        _logger = logger;
         _services = services;
+        _logger = logger;
         _config = config;
-        _utility = new ResultBuilder(_logger, _config);
+        _workspace = workspace;
+        _utility = new ResultBuilder(_logger, _config,workspace);
         Init();
     }
 
@@ -260,7 +263,15 @@ public class ToolDiscovery
             else
             {
                 var declaringInstance = _services.GetService(method.DeclaringType);
-                result = method.Invoke(declaringInstance, argv);
+                if (argv.Length == 0)
+                {
+                    // instance method with no parameter
+                    result = method.Invoke(declaringInstance, null);
+                }
+                else
+                {
+                    result = method.Invoke(declaringInstance, argv);
+                }
             }
         }
         catch (McpException ex)
@@ -275,7 +286,7 @@ public class ToolDiscovery
             // Unwrap invocation exceptions
             throw new McpException($"Error invoking tool:{ex.ToString()}");
         }
-        ResultBuilder _utility = new ResultBuilder(_logger, _config);
+        ResultBuilder _utility = new ResultBuilder(_logger, _config,_workspace);
         // Use the static method to create the result
         var wrapped = _utility.CreateCallToolResult(result);
         return ValueTask.FromResult(wrapped);

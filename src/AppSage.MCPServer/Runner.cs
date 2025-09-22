@@ -1,6 +1,11 @@
 ﻿using AppSage.Core.Configuration;
+using AppSage.Core.Logging;
+using AppSage.Core.Metric;
+using AppSage.Core.Workspace;
+using AppSage.Infrastructure.Metric;
 using AppSage.McpServer.Capability.Tools;
 using AppSage.MCPServer.CapabilityBuilder;
+using AppSage.MCPServer.Capabilty.Tools.CodeGraph;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,13 +25,17 @@ namespace AppSage.MCPServer
 
         public async Task Run(WebApplicationBuilder builder) {
             var serviceCollection = builder.Services.BuildServiceProvider();
-            var appSageConfig = serviceCollection.GetService<IAppSageConfiguration>();
+            var logger = serviceCollection.GetService<IAppSageLogger>();
+            var config = serviceCollection.GetService<IAppSageConfiguration>();
+            var workspace = serviceCollection.GetService<IAppSageWorkspace>();
 
-            string listeningUrl = appSageConfig.Get<string>("AppSage.MCPServer.Runner:ListeningUrl");
+            logger.LogInformation($"Starting AppSage MCP Server for the AppSage workspace[{workspace.RootFolder}]");
+
+            string listeningUrl = config.Get<string>("AppSage.MCPServer.Runner:ListeningUrl");
             builder.WebHost.UseUrls(listeningUrl);
 
             var serverCapabilities = serviceCollection.GetService<ServerDiscovery>().CreateServerCapabilities();
-
+ 
 
             builder.Services
                 .AddMcpServer(options =>
@@ -49,13 +58,16 @@ namespace AppSage.MCPServer
             // Helpful startup messages - now safe because Console is redirected to stderr
             app.Lifetime.ApplicationStarted.Register(() =>
             {
-                Console.WriteLine($"[MCP] HTTP endpoint: {string.Join(", ", app.Urls.Select(url => $"{url.TrimEnd('/')}/mcp"))}");
+                logger.LogInformation($"MCP server started for the workspace[{workspace.RootFolder}]");
+                logger.LogInformation($"[MCP] HTTP endpoint: {string.Join(", ", app.Urls.Select(url => $"{url.TrimEnd('/')}/mcp"))}");
             });
+
             await app.RunAsync();
         }
 
         private static void ConfigureServices(IServiceCollection services)
         {
+            services.AddSingleton<IMetricReader, MetricReader>();
             // Register the ServerCapabilities singleton
             services.AddSingleton<ToolDiscovery>();
             services.AddSingleton<ServerDiscovery>();
@@ -67,6 +79,8 @@ namespace AppSage.MCPServer
                     !t.IsAbstract &&
                     t.GetCustomAttribute<McpServerToolTypeAttribute>() is not null);
 
+          
+
             foreach (var type in toolTypes)
             {
                 // If already registered, skip (avoid duplicates on multi-calls)
@@ -77,7 +91,9 @@ namespace AppSage.MCPServer
                 services.Add(descriptor);
             }
 
+            services.AddSingleton<CodeGraphGenerator>();
             services.AddTransient<IDynamicCompiler, DynamicCompiler>();
+            
         }
     }
 }

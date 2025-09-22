@@ -5,6 +5,7 @@ using AppSage.Core.Workspace;
 using AppSage.Infrastructure.Workspace;
 using AppSage.Run.CommandSet;
 using AppSage.Run.CommandSet.Init;
+using AppSage.Run.CommandSet.MCP;
 using AppSage.Run.CommandSet.Provider;
 using AppSage.Run.CommandSet.Root;
 using Microsoft.Extensions.DependencyInjection;
@@ -37,6 +38,7 @@ namespace AppSage.Run
                 //args = new string[] { "init", "-ws", @"C:\temp\bingo" };
                 //args = new string[] { "init" };
                 //args = new string[] { "provider","run","-ws", "C:\\Temp\\bingo" };
+                args= new string[] { "mcpserver", "run", "-ws", "C:\\Temp\\MyAppSageWorkspace" };
 
                 RootCommand rootCommand = new RootCommand
                 {
@@ -124,6 +126,7 @@ namespace AppSage.Run
             var commands = new List<ISubCommand>();
 
             commands.Add(new ProviderCommand(serviceCollection));
+            commands.Add(new MCPServerCommand(serviceCollection));
 
 
             return commands;

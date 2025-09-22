@@ -31,7 +31,7 @@ namespace AppSage.Web.Pages.Reports.DotNet.PurposeAnalysis
 
     public class IndexModel : MetricFilterPageModel
     {
-        public IndexModel(IAppSageLogger logger, IAppSageConfiguration config, IAppSageWorkspace workspace) : base(logger, config, workspace) { }
+        public IndexModel(IMetricReader metricReader) : base(metricReader) { }
         public TreeNode RootNode { get; set; } = new();
         public string TreeRootPrefix { get; set; } = "\\Repositories\\";
 
