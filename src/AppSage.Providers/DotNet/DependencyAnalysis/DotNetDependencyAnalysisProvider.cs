@@ -71,6 +71,10 @@ namespace AppSage.Providers.DotNet.DependencyAnalysis
                     var msBuildPath = _config.MSBuildPath;
                     MSBuildLocator.RegisterMSBuildPath(msBuildPath);
                 }
+                System.Data.DataTable dt = new System.Data.DataTable();
+                dt.Columns.Add("Test", typeof(string));
+           
+                dt.AcceptChanges();
 
                 var projectSolutionMapping = GetProjectSolutionMapping();
                 var projectSolutionMappingTable = GetProjectSolutionMappingTable(projectSolutionMapping);
