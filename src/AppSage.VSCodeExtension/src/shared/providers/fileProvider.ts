@@ -27,12 +27,12 @@ export class FileProvider {
 
     public static isAppSageFile(uri: vscode.Uri): boolean {
         const fileName = path.basename(uri.fsPath);
-        return fileName.includes('.appsage.');
+        return fileName.includes('.appsage');
     }
 
     public static getAppSageFileType(uri: vscode.Uri): string | null {
         const fileName = path.basename(uri.fsPath);
-        const match = fileName.match(/\.appsage\.(\w+)$/);
+        const match = fileName.match(/\.appsage(\w+)$/);
         return match ? match[1] : null;
     }
 }

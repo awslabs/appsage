@@ -10,5 +10,5 @@ vsc-extension-quickstart.md
 **/.eslintrc.json
 **/*.map
 **/*.ts
-samples/SampleGraph.appsage.graph
+samples/SampleGraph.appsagegraph
 release/README.md

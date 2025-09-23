@@ -16,12 +16,12 @@ export class FileUtils {
 
     public static isAppSageFile(filePath: string): boolean {
         const fileName = this.getFileName(filePath);
-        return fileName.includes('.appsage.');
+        return fileName.includes('.appsage');
     }
 
     public static getAppSageFileType(filePath: string): string | null {
         const fileName = this.getFileName(filePath);
-        const match = fileName.match(/\.appsage\.(\w+)$/);
+        const match = fileName.match(/\.appsage(\w+)$/);
         return match ? match[1] : null;
     }
 

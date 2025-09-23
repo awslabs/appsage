@@ -62,7 +62,7 @@ namespace AppSage.Test
 
             string content = Newtonsoft.Json.JsonConvert.SerializeObject(graph, settings);
 
-            string file = @"C:\temp\SampleGraph.appsage.graph";
+            string file = @"C:\temp\SampleGraph.appsagegraph";
             System.IO.File.WriteAllText(file, content);
         }
     }

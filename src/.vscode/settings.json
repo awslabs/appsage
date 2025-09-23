@@ -19,7 +19,7 @@
     
     // File associations for AppSage files
     "files.associations": {
-        "*.appsage.graph": "json",
+        "*.appsagegraph": "json",
         "*.appsage.table": "json"
     },
     
@@ -27,7 +27,7 @@
     "json.schemas": [
         {
             "fileMatch": [
-                "*.appsage.graph"
+                "*.appsagegraph"
             ],
             "schema": {
                 "type": "object",

@@ -13,7 +13,7 @@ export interface ViewerConfig {
 export const VIEWER_CONFIGS: ViewerConfig[] = [
     {
         type: ViewerType.Graph,
-        fileExtension: '*.appsage.graph',
+        fileExtension: '*.appsagegraph',
         viewType: 'appsage.graphViewer',
         displayName: 'AppSage Graph Viewer'
     },

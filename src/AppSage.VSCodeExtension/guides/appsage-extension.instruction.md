@@ -67,13 +67,13 @@ AppSage.VSCodeExtension/
 - Do not keep external CDN references. All javascript libraries must be locally available. 
 
 # File Format
-Extension handles AppSage output files with the pattern: `{filename}.appsage.{type}`
+Extension handles AppSage output files with the pattern: `{filename}.appsage{type}`
 
 - `filename`: Any file name
-- `.appsage.`: Identifies AppSage file format
+- `.appsage`: Identifies AppSage file format
 - `type`: Handler type (graph, table, etc.)
 
-Examples: `analysis.appsage.graph`, `metrics.appsage.table`
+Examples: `analysis.appsagegraph`, `metrics.appsage.table`
 
 Sample files for testing are available in `/samples/`.
  - SampleTable.appsage.table
@@ -104,12 +104,12 @@ Each handler implements `vscode.CustomTextEditorProvider` to process specific fi
 - Register with VS Code's custom editor API
 
 ## Graph handler
-- **File Type**: `.appsage.graph`
+- **File Type**: `.appsagegraph`
 - **Visualization**: Interactive graphs using Cytoscape.js 3.26.0
 - **Features**: Multiple layout algorithms, zoom/pan controls, node selection
 - **Layouts**: Cose, Cose-Bilkent, Circle, Grid, Concentric, Breadth-First
 - **Filtering**: A multi select drop down to select node types. A multi select drop down to select edge types. 
-- **Sample file**: `samples/SampleGraph.appsage.graph`
+- **Sample file**: `samples/SampleGraph.appsagegraph`
 
 ## Table handler
 - **File Type**: `.appsage.table`

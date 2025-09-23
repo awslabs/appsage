@@ -41,7 +41,7 @@
         "displayName": "AppSage Graph Viewer",
         "selector": [
           {
-            "filenamePattern": "*.appsage.graph"
+            "filenamePattern": "*.appsagegraph"
           }
         ]
       },
