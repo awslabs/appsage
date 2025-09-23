@@ -50,7 +50,7 @@
         "displayName": "AppSage Table Viewer",
         "selector": [
           {
-            "filenamePattern": "*.appsage.table"
+            "filenamePattern": "*.appsagetable"
           }
         ]
       }

@@ -19,7 +19,7 @@ export const VIEWER_CONFIGS: ViewerConfig[] = [
     },
     {
         type: ViewerType.Table,
-        fileExtension: '*.appsage.table',
+        fileExtension: '*.appsagetable',
         viewType: 'appsage.tableViewer',
         displayName: 'AppSage Table Viewer'
     }

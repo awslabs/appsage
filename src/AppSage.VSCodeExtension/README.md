@@ -5,7 +5,7 @@ This Visual Studio Code extension provides custom handlers for AppSage files inc
 ## Features
 
 - **Graph Handler**: Visualize `.appsagegraph` files using Cytoscape.js
-- **Table Handler**: Display `.appsage.table` files using AG Grid
+- **Table Handler**: Display `.appsagetable` files using AG Grid
 - **Profile Management**: Organize and switch between different AppSage configurations
 - **Activity Bar Integration**: Dedicated AppSage activity bar with profile explorer
 - **Status Bar Integration**: Quick profile switching from the status bar
@@ -14,7 +14,7 @@ This Visual Studio Code extension provides custom handlers for AppSage files inc
 ## File Types Supported
 
 - `*.appsagegraph` - Graph visualization files
-- `*.appsage.table` - Table data files
+- `*.appsagetable` - Table data files
 
 ## Profile Management
 
@@ -36,7 +36,7 @@ For detailed information about profile management, see [Profile Management Docum
 
 ## Usage
 
-1. Open any `.appsagegraph` or `.appsage.table` file in VS Code
+1. Open any `.appsagegraph` or `.appsagetable` file in VS Code
 2. The appropriate custom viewer will automatically activate
 3. Use the toolbar controls to interact with the visualization
 4. Manage your AppSage configurations using the profile system

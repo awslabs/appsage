@@ -73,10 +73,10 @@ Extension handles AppSage output files with the pattern: `{filename}.appsage{typ
 - `.appsage`: Identifies AppSage file format
 - `type`: Handler type (graph, table, etc.)
 
-Examples: `analysis.appsagegraph`, `metrics.appsage.table`
+Examples: `analysis.appsagegraph`, `metrics.appsagetable`
 
 Sample files for testing are available in `/samples/`.
- - SampleTable.appsage.table
+ - SampleTable.appsagetable
 
 # Coding Standards
 - Follow VS Code extension development best practices
@@ -112,8 +112,8 @@ Each handler implements `vscode.CustomTextEditorProvider` to process specific fi
 - **Sample file**: `samples/SampleGraph.appsagegraph`
 
 ## Table handler
-- **File Type**: `.appsage.table`
+- **File Type**: `.appsagetable`
 - **Visualization**: Structured data tables with AG Grid
 - **Features**: Sorting, filtering, search, CSV export
-- **Sample file**: `samples/SampleTable.appsage.table`
+- **Sample file**: `samples/SampleTable.appsagetable`
 
