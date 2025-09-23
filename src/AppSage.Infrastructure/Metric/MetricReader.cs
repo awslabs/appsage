@@ -2,6 +2,7 @@
 using AppSage.Core.Logging;
 using AppSage.Core.Metric;
 using AppSage.Core.Workspace;
+using AppSage.Infrastructure.Serialization;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -53,13 +54,8 @@ namespace AppSage.Infrastructure.Metric
                 if (file.Exists)
                 {
                     string json = System.IO.File.ReadAllText(file.FullName);
-                    var settings = new JsonSerializerSettings
-                    {
-                        Formatting = Formatting.Indented,
-                        TypeNameHandling = TypeNameHandling.All,
-                        NullValueHandling = NullValueHandling.Ignore
-                    };
-                    var metrics = JsonConvert.DeserializeObject<IEnumerable<IMetric>>(json, settings);
+
+                    var metrics= AppSageSerializer.DeserializeFromFile<IEnumerable<IMetric>>(file.FullName);
                     result.AddRange(metrics);
                 }
             }

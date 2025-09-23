@@ -22,5 +22,16 @@
     <PackageReference Include="SharpToken" Version="2.0.3" />
     <PackageReference Include="System.Threading.RateLimiting" Version="9.0.7" />
   </ItemGroup>
+  <ItemGroup>
+    <None Update="Workspace\Docs\AppSage\MCPQueryGuide\GraphDescription.md">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Workspace\Docs\AppSage\MCPQueryGuide\GraphReturnQueryExample.md">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Workspace\Docs\AppSage\MCPQueryGuide\TableReturnQueryExample.md">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 
 </Project>

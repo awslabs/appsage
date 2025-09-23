@@ -1,6 +1,8 @@
-﻿using AppSage.Core.Configuration;
+﻿using AppSage.Core.ComplexType.Graph;
+using AppSage.Core.Configuration;
 using AppSage.Core.Logging;
 using AppSage.Core.Workspace;
+using AppSage.Infrastructure.Serialization;
 using ClosedXML.Excel;
 using ModelContextProtocol.Protocol;
 using Newtonsoft.Json.Linq;
@@ -117,6 +119,34 @@ namespace AppSage.MCPServer.Capabilty
                 {
                     throw new Exception("Error converting DataTables to Excel", ex);
                 }
+            }
+
+            // Handle DirectedGraph - convert to .appsagegraph file
+            if (result is DirectedGraph graph)
+            {
+                try
+                {
+                    var collector = new List<ContentBlock>();
+                    var fileName = $"Graph_{DateTime.Now:yyyyMMdd_HHmmss}.appsagegraph";
+                    string filePath = Path.Combine(_config.ResultOutputFolder, fileName);
+                    AppSageSerializer.SerializeToFile(filePath,graph);
+
+                    var fileResult = new ResourceLinkBlock
+                    {
+                        Name = fileName,
+                        Uri = new Uri(filePath).AbsoluteUri,
+                        MimeType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                    };
+
+                    collector.Add(new TextContentBlock() { Text = "AppSage graph file has been created. Please open it in vscode. You must have AppSage VS code extension installed." });
+                    collector.Add(fileResult);
+                    return collector;
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception("Error converting DataTables to Excel", ex);
+                }
+
             }
 
             // Handle JObject from Newtonsoft.Json - convert to JSON file

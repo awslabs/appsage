@@ -3,6 +3,7 @@ using AppSage.Core.Const;
 using AppSage.Core.Logging;
 using AppSage.Core.Metric;
 using AppSage.Core.Workspace;
+using AppSage.Infrastructure.Serialization;
 using Newtonsoft.Json;
 using System.Collections.Concurrent;
 
@@ -121,16 +122,6 @@ namespace AppSage.Infrastructure.Metric
                         .GroupBy(x => x.index / _config.OutputMetricsPerFile)
                         .Select(g => g.Select(x => x.metric));
 
-
-
-                    // Serialize the metrics to JSON
-                    var settings = new JsonSerializerSettings
-                    {
-                        Formatting = Formatting.Indented,
-                        TypeNameHandling = TypeNameHandling.Objects,
-                        NullValueHandling = NullValueHandling.Ignore
-                    };
-
                     // Ensure the output directory exists
                     Directory.CreateDirectory(_config.OutputFolder);
                     string dateTimeStamp = DateTime.UtcNow.ToString("yyyyMMdd_HHmmss");
@@ -162,14 +153,8 @@ namespace AppSage.Infrastructure.Metric
 
                         string filePath = Path.Combine(_config.OutputFolder, fileName);
 
-                        using (var writer = new StreamWriter(filePath))
-                        {
-                            using (var jsonWriter = new JsonTextWriter(writer))
-                            {
-                                var serializer = JsonSerializer.Create(settings);
-                                serializer.Serialize(jsonWriter, mc.ToArray());
-                            }
-                        }
+                        AppSageSerializer.SerializeToFile(filePath, mc.ToArray());
+
                         _outputFileIndex++;
                     }
 

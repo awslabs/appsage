@@ -12,6 +12,7 @@
         //input folders
         protected const string REPOSITORIES_ROOT_FOLDER_NAME = "Repositories";
         protected const string DATABASE_SCHEMA_ROOT_FOLDER_NAME = "DatabaseSchemas";
+        protected const string DOCS_ROOT_FOLDER_NAME = "Docs";
 
         //output folders
         protected const string OUTPUT_ROOT_FOLDER_NAME = "Output";
@@ -42,6 +43,8 @@
         string LogsFolder => Path.Combine(RootFolder, LOGS_ROOT_FOLDER_NAME);
 
         string ProviderFolder => Path.Combine(RootFolder, PROVIDER_ROOT_FOLDER_NAME);
+
+        string DocsFolder => Path.Combine(RootFolder, DOCS_ROOT_FOLDER_NAME);
 
         string AppSageConfigFolder => Path.Combine(RootFolder, APPSAGE_CONFIG_ROOT_FOLDER_NAME);
         string AppSageConfigFilePath => Path.Combine(AppSageConfigFolder, APPSAGE_CONFIG_FILENAME);

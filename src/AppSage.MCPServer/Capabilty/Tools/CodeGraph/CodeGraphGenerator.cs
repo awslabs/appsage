@@ -46,6 +46,28 @@ namespace AppSage.MCPServer.Capabilty.Tools.CodeGraph
             return result;
         }
 
+        [McpServerTool, Description("Run the code against the code graph and generate a directed graph")]
+        public DirectedGraph ExecuteGraphQuery(string codeToCompileAndRun)
+        {
+            if (string.IsNullOrEmpty(codeToCompileAndRun))
+            {
+                _logger.LogError("No code is provided to execute against the graph.");
+            }
+
+            if (_graph == null)
+            {
+                lock (_padlock)
+                {
+                    if (_graph == null)
+                    {
+                        LoadGraphData();
+                    }
+                }
+            }
+            var result = _compiler.CompileAndExecute<DirectedGraph>(codeToCompileAndRun, _graph);
+            return result;
+        }
+
 
         [McpServerTool, Description("Get the current appsage workspace folder where the data are loaded from")]
         public string GetWorkspaceRootFolder()
@@ -74,7 +96,5 @@ namespace AppSage.MCPServer.Capabilty.Tools.CodeGraph
             }
             return $"Graph data is loaded from '{_workspace.ProviderOutputFolder}'. Found {_graph.Nodes.Count} nodes and {_graph.Edges.Count} edges";
         }
-
-       
     }
 }

@@ -1,6 +1,7 @@
 ﻿using AppSage.Core.Configuration;
 using AppSage.Core.Logging;
 using AppSage.Core.Workspace;
+using System.Reflection;
 
 namespace AppSage.Infrastructure.Workspace
 {
@@ -92,6 +93,13 @@ namespace AppSage.Infrastructure.Workspace
                 logger.LogInformation($"{messagePrefix} [{ws.ProviderFolder}]. This is where all provider plugins should be placed. One folder for each plugin.");
                 Directory.CreateDirectory(ws.ProviderFolder);
 
+                logger.LogInformation($"{messagePrefix} [{ws.DocsFolder}]. This is where documents will be kept.");
+                Directory.CreateDirectory(ws.DocsFolder);
+
+                string directory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+                string docsDirectory = Path.Combine(directory,"Workspace","Docs");
+                CopyDirectoryIterative(docsDirectory, ws.DocsFolder);
+
 
                 logger.LogInformation($"{messagePrefix} hidden AppSage config folder folder [{ws.AppSageConfigFolder}]. Used by AppSage to identify configuration.");
                 Directory.CreateDirectory(ws.AppSageConfigFolder);
@@ -120,6 +128,42 @@ namespace AppSage.Infrastructure.Workspace
             return 0;
         }
 
+
+        static void CopyDirectoryIterative(string sourceDir, string destinationDir)
+        {
+            var sourceRoot = new DirectoryInfo(sourceDir);
+
+            if (!sourceRoot.Exists)
+            {
+                throw new DirectoryNotFoundException($"Source directory not found: {sourceRoot.FullName}");
+            }
+
+            // Stack for DFS traversal
+            Stack<DirectoryInfo> dirs = new Stack<DirectoryInfo>();
+            dirs.Push(sourceRoot);
+
+            while (dirs.Count > 0)
+            {
+                var currentDir = dirs.Pop();
+                string relativePath = Path.GetRelativePath(sourceRoot.FullName, currentDir.FullName);
+                string targetDir = Path.Combine(destinationDir, relativePath);
+
+                Directory.CreateDirectory(targetDir);
+
+                // Copy files in the current directory
+                foreach (FileInfo file in currentDir.GetFiles())
+                {
+                    string targetFilePath = Path.Combine(targetDir, file.Name);
+                    file.CopyTo(targetFilePath, overwrite: true);
+                }
+
+                // Push subdirectories to stack
+                foreach (DirectoryInfo subDir in currentDir.GetDirectories())
+                {
+                    dirs.Push(subDir);
+                }
+            }
+        }
 
         public static  DirectoryInfo ResolveWorkspaceRootFolder(DirectoryInfo folder, IAppSageLogger logger=null)
         {
