@@ -167,12 +167,31 @@
             "dependsOn": ["compile-vscode-extension"]
         },
         {
+            "label": "release-vscode-extension",
+            "type": "shell",
+            "command": "powershell",
+            "args": [
+                "-Command",
+                "Write-Host 'Starting VS Code Extension Release Process...' -ForegroundColor Green; if (Test-Path 'release') { Write-Host 'Cleaning existing release directory...' -ForegroundColor Yellow; Remove-Item 'release' -Recurse -Force }; Write-Host 'Creating release directory...' -ForegroundColor Yellow; New-Item -ItemType Directory -Path 'release' -Force | Out-Null; Write-Host 'Installing dependencies...' -ForegroundColor Yellow; npm install; Write-Host 'Compiling TypeScript...' -ForegroundColor Yellow; npm run compile; Write-Host 'Checking for vsce tool...' -ForegroundColor Yellow; if (!(Get-Command vsce -ErrorAction SilentlyContinue)) { Write-Host 'Installing vsce tool...' -ForegroundColor Yellow; npm install -g @vscode/vsce }; Write-Host 'Packaging extension...' -ForegroundColor Yellow; vsce package --out release/; Write-Host 'Release complete! VSIX file created in release/ directory.' -ForegroundColor Green; Get-ChildItem release/*.vsix | ForEach-Object { Write-Host \"Created: $($_.Name) ($([math]::Round($_.Length/1KB, 2)) KB)\" -ForegroundColor Cyan }"
+            ],
+            "group": "build",
+            "presentation": {
+                "panel": "shared",
+                "reveal": "always",
+                "clear": true
+            },
+            "options": {
+                "cwd": "${workspaceFolder}/AppSage.VSCodeExtension"
+            },
+            "problemMatcher": []
+        },
+        {
             "label": "publish-vscode-extension",
             "type": "shell",
             "command": "powershell",
             "args": [
                 "-Command",
-                "if (!(Test-Path 'release')) { New-Item -ItemType Directory -Path 'release' }; if (!(Get-Command vsce -ErrorAction SilentlyContinue)) { Write-Host 'Installing vsce...'; npm install -g @vscode/vsce }; vsce package --out release/"
+                "Write-Host 'Preparing release directory...' -ForegroundColor Yellow; if (Test-Path 'release') { Remove-Item 'release' -Recurse -Force }; New-Item -ItemType Directory -Path 'release' -Force | Out-Null; if (!(Get-Command vsce -ErrorAction SilentlyContinue)) { Write-Host 'Installing vsce...' -ForegroundColor Yellow; npm install -g @vscode/vsce }; Write-Host 'Packaging extension...' -ForegroundColor Yellow; vsce package --out release/; Write-Host 'Extension packaged successfully!' -ForegroundColor Green; Get-ChildItem release/*.vsix | ForEach-Object { Write-Host \"Created: $($_.Name) ($([math]::Round($_.Length/1KB, 2)) KB)\" -ForegroundColor Cyan }"
             ],
             "group": "build",
             "presentation": {
