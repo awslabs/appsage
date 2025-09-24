@@ -362,6 +362,7 @@ namespace AppSage.Providers.DotNet.DependencyAnalysis
         {
             try
             {
+                var projectNode= graph.GetNode(_utility.GetNodeIdProject(project));
                 foreach (var syntaxTree in compilation.SyntaxTrees)
                 {
                     var semanticModel = compilation.GetSemanticModel(syntaxTree);
@@ -409,7 +410,7 @@ namespace AppSage.Providers.DotNet.DependencyAnalysis
 
                             var residingAssembly = graph.AddOrUpdateNode(currentTypeSymbol.ContainingAssembly.Name, currentTypeSymbol.ContainingAssembly.Name, ConstString.Dependency.NodeType.ASSEMBLY);
                             graph.AddOrUpdateEdge(currentTypeNode, residingAssembly, ConstString.Dependency.DependencyType.RESIDE);
-
+                            graph.AddOrUpdateEdge(currentTypeNode, projectNode, ConstString.Dependency.DependencyType.RESIDE);
 
                             UpdateBaseTypeDependencies(currentTypeNode, graph, currentTypeSymbol);
                             UpdateInterfaceDependencies(currentTypeNode, graph, currentTypeSymbol);
@@ -910,6 +911,12 @@ namespace AppSage.Providers.DotNet.DependencyAnalysis
                 // Alternative: you can also use namedType.ConstructedFrom which should give the same result
                 // typeToUse = namedType.ConstructedFrom;
             }
+            // If it's an array type (like string[]), get the element type (like string)
+            if (typeSymbol is IArrayTypeSymbol arrayType)
+            {
+                result = arrayType.ElementType;
+            }
+
             return result;
         }
         private bool IsBuiltInType(ITypeSymbol typeSymbol)
