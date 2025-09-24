@@ -15,15 +15,15 @@ namespace AppSage.Run.CommandSet.Provider
         public static IServiceCollection RegisterProviders(IServiceCollection services)
         {
             //register infrastructure components
-            services.AddSingleton<IAWSCredentialProvider, AWSCredentialProvider>();
-            services.AddSingleton<IAIQuery, BedrockService>();
-            services.AddSingleton<IAIQuery, OllamaService>();
+            //services.AddSingleton<IAWSCredentialProvider, AWSCredentialProvider>();
+            //services.AddSingleton<IAIQuery, BedrockService>();
+            //services.AddSingleton<IAIQuery, OllamaService>();
             services.AddSingleton<IAppSageCache, FileSystemCache>();
 
             // Register metric providers
-            services.AddTransient<IMetricProvider, RepositoryMetricProvider>();
-            services.AddTransient<IMetricProvider, GitMetricProvider>();
-            services.AddTransient<IMetricProvider, DotNetBasicCodeAnalysisProvider>();
+            //services.AddTransient<IMetricProvider, RepositoryMetricProvider>();
+            //services.AddTransient<IMetricProvider, GitMetricProvider>();
+            //services.AddTransient<IMetricProvider, DotNetBasicCodeAnalysisProvider>();
             services.AddTransient<IMetricProvider, DotNetDependencyAnalysisProvider>();
             //services.AddTransient<IMetricProvider, DotNetAIAnalysisProvider>();
 

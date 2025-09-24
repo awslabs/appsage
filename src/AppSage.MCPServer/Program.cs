@@ -24,7 +24,7 @@ namespace AppSage.MCPServer
             IAppSageLogger logger = bootstrapService.GetRequiredService<IAppSageLogger>();
             bootstrapService.Dispose();
 
-            logger.LogInformation($"AppSage workspace folder is [{workspace.RootFolder}]");
+            logger.LogInformation("AppSage workspace folder is [{WorkspaceRootFolder}]", workspace.RootFolder);
 
             var builder = WebApplication.CreateBuilder(args);
             var serviceCollection= InitializeCoreServices(builder.Services, workspace);

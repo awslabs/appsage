@@ -97,7 +97,7 @@ namespace AppSage.Providers.DotNet.DependencyAnalysis
 
                 projectFileList.AsParallel().WithDegreeOfParallelism(_config.ProjectMaxParallelism).ForAll(projectFile =>
                 {
-                    _logger.LogInformation($"Processing project file: {projectFile.Name}");
+                    _logger.LogInformation("Processing project file: {ProjectFileName}", projectFile.Name);
                     try
                     {
                         using (var workspace = MSBuildWorkspace.Create())
@@ -147,17 +147,17 @@ namespace AppSage.Providers.DotNet.DependencyAnalysis
                                 }
                                 else
                                 {
-                                    _logger.LogError($"Failed to open project {projectFile.Name}: {task.Exception?.Message}");
+                                    _logger.LogError("Failed to open project {ProjectFileName}: {ErrorMessage}", projectFile.Name, task.Exception?.Message);
                                 }
 
                             });
                             openJob.Wait();
-                            _logger.LogInformation($"Processed project file: {projectFile.Name}");
+                            _logger.LogInformation("Processed project file: {ProjectFileName}", projectFile.Name);
                         }
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogError($"Error processing project file {projectFile.Name}: {ex.Message}");
+                        _logger.LogError("Error processing project file {ProjectFileName}: {ErrorMessage}", projectFile.Name, ex.Message);
                         return;
                     }
                 });
@@ -177,7 +177,7 @@ namespace AppSage.Providers.DotNet.DependencyAnalysis
 
             slnFileList.AsParallel().WithDegreeOfParallelism(_config.SolutionMaxParallelism).ForAll(slnFile =>
             {
-                _logger.LogInformation($"Processing solution file: {slnFile.Name}");
+                _logger.LogInformation("Processing solution file: {SolutionFileName}", slnFile.Name);
 
                 try
                 {
@@ -188,19 +188,19 @@ namespace AppSage.Providers.DotNet.DependencyAnalysis
                         {
                             if (task.IsCompletedSuccessfully)
                             {
-                                _logger.LogInformation($"Processing solution: {slnFile}");
+                                _logger.LogInformation("Processing solution: {SolutionFile}", slnFile);
                                 Solution solution = task.Result;
                                 string solutionNodeId = _utility.GetNodeIdSolution(solution);
                                 string solutionRepoName = _workspace.GetRepositoryName(slnFile.Path);
 
                                 HashSet<(string RepoName, string ProjectNodeId)> projectSet = new HashSet<(string RepoName, string ProjectNodeId)>();
 
-                                _logger.LogInformation($"Opened solution: {slnFile} with {solution.Projects.Count()} projects.");
+                                _logger.LogInformation("Opened solution: {SolutionFile} with {ProjectCount} projects.", slnFile, solution.Projects.Count());
                                 foreach (var project in solution.Projects)
                                 {
                                     string projectNodeId = _utility.GetNodeIdProject(project);
                                     string projectRepoName = _workspace.GetResourceName(project.FilePath);
-                                    _logger.LogInformation($"Analyzing project : {project.Name}");
+                                    _logger.LogInformation("Analyzing project : {ProjectName}", project.Name);
                                     projectSet.Add((projectRepoName, projectNodeId));
                                 }
                                 lock (result)
@@ -210,16 +210,16 @@ namespace AppSage.Providers.DotNet.DependencyAnalysis
                             }
                             else
                             {
-                                _logger.LogError($"Failed to open solution {slnFile}", task.Exception);
+                                _logger.LogError("Failed to open solution {SolutionFile}", slnFile, task.Exception);
                             }
-                            _logger.LogInformation($"Processed the solution: {slnFile}");
+                            _logger.LogInformation("Processed the solution: {SolutionFile}", slnFile);
                         });
                         openJob.Wait();
                     }
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError($"Error processing solution file {slnFile.Name}", ex);
+                    _logger.LogError("Error processing solution file {SolutionFileName}", slnFile.Name, ex);
                     return;
                 }
             });
