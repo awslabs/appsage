@@ -220,10 +220,10 @@ class EnhancedViewCustomizer {
 
         row.innerHTML = `
             <div class="control-column type-column">
-                <span class="type-name">${nodeType}</span>
+                <span class="type-name">${sanitize(nodeType)}</span>
             </div>
             <div class="control-column color-column">
-                <input type="color" value="${customization.color}" data-property="color">
+                <input type="color" value="${sanitize(customization.color)}" data-property="color">
             </div>
             <div class="control-column shape-column">
                 <select data-property="shape">
@@ -239,11 +239,11 @@ class EnhancedViewCustomizer {
             <div class="control-column size-value-column">
                 <input type="number" 
                        min="1" max="100" 
-                       value="${customization.staticSize}" 
+                       value="${sanitize(customization.staticSize)}" 
                        data-property="staticSize"
                        ${customization.sizeMode === 'dynamic' ? 'style="display:none"' : ''}>
                 <input type="text" 
-                       value="${customization.dynamicKey}" 
+                       value="${sanitize(customization.dynamicKey)}" 
                        placeholder="Attribute key" 
                        data-property="dynamicKey"
                        ${customization.sizeMode === 'static' ? 'style="display:none"' : ''}>
@@ -277,10 +277,10 @@ class EnhancedViewCustomizer {
 
         row.innerHTML = `
             <div class="control-column type-column">
-                <span class="type-name">${edgeType}</span>
+                <span class="type-name">${sanitize(edgeType)}</span>
             </div>
             <div class="control-column color-column">
-                <input type="color" value="${customization.color}" data-property="color">
+                <input type="color" value="${sanitize(customization.color)}" data-property="color">
             </div>
             <div class="control-column style-column">
                 <select data-property="style">
@@ -293,7 +293,7 @@ class EnhancedViewCustomizer {
                 </select>
             </div>
             <div class="control-column width-column">
-                <input type="number" min="1" max="10" value="${customization.width}" data-property="width">
+                <input type="number" min="1" max="10" value="${sanitize(customization.width)}" data-property="width">
             </div>
             <div class="control-column action-column">
                 <button class="remove-btn" title="Remove">×</button>
@@ -306,21 +306,21 @@ class EnhancedViewCustomizer {
     createShapeOptions(selectedShape) {
         const shapes = this.graphCustomization.getAvailableNodeShapes();
         return shapes.map(shape => 
-            `<option value="${shape}" ${shape === selectedShape ? 'selected' : ''}>${shape}</option>`
+            `<option value="${sanitize(shape)}" ${shape === selectedShape ? 'selected' : ''}>${sanitize(shape)}</option>`
         ).join('');
     }
 
     createEdgeStyleOptions(selectedStyle) {
         const styles = this.graphCustomization.getAvailableEdgeStyles();
         return styles.map(style => 
-            `<option value="${style}" ${style === selectedStyle ? 'selected' : ''}>${style}</option>`
+            `<option value="${sanitize(style)}" ${style === selectedStyle ? 'selected' : ''}>${sanitize(style)}</option>`
         ).join('');
     }
 
     createArrowOptions(selectedArrow) {
         const arrows = this.graphCustomization.getAvailableArrowShapes();
         return arrows.map(arrow => 
-            `<option value="${arrow}" ${arrow === selectedArrow ? 'selected' : ''}>${arrow}</option>`
+            `<option value="${sanitize(arrow)}" ${arrow === selectedArrow ? 'selected' : ''}>${sanitize(arrow)}</option>`
         ).join('');
     }
 

@@ -25,17 +25,24 @@ class GraphRenderer {
             return false;
         }
 
-        // Check cose-bilkent extension
+        // Check cose-bilkent extension with better error handling
         if (typeof cytoscapeCoseBilkent !== 'undefined') {
             try {
-                cytoscape.use(cytoscapeCoseBilkent);
-                this.coseBilkentAvailable = true;
-                console.log('Cose-bilkent extension registered successfully');
+                // Ensure cytoscape is properly initialized before registering extension
+                if (cytoscape && typeof cytoscape.use === 'function') {
+                    cytoscape.use(cytoscapeCoseBilkent);
+                    this.coseBilkentAvailable = true;
+                    console.log('Cose-bilkent extension registered successfully');
+                } else {
+                    console.warn('Cytoscape.use method not available, skipping cose-bilkent registration');
+                }
             } catch (error) {
                 console.warn('Failed to register cose-bilkent extension:', error);
+                this.coseBilkentAvailable = false;
             }
         } else {
             console.warn('Cose-bilkent extension not available - some layouts may not work');
+            this.coseBilkentAvailable = false;
         }
 
         return true;
@@ -634,7 +641,17 @@ class GraphRenderer {
     showError(message) {
         const container = document.getElementById('cy');
         if (container) {
-            container.innerHTML = `<div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #ff6b6b; font-family: Arial, sans-serif; text-align: center; padding: 20px;">${message}</div>`;
+            // Use sanitize function if available, otherwise create safe element manually
+            if (typeof sanitize === 'function') {
+                container.innerHTML = `<div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #ff6b6b; font-family: Arial, sans-serif; text-align: center; padding: 20px;">${sanitize(message)}</div>`;
+            } else {
+                // Fallback: create element safely without innerHTML
+                const errorDiv = document.createElement('div');
+                errorDiv.style.cssText = 'display: flex; align-items: center; justify-content: center; height: 100%; color: #ff6b6b; font-family: Arial, sans-serif; text-align: center; padding: 20px;';
+                errorDiv.textContent = message;
+                container.innerHTML = '';
+                container.appendChild(errorDiv);
+            }
         }
     }
 

@@ -42,14 +42,24 @@
         
         // Initialize side panel
         console.log('Initializing SidePanel...');
-        sidePanel = new SidePanel(vscode, enhancedViewCustomizer);
-        console.log('SidePanel initialized, sidebarOpen:', sidePanel.sidebarOpen);
+        try {
+            sidePanel = new SidePanel(vscode, enhancedViewCustomizer);
+            console.log('SidePanel initialized, sidebarOpen:', sidePanel.sidebarOpen);
+        } catch (error) {
+            console.error('Failed to initialize SidePanel:', error);
+            return false;
+        }
         
         // Initialize top menu
         console.log('Initializing TopMenu...');
-        topMenu = new TopMenu(graphRenderer, sidePanel);
-        topMenu.setCoseBilkentAvailable(graphRenderer.getCoseBilkentAvailable());
-        console.log('TopMenu initialized successfully');
+        try {
+            topMenu = new TopMenu(graphRenderer, sidePanel);
+            topMenu.setCoseBilkentAvailable(graphRenderer.getCoseBilkentAvailable());
+            console.log('TopMenu initialized successfully');
+        } catch (error) {
+            console.error('Failed to initialize TopMenu:', error);
+            return false;
+        }
         
         // Set up event handlers between components
         setupComponentInteractions();
@@ -80,8 +90,13 @@
         
         // Initialize graph customization
         if (typeof GraphCustomization !== 'undefined') {
-            graphCustomization = new GraphCustomization();
-            console.log('GraphCustomization initialized successfully');
+            try {
+                graphCustomization = new GraphCustomization();
+                console.log('GraphCustomization initialized successfully');
+            } catch (error) {
+                console.error('Failed to initialize GraphCustomization:', error);
+                return false;
+            }
         } else {
             console.error('GraphCustomization class not available');
             return false;
@@ -89,20 +104,23 @@
 
         // Initialize enhanced view customizer
         if (typeof EnhancedViewCustomizer !== 'undefined' && graphCustomization) {
-            enhancedViewCustomizer = new EnhancedViewCustomizer(vscode, graphCustomization);
-            enhancedViewCustomizer.initialize(); // Initialize the customizer
-            console.log('EnhancedViewCustomizer initialized successfully');
-            // Load saved customization
-            enhancedViewCustomizer.loadFromState();
+            try {
+                enhancedViewCustomizer = new EnhancedViewCustomizer(vscode, graphCustomization);
+                enhancedViewCustomizer.initialize(); // Initialize the customizer
+                console.log('EnhancedViewCustomizer initialized successfully');
+                // Load saved customization
+                enhancedViewCustomizer.loadFromState();
+            } catch (error) {
+                console.error('Failed to initialize EnhancedViewCustomizer:', error);
+                return false;
+            }
         } else {
             console.error('EnhancedViewCustomizer class not available or GraphCustomization failed');
             return false;
         }
-        
-        return true;
-    }
 
-    function updateGraph(graphData) {
+        return true;
+    }    function updateGraph(graphData) {
         if (!graphRenderer || !graphRenderer.getIsInitialized()) {
             console.warn('Graph renderer not initialized yet, delaying graph update');
             setTimeout(() => updateGraph(graphData), 100);
@@ -128,10 +146,18 @@
             }
 
             // Update types in top menu
-            topMenu.updateTypes(validNodes, validEdges);
+            if (topMenu && typeof topMenu.updateTypes === 'function') {
+                topMenu.updateTypes(validNodes, validEdges);
+            } else {
+                console.warn('TopMenu not available or updateTypes method missing');
+            }
             
             // Update legend in side panel (legend now gets data from customization settings)
-            sidePanel.updateLegend();
+            if (sidePanel && typeof sidePanel.updateLegend === 'function') {
+                sidePanel.updateLegend();
+            } else {
+                console.warn('SidePanel not available or updateLegend method missing');
+            }
             
             // Update the graph
             const success = graphRenderer.updateGraph(validNodes, validEdges);

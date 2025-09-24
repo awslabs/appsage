@@ -158,6 +158,11 @@ export class GraphViewer extends BaseViewer {
             vscode.Uri.joinPath(this.context.extensionUri, 'webview', 'graph', 'enhanced-view-customizer.js')
         );
 
+        // Shared utilities
+        const sharedUtilsUri = webview.asWebviewUri(
+            vscode.Uri.joinPath(this.context.extensionUri, 'webview', 'shared', 'js', 'shared-utils.js')
+        );
+
         // Refactored component scripts
         const graphRendererUri = webview.asWebviewUri(
             vscode.Uri.joinPath(this.context.extensionUri, 'webview', 'graph', 'GraphRenderer.js')
@@ -184,7 +189,8 @@ export class GraphViewer extends BaseViewer {
             ENHANCED_VIEW_CUSTOMIZER_URI: enhancedViewCustomizerUri.toString(),
             GRAPH_RENDERER_URI: graphRendererUri.toString(),
             TOP_MENU_URI: topMenuUri.toString(),
-            SIDE_PANEL_URI: sidePanelUri.toString()
+            SIDE_PANEL_URI: sidePanelUri.toString(),
+            SHARED_UTILS_URI: sharedUtilsUri.toString()
         });
     }
 }

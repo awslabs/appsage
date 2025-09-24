@@ -437,7 +437,7 @@ class SidePanel {
             detailsLabel.className = 'legend-details';
             detailsLabel.style.fontSize = '0.8em';
             detailsLabel.style.color = '#666';
-            detailsLabel.textContent = `Style: ${customization.style}, Arrow: ${customization.arrow}, Width: ${customization.width}px`;
+            detailsLabel.textContent = `Style: ${sanitize(customization.style)}, Arrow: ${sanitize(customization.arrow)}, Width: ${sanitize(customization.width)}px`;
             
             labelContainer.appendChild(typeLabel);
             labelContainer.appendChild(detailsLabel);
@@ -742,7 +742,7 @@ class SidePanel {
         }
         
         // Set title
-        propertyTitle.textContent = `Edge: ${edgeData.source} → ${edgeData.target}`;
+        propertyTitle.textContent = `Edge: ${sanitize(edgeData.source)} → ${sanitize(edgeData.target)}`;
         
         // Clear existing content
         propertyContent.innerHTML = '';
