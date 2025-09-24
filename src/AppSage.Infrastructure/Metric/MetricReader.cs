@@ -44,7 +44,7 @@ namespace AppSage.Infrastructure.Metric
             {
                 throw new DirectoryNotFoundException($"The directory {dataDir.FullName} does not exist.");
             }
-            _logger.LogInformation($"---   Loading metrics from [{dataDir.FullName}]   ---");
+            _logger.LogInformation("---   Loading metrics from [{DirectoryName}]   ---", dataDir.FullName);
 
             var fileSet = dataDir.GetFiles("*.json", System.IO.SearchOption.AllDirectories);
 

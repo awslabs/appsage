@@ -39,10 +39,10 @@ namespace AppSage.Run.CommandSet.Provider
         }
         public int Execute()
         {
-            _logger.LogInformation($"Available Providers:[Name]:[Description]");
+            _logger.LogInformation("Available Providers:[Name]:[Description]");
             _providers.ToList().ForEach(p =>
             {
-                _logger.LogInformation($"{p.FullQualifiedName}:{p.Description}");
+                _logger.LogInformation("{FullQualifiedName}:{Description}", p.FullQualifiedName, p.Description);
             });
 
             return 0;

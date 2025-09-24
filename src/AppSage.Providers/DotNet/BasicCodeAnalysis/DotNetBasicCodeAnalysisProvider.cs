@@ -61,7 +61,7 @@ namespace AppSage.Providers.DotNet.BasicCodeAnalysis
                     lock (_padlock)
                     {
                         progress++;
-                        _logger.LogInformation($"Processing project file: [{progress}/{projectFileList.Count()}] : {projectFile.Name}");
+                        _logger.LogInformation("Processing project file: [{Progress}/{Total}] : {ProjectName}", progress, projectFileList.Count(), projectFile.Name);
                     }
 
                     try
@@ -84,19 +84,19 @@ namespace AppSage.Providers.DotNet.BasicCodeAnalysis
                                 }
                                 else
                                 {
-                                    _logger.LogError($"Failed to open project {projectFile.Name}", task.Exception);
+                                    _logger.LogError("Failed to open project {ProjectName}", projectFile.Name, task.Exception);
                                 }
                             });
                             openJob.Wait();
-                            _logger.LogInformation($"Processed project file: {projectFile.Name}");
+                            _logger.LogInformation("Processed project file: {ProjectName}", projectFile.Name);
                         }
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogError($"Error processing project file {projectFile.Name}: {ex.Message}", ex);
+                        _logger.LogError("Error processing project file {ProjectName}: {ErrorMessage}", projectFile.Name, ex.Message, ex);
                     }
                 });
-                _logger.LogInformation($"{FullQualifiedName}:Project Analysis:[Completed]");
+                _logger.LogInformation("{FullQualifiedName}:Project Analysis:[Completed]", FullQualifiedName);
 
             }
             finally
@@ -459,7 +459,7 @@ namespace AppSage.Providers.DotNet.BasicCodeAnalysis
                 {
                     if (!File.Exists(_config.NamespaceListFileToIdentifyDBRelatedClasses))
                     {
-                        _logger.LogError($"Namespace list file to identify DB related classes does not exist: {_config.NamespaceListFileToIdentifyDBRelatedClasses}");
+                        _logger.LogError("Namespace list file to identify DB related classes does not exist: {FilePath}", _config.NamespaceListFileToIdentifyDBRelatedClasses);
                         return dbRelatedNamespaces;
                     }
                     var lines = File.ReadAllLines(_config.NamespaceListFileToIdentifyDBRelatedClasses);
@@ -475,7 +475,7 @@ namespace AppSage.Providers.DotNet.BasicCodeAnalysis
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError($"Error reading DB related namespaces from file: {_config.NamespaceListFileToIdentifyDBRelatedClasses}", ex);
+                    _logger.LogError("Error reading DB related namespaces from file: {FilePath}", _config.NamespaceListFileToIdentifyDBRelatedClasses, ex);
                 }
             }
             return dbRelatedNamespaces;

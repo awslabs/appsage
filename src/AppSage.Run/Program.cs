@@ -64,7 +64,7 @@ namespace AppSage.Run
                     if (workspaceRoot==null)
                     {
                         logger.LogError("Failed to resolve the workspace root folder. Ensure that the specified folder is a valid AppSage workspace or contains an AppSage workspace.");
-                        logger.LogError($"If you want to initalize an AppSage workspace in a given empty folder you may use the command {initSubCommand.Name}");
+                        logger.LogError("If you want to initalize an AppSage workspace in a given empty folder you may use the command {InitCommand}", initSubCommand.Name);
                         return -1;
                     }
                     else

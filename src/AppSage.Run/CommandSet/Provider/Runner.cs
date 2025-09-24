@@ -27,19 +27,19 @@ namespace AppSage.Run.CommandSet.Provider
                 string providerType = provider.GetType().FullName;
                 string providerVersion = provider.GetType().Assembly.GetName().Version.ToString();
 
-                _logger.LogInformation($"Running the provider: {providerType}, version:{providerVersion}");
+                _logger.LogInformation("Running the provider: {ProviderType}, version:{ProviderVersion}", providerType, providerVersion);
 
                 try
                 {
                     using (MetricCollector collector = new MetricCollector(provider.FullQualifiedName,providerVersion, _logger, _workspace, _configure))
                     {
                         provider.Run(collector);
-                        _logger.LogInformation($"Finished running the provider: {provider.GetType().FullName}. Collected Metrics {collector.TotalCollectedMetricCount}");
+                        _logger.LogInformation("Finished running the provider: {ProviderType}. Collected Metrics {TotalCollectedMetricCount}", provider.GetType().FullName, collector.TotalCollectedMetricCount);
                     }
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError($"Error running provider {provider.FullQualifiedName}: {ex.Message}", ex);
+                    _logger.LogError("Error running provider {FullQualifiedName}: {ErrorMessage}", provider.FullQualifiedName, ex.Message, ex);
                 }
             }
 
@@ -50,7 +50,7 @@ namespace AppSage.Run.CommandSet.Provider
 
             using (MetricCollector collector = new MetricCollector(appSageType,appSageRunnerVersion, _logger, _workspace, _configure))
             {
-                _logger.LogInformation($"AppSage Fingerprint");
+                _logger.LogInformation("AppSage Fingerprint");
             }
 
         }

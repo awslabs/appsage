@@ -24,7 +24,7 @@ namespace AppSage.Infrastructure.Caching
             {
                 Directory.CreateDirectory(_cachRootFolder);
                 File.SetAttributes(_cachRootFolder, File.GetAttributes(_cachRootFolder) | FileAttributes.Hidden);
-                _logger.LogInformation($"Hidden cache folder created at {_cachRootFolder}");
+                _logger.LogInformation("Hidden cache folder created at {CacheFolder}", _cachRootFolder);
             }
         }
         private string GetCacheFilePath(string key)
@@ -42,7 +42,7 @@ namespace AppSage.Infrastructure.Caching
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Failed to set cache for key {key}: {ex.Message}");
+                _logger.LogError("Failed to set cache for key {Key}: {ErrorMessage}", key, ex.Message);
             }
         }
 
@@ -86,11 +86,11 @@ namespace AppSage.Infrastructure.Caching
                 try
                 {
                     Directory.Delete(_cachRootFolder, true);
-                    _logger.LogInformation($"Cache folder cleared at {_cachRootFolder}");
+                    _logger.LogInformation("Cache folder cleared at {CacheFolder}", _cachRootFolder);
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError($"Failed to clear cache: {ex.Message}");
+                    _logger.LogError("Failed to clear cache: {ErrorMessage}", ex.Message);
                 }
             }
             EnsureCachFolder();

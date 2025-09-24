@@ -139,7 +139,7 @@ namespace AppSage.Infrastructure.Metric
                             {
                                 foreach (var error in errors)
                                 {
-                                    _logger.LogError($"Validation error: {error}");
+                                    _logger.LogError("Validation error: {Error}", error);
                                 }
                             }
                         }
@@ -164,7 +164,7 @@ namespace AppSage.Infrastructure.Metric
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Error saving metrics: {ex.Message}",ex);
+                _logger.LogError("Error saving metrics: {ErrorMessage}", ex.Message, ex);
             }
         }
 

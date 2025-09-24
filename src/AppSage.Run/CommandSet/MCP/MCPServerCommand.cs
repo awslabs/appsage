@@ -52,19 +52,19 @@ namespace AppSage.Run.CommandSet.MCP
         public int Execute(MCPServerOptions opt)
         {
              var cmd = opt.MCPCommand;
-            _logger.LogInformation($"Select the sub command of '{cmd.Name}' ");
+            _logger.LogInformation("Select the sub command of '{CommandName}'", cmd.Name);
             string message = $"""
                     {cmd.Name} : {cmd.Description}
                     No sub command specified for '{cmd.Name}'
                     Select the sub command of '{cmd.Name}'
                     Use '--help' to see available options.
                     """;
-            _logger.LogInformation(message);
+            _logger.LogInformation("{Message}", message);
             cmd.Children.ToList().ForEach(c =>
             {
                 if (c is Command subCmd)
                 {
-                    _logger.LogInformation($"\t{subCmd.Name} : {subCmd.Description}");
+                    _logger.LogInformation("\t{Name} : {Description}", subCmd.Name, subCmd.Description);
                 }
             });
 

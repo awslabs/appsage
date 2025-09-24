@@ -39,7 +39,7 @@ namespace AppSage.Infrastructure.AI
             // Tokenize and count
             int tokenCount = encoding.Encode(prompt).Count;
 
-            _logger.LogInformation($"OllamaService: Estimated token count for prompt is {tokenCount} tokens.");
+            _logger.LogInformation("OllamaService: Estimated token count for prompt is {TokenCount} tokens.", tokenCount);
 
             //default model;
             queryConfig.ModelId = _configuration.Get<string>("AppSage.Infrastructure.AI.OllamaService:ModelId");
@@ -70,7 +70,7 @@ namespace AppSage.Infrastructure.AI
             string cacheKey = Utility.GenerateCacheKey(prompt, queryConfig);
             if (_cache.ContainsKey(cacheKey))
             {
-                _logger.LogInformation($"OllamaService: Cache hit for key {cacheKey}");
+                _logger.LogInformation("OllamaService: Cache hit for key {CacheKey}", cacheKey);
                 return _cache.Get(cacheKey);
             }
             else
@@ -120,7 +120,7 @@ namespace AppSage.Infrastructure.AI
                             }
                             else
                             {
-                                _logger.LogWarning($"OllamaService: Response is empty for prompt: {prompt}");
+                                _logger.LogWarning("OllamaService: Response is empty for prompt: {Prompt}", prompt);
                             }
 
                             return result;

@@ -223,7 +223,7 @@ namespace AppSage.Providers.DotNet.DependencyAnalysis
                     return;
                 }
             });
-            _logger.LogInformation($"{FullQualifiedName}:Solution Analysis:[Completed]");
+            _logger.LogInformation("{FullQualifiedName}:Solution Analysis:[Completed]", FullQualifiedName);
             return result;
         }
 

@@ -47,12 +47,12 @@ namespace AppSage.Run.CommandSet.Init
             DirectoryInfo di = null;
             if (!string.IsNullOrWhiteSpace(opt.WorkspaceFolder))
             {
-                _logger.LogInformation($"Using the specified workspace folder [{opt.WorkspaceFolder}]");
+                _logger.LogInformation("Using the specified workspace folder [{WorkspaceFolder}]", opt.WorkspaceFolder);
                 di = new DirectoryInfo(opt.WorkspaceFolder);
             }
             else
             {
-                _logger.LogInformation($"No workspace folder specified. Using the current working directory [{Environment.CurrentDirectory}] as the workspace folder.");
+                _logger.LogInformation("No workspace folder specified. Using the current working directory [{CurrentDirectory}] as the workspace folder.", Environment.CurrentDirectory);
                 di = new DirectoryInfo(Environment.CurrentDirectory);
             }
 

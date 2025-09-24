@@ -31,7 +31,7 @@ namespace AppSage.Run.CommandSet.Provider
         }
         public int Execute()
         {
-            _logger.LogInformation($"Nothing happens. Uninstallation of providers is not yet implemented.");
+            _logger.LogInformation("Nothing happens. Uninstallation of providers is not yet implemented.");
             return 0;
         }
     }

@@ -43,7 +43,7 @@ namespace AppSage.Infrastructure.AWS
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Error retrieving AWS credentials: {ex.Message}");
+                _logger.LogError("Error retrieving AWS credentials: {ErrorMessage}", ex.Message);
                 throw ex;
             }
             return credentials;

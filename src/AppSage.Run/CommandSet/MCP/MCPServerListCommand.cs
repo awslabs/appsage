@@ -35,7 +35,7 @@ namespace AppSage.Run.CommandSet.MCP
         }
         public int Execute()
         {
-            _logger.LogInformation($"Not implemented yet.");
+            _logger.LogInformation("Not implemented yet.");
              
 
             return 0;

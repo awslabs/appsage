@@ -29,7 +29,7 @@ namespace AppSage.MCPServer
             var config = serviceCollection.GetService<IAppSageConfiguration>();
             var workspace = serviceCollection.GetService<IAppSageWorkspace>();
 
-            logger.LogInformation($"Starting AppSage MCP Server for the AppSage workspace[{workspace.RootFolder}]");
+            logger.LogInformation("Starting AppSage MCP Server for the AppSage workspace[{WorkspaceFolder}]", workspace.RootFolder);
 
             string listeningUrl = config.Get<string>("AppSage.MCPServer.Runner:ListeningUrl");
             builder.WebHost.UseUrls(listeningUrl);
@@ -58,8 +58,8 @@ namespace AppSage.MCPServer
             // Helpful startup messages - now safe because Console is redirected to stderr
             app.Lifetime.ApplicationStarted.Register(() =>
             {
-                logger.LogInformation($"MCP server started for the workspace[{workspace.RootFolder}]");
-                logger.LogInformation($"[MCP] HTTP endpoint: {string.Join(", ", app.Urls.Select(url => $"{url.TrimEnd('/')}/mcp"))}");
+                logger.LogInformation("MCP server started for the workspace[{WorkspaceFolder}]", workspace.RootFolder);
+                logger.LogInformation("[MCP] HTTP endpoint: {Endpoints}", string.Join(", ", app.Urls.Select(url => $"{url.TrimEnd('/')}/mcp")));
             });
 
             await app.RunAsync();

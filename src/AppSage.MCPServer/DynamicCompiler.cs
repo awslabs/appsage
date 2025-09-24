@@ -24,7 +24,7 @@ namespace AppSage.MCPServer
         {
             try
             {
-                _logger.LogInformation($"code to complile:\r\n{code}");
+                _logger.LogInformation("code to complile:\r\n{Code}", code);
                 // Parse the code
                 var syntaxTree = CSharpSyntaxTree.ParseText(code);
                 
@@ -113,7 +113,7 @@ namespace AppSage.MCPServer
                     foreach (var diagnostic in result.Diagnostics)
                     {
                         error.AppendLine(diagnostic.ToString());
-                        _logger.LogError($"  {diagnostic}");
+                        _logger.LogError("  {Diagnostic}", diagnostic);
                     }
                     throw new McpException(error.ToString());
                 }
@@ -144,7 +144,7 @@ namespace AppSage.MCPServer
             catch (Exception ex)
             {
                 // Log the exception for debugging
-                _logger.LogError($"Error during dynamic compilation",ex);
+                _logger.LogError("Error during dynamic compilation", ex);
                 throw;
             }
         }
