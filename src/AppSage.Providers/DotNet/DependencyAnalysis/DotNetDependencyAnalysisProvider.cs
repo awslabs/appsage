@@ -47,15 +47,6 @@ namespace AppSage.Providers.DotNet.DependencyAnalysis
             _config.SolutionMaxParallelism = configuration.Get<int>("AppSage.Providers.DotNet.DependenyAnalysis.DotNetDependencyAnalysisProvider:SolutionMaxParallelism");
             _config.NamespacePrefixToInclude = configuration.Get<string[]>("AppSage.Providers.DotNet.DependenyAnalysis.DotNetDependencyAnalysisProvider:NamespacePrefixToInclude");
             _config.NamespacePrefixToExclude = configuration.Get<string[]>("AppSage.Providers.DotNet.DependenyAnalysis.DotNetDependencyAnalysisProvider:NamespacePrefixToExclude");
-
-            var settings = new JsonSerializerSettings
-            {
-                Formatting = Formatting.Indented,
-                TypeNameHandling = TypeNameHandling.Objects,
-                NullValueHandling = NullValueHandling.Ignore
-            };
-
-
         }
 
         public string FullQualifiedName => GetType().FullName;

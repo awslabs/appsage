@@ -1,6 +1,7 @@
 ﻿using AppSage.Core.ComplexType.Graph;
 using AppSage.Core.Const;
 using AppSage.Core.Metric;
+using AppSage.Infrastructure.Serialization;
 using Newtonsoft.Json;
 
 namespace AppSage.Test
@@ -52,18 +53,8 @@ namespace AppSage.Test
 
         private static void SaveGraph(DirectedGraph graph)
         {
-            var settings = new Newtonsoft.Json.JsonSerializerSettings()
-            {
-                Formatting = Newtonsoft.Json.Formatting.Indented, // Pretty print
-                NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore, // Ignore nulls
-                ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore // Prevent reference loop errors
-
-            };
-
-            string content = Newtonsoft.Json.JsonConvert.SerializeObject(graph, settings);
-
             string file = @"C:\temp\SampleGraph.appsagegraph";
-            System.IO.File.WriteAllText(file, content);
+            AppSageSerializer.SerializeToFile(file,graph);
         }
     }
 }
