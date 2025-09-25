@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Position Preservation Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-result { 
+            padding: 10px; 
+            margin: 5px 0; 
+            border-radius: 4px;
+        }
+        .pass { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .fail { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background-color: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+    </style>
+</head>
+<body>
+    <h1>Graph Filter Position Preservation Test</h1>
+    <p>This test verifies that node positions are preserved when applying filters.</p>
+    
+    <h2>Test Results:</h2>
+    <div id="test-results"></div>
+    
+    <h2>Expected Behavior:</h2>
+    <ul>
+        <li>✅ Filtering nodes/edges should only show/hide elements</li>
+        <li>✅ Node positions should remain the same after filtering</li>
+        <li>✅ Layout should only change when explicitly selecting a new layout</li>
+        <li>✅ Reset button should show all elements without changing positions</li>
+        <li>✅ Layout algorithms should size appropriately for visible elements only</li>
+        <li>✅ Circle layouts should have appropriate radius for visible node count</li>
+        <li>✅ Grid layouts should calculate rows/columns based on visible nodes</li>
+    </ul>
+    
+    <h2>Key Changes Made:</h2>
+    <ul>
+        <li><strong>GraphRenderer.applyFilters():</strong> Now uses <code>element.style('display', 'none/element')</code> instead of removing/adding elements</li>
+        <li><strong>Position Preservation:</strong> Elements stay in their current positions when filtered</li>
+        <li><strong>Layout Separation:</strong> Filtering is now completely separate from layout operations</li>
+        <li><strong>Reset Functionality:</strong> Reset button uses new <code>resetElementVisibility()</code> method</li>
+        <li><strong>Smart Layout Application:</strong> Layout algorithms now only consider visible elements, preventing oversized layouts</li>
+        <li><strong>Dynamic Layout Sizing:</strong> Circle radius and grid size adjust based on visible node count</li>
+    </ul>
+    
+    <h2>Testing Instructions:</h2>
+    <ol>
+        <li>Load a graph with multiple node and edge types</li>
+        <li>Arrange nodes manually by dragging them</li>
+        <li>Use the Node Types and Edge Types filters to hide/show different types</li>
+        <li>Verify that visible nodes remain in their positions</li>
+        <li>Use Reset View to show all elements - positions should be preserved</li>
+        <li>Only when changing the Layout dropdown should positions change</li>
+    </ol>
+    
+    <div class="test-result info">
+        <strong>Note:</strong> This fix ensures that users can spend time arranging their graph layout and then use filters to focus on specific parts without losing their work.
+    </div>
+</body>
+</html>

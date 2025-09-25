@@ -43,6 +43,9 @@ class TopMenu {
                 this.selectedNodeTypes = new Set(this.allNodeTypes);
                 this.selectedEdgeTypes = new Set(this.allEdgeTypes);
                 this.populateFilterDropdowns();
+                
+                // Reset element visibility and apply filters
+                this.graphRenderer.resetElementVisibility();
                 this.applyFilters();
                 
                 // Fit to view

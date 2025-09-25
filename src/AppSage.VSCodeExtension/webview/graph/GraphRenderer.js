@@ -505,38 +505,69 @@ class GraphRenderer {
     applyFilters(selectedNodeTypes, selectedEdgeTypes) {
         if (!this.cy || this.originalNodes.length === 0) return;
 
-        // Filter nodes by selected types
-        const filteredNodes = this.originalNodes.filter(node => 
-            selectedNodeTypes.size === 0 || selectedNodeTypes.has(node.data.type)
-        );
-
-        // Create set of visible node IDs for edge filtering
-        const visibleNodeIds = new Set(filteredNodes.map(node => node.data.id));
-
-        // Filter edges: must be selected type AND both source and target nodes must be visible
-        const filteredEdges = this.originalEdges.filter(edge => {
-            const typeMatch = selectedEdgeTypes.size === 0 || selectedEdgeTypes.has(edge.data.type);
-            const nodesVisible = visibleNodeIds.has(edge.data.source) && visibleNodeIds.has(edge.data.target);
-            return typeMatch && nodesVisible;
-        });
-
-        // Update graph
         try {
-            this.cy.elements().remove();
-            this.cy.add(filteredNodes);
-            this.cy.add(filteredEdges);
+            // Instead of removing and re-adding elements, just show/hide them
+            // This preserves the current positions
             
-            // Re-apply current layout
-            this.applyLayout('cose');
+            // Handle nodes
+            this.cy.nodes().forEach(node => {
+                const nodeType = node.data('type');
+                const shouldShow = selectedNodeTypes.size === 0 || selectedNodeTypes.has(nodeType);
+                
+                if (shouldShow) {
+                    node.style('display', 'element'); // Show the node
+                } else {
+                    node.style('display', 'none'); // Hide the node
+                }
+            });
+
+            // Handle edges
+            this.cy.edges().forEach(edge => {
+                const edgeType = edge.data('type');
+                const sourceNode = this.cy.getElementById(edge.data('source'));
+                const targetNode = this.cy.getElementById(edge.data('target'));
+                
+                // Edge should be visible if:
+                // 1. Its type is selected (or no edge types are filtered)
+                // 2. Both source and target nodes are visible
+                const typeMatch = selectedEdgeTypes.size === 0 || selectedEdgeTypes.has(edgeType);
+                const sourceVisible = sourceNode.style('display') !== 'none';
+                const targetVisible = targetNode.style('display') !== 'none';
+                const shouldShow = typeMatch && sourceVisible && targetVisible;
+                
+                if (shouldShow) {
+                    edge.style('display', 'element'); // Show the edge
+                } else {
+                    edge.style('display', 'none'); // Hide the edge
+                }
+            });
+
+            // Count visible elements for logging
+            const visibleNodes = this.cy.nodes().filter(node => node.style('display') !== 'none');
+            const visibleEdges = this.cy.edges().filter(edge => edge.style('display') !== 'none');
             
-            console.log(`Applied filters: ${filteredNodes.length} nodes, ${filteredEdges.length} edges`);
+            console.log(`Applied filters: ${visibleNodes.length} visible nodes, ${visibleEdges.length} visible edges (positions preserved)`);
         } catch (error) {
             console.error('Error applying filters:', error);
         }
     }
 
+    resetElementVisibility() {
+        if (!this.cy) return;
+        
+        // Show all nodes and edges
+        this.cy.elements().style('display', 'element');
+        console.log('Reset all element visibility - all nodes and edges are now visible');
+    }
+
     applyLayout(layoutName) {
         if (!this.cy) return;
+
+        // Get only visible elements for layout calculation
+        const visibleNodes = this.cy.nodes().filter(node => node.style('display') !== 'none');
+        const visibleEdges = this.cy.edges().filter(edge => edge.style('display') !== 'none');
+        
+        console.log(`Applying ${layoutName} layout to ${visibleNodes.length} visible nodes and ${visibleEdges.length} visible edges`);
 
         const layoutConfig = {
             name: layoutName,
@@ -546,7 +577,7 @@ class GraphRenderer {
             padding: 30
         };
 
-        // Add layout-specific configurations
+        // Add layout-specific configurations with dynamic sizing based on visible elements
         switch (layoutName) {
             case 'cose':
                 layoutConfig.nodeRepulsion = 400000;
@@ -565,10 +596,13 @@ class GraphRenderer {
                 }
                 break;
             case 'grid':
-                layoutConfig.rows = Math.ceil(Math.sqrt(this.cy.nodes().length));
+                // Calculate grid based on visible nodes only
+                layoutConfig.rows = Math.ceil(Math.sqrt(visibleNodes.length));
                 break;
             case 'circle':
-                layoutConfig.radius = 200;
+                // Calculate radius based on visible nodes
+                const nodeCount = visibleNodes.length;
+                layoutConfig.radius = Math.max(100, Math.min(300, nodeCount * 30));
                 break;
             case 'concentric':
                 layoutConfig.concentric = function(node) {
@@ -581,12 +615,15 @@ class GraphRenderer {
         }
 
         try {
-            const layout = this.cy.layout(layoutConfig);
+            // Apply layout only to visible elements
+            const visibleElements = visibleNodes.union(visibleEdges);
+            const layout = visibleElements.layout(layoutConfig);
             layout.run();
         } catch (error) {
             console.error(`Error applying ${layoutName} layout:`, error);
-            // Fallback to basic cose layout
-            this.cy.layout({ name: 'cose', animate: true }).run();
+            // Fallback to basic cose layout on visible elements only
+            const visibleElements = visibleNodes.union(visibleEdges);
+            visibleElements.layout({ name: 'cose', animate: true }).run();
         }
     }
 
