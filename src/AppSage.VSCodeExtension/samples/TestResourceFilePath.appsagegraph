@@ -1,0 +1,64 @@
+{
+  "Nodes": [
+    {
+      "$type": "AppSage.Core.ComplexType.Graph.Node, AppSage.Core",
+      "Id": "Bookstore.Web.AuthenticationConfig",
+      "Name": "AuthenticationConfig",
+      "Type": "Class",
+      "Attributes": {
+        "$type": "System.Collections.Generic.Dictionary`2[[System.String, System.Private.CoreLib],[System.String, System.Private.CoreLib]], System.Private.CoreLib",
+        "NameTypePosition": "[16,4,92,5]",
+        "ResourceFilePath": "/Repositories/bobs-used-bookstore-classic/app/Bookstore.Web/App_Start/AuthenticationSetup.cs",
+        "NameTypeMethodCount": "3",
+        "NameTypeLinesOfCode": "67"
+      }
+    },
+    {
+      "Id": "TestClass",
+      "Name": "TestClass",
+      "Type": "Class",
+      "Attributes": {
+        "$type": "System.Collections.Generic.Dictionary`2[[System.String, System.Private.CoreLib],[System.String, System.Private.CoreLib]], System.Private.CoreLib",
+        "ResourceFilePath": "/AppSage.VSCodeExtension/samples/SampleGraph.appsagegraph"
+      }
+    },
+    {
+      "Id": "NonExistentFileClass",
+      "Name": "NonExistentFileClass", 
+      "Type": "Class",
+      "Attributes": {
+        "$type": "System.Collections.Generic.Dictionary`2[[System.String, System.Private.CoreLib],[System.String, System.Private.CoreLib]], System.Private.CoreLib",
+        "ResourceFilePath": "/NonExistent/Path/File.cs"
+      }
+    },
+    {
+      "Id": "NoResourcePathClass",
+      "Name": "NoResourcePathClass",
+      "Type": "Class",
+      "Attributes": {
+        "$type": "System.Collections.Generic.Dictionary`2[[System.String, System.Private.CoreLib],[System.String, System.Private.CoreLib]], System.Private.CoreLib",
+        "SomeOtherAttribute": "value"
+      }
+    }
+  ],
+  "Edges": [
+    {
+      "Id": "edge1",
+      "Source": "Bookstore.Web.AuthenticationConfig",
+      "Target": "TestClass",
+      "Type": "dependency"
+    },
+    {
+      "Id": "edge2",
+      "Source": "TestClass",
+      "Target": "NonExistentFileClass",
+      "Type": "dependency"
+    },
+    {
+      "Id": "edge3",
+      "Source": "NonExistentFileClass", 
+      "Target": "NoResourcePathClass",
+      "Type": "dependency"
+    }
+  ]
+}

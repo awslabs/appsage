@@ -106,9 +106,10 @@ Each handler implements `vscode.CustomTextEditorProvider` to process specific fi
 ## Graph handler
 - **File Type**: `.appsagegraph`
 - **Visualization**: Interactive graphs using Cytoscape.js 3.26.0
-- **Features**: Multiple layout algorithms, zoom/pan controls, node selection
+- **Features**: Multiple layout algorithms, zoom/pan controls, node selection, double-click file opening
 - **Layouts**: Cose, Cose-Bilkent, Circle, Grid, Concentric, Breadth-First
-- **Filtering**: A multi select drop down to select node types. A multi select drop down to select edge types. 
+- **Filtering**: A multi select drop down to select node types. A multi select drop down to select edge types.
+- **File Opening**: Double-click nodes with ResourceFilePath attribute to open files in VS Code
 - **Sample file**: `samples/SampleGraph.appsagegraph`
 
 ## Table handler

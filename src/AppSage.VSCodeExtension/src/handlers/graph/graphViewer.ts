@@ -83,6 +83,14 @@ export class GraphViewer extends BaseViewer {
                         type: 'clearSelection'
                     });
                     break;
+                case 'openFile':
+                    this.componentLogger.info(`Opening file requested: ${message.filePath}`);
+                    if (message.filePath && typeof message.filePath === 'string') {
+                        await this.openFileIfExists(message.filePath);
+                    } else {
+                        this.componentLogger.warning('openFile message missing or invalid filePath');
+                    }
+                    break;
                 case 'showProperties':
                     this.componentLogger.info('Show properties requested via View dropdown');
                     // Properties panel will be handled by the webview now
@@ -192,5 +200,49 @@ export class GraphViewer extends BaseViewer {
             SIDE_PANEL_URI: sidePanelUri.toString(),
             SHARED_UTILS_URI: sharedUtilsUri.toString()
         });
+    }
+
+    private async openFileIfExists(relativePath: string): Promise<void> {
+        try {
+            // Remove leading slash if present to normalize the path
+            const normalizedPath = relativePath.startsWith('/') ? relativePath.substring(1) : relativePath;
+            
+            // Get the workspace folder
+            const workspaceFolders = vscode.workspace.workspaceFolders;
+            if (!workspaceFolders || workspaceFolders.length === 0) {
+                this.componentLogger.warning('No workspace folder found for file opening');
+                return;
+            }
+
+            // Use the first workspace folder as the root
+            const workspaceRoot = workspaceFolders[0].uri;
+            
+            // Construct the full file path
+            const fullFilePath = vscode.Uri.joinPath(workspaceRoot, normalizedPath);
+            
+            this.componentLogger.info(`Attempting to open file: ${fullFilePath.fsPath}`);
+
+            // Check if file exists by trying to stat it
+            try {
+                await vscode.workspace.fs.stat(fullFilePath);
+                
+                // File exists, open it
+                const document = await vscode.workspace.openTextDocument(fullFilePath);
+                await vscode.window.showTextDocument(document);
+                
+                this.componentLogger.info(`Successfully opened file: ${fullFilePath.fsPath}`);
+            } catch (statError) {
+                // File doesn't exist or can't be accessed
+                const errorMessage = `Cannot open file: ${fullFilePath.fsPath}. File not found or cannot be accessed.`;
+                this.componentLogger.warning(errorMessage);
+                
+                // Show a user-friendly error message
+                vscode.window.showWarningMessage(`AppSage: ${errorMessage}`);
+            }
+        } catch (error) {
+            const errorMessage = `Error opening file "${relativePath}": ${error instanceof Error ? error.message : String(error)}`;
+            this.componentLogger.error(errorMessage);
+            vscode.window.showErrorMessage(`AppSage: ${errorMessage}`);
+        }
     }
 }

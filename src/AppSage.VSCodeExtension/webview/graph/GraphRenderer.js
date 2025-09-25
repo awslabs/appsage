@@ -133,6 +133,29 @@ class GraphRenderer {
             });
         });
 
+        // Node double-click for file opening
+        this.cy.on('dbltap', 'node', (event) => {
+            const node = event.target;
+            const nodeData = node.data();
+            console.log('Node double-clicked:', nodeData.id, 'Full node data:', nodeData);
+            
+            // Check if the node has ResourceFilePath attribute in the Attributes object
+            const resourceFilePath = nodeData.Attributes && nodeData.Attributes.ResourceFilePath;
+            if (resourceFilePath && typeof resourceFilePath === 'string') {
+                console.log('Opening file:', resourceFilePath);
+                
+                // Send message to VS Code extension to open the file
+                this.vscode.postMessage({
+                    type: 'openFile',
+                    filePath: resourceFilePath,
+                    nodeId: nodeData.id
+                });
+            } else {
+                console.log('Node does not have ResourceFilePath attribute in Attributes object');
+                console.log('Available attributes:', nodeData.Attributes);
+            }
+        });
+
         // Clear selection when clicking on background
         this.cy.on('tap', (event) => {
             // Only clear if tapping on background (not on nodes or edges)
