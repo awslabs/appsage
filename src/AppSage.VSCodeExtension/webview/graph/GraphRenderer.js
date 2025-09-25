@@ -101,10 +101,11 @@ class GraphRenderer {
         this.cy.on('tap', 'node', (event) => {
             const node = event.target;
             const nodeId = node.data('id');
-            console.log('Node selected:', nodeId, 'Full node data:', node.data());
+            const nodeData = node.data();
+            console.log('Node selected:', nodeId, 'Full node data:', nodeData);
             
             if (this.onNodeSelected) {
-                this.onNodeSelected(node.data());
+                this.onNodeSelected(nodeData);
             }
             
             // Send node selection to extension
@@ -118,10 +119,11 @@ class GraphRenderer {
         this.cy.on('tap', 'edge', (event) => {
             const edge = event.target;
             const edgeId = edge.data('id');
-            console.log('Edge selected:', edgeId, 'Full edge data:', edge.data());
+            const edgeData = edge.data();
+            console.log('Edge selected:', edgeId, 'Full edge data:', edgeData);
             
             if (this.onEdgeSelected) {
-                this.onEdgeSelected(edge.data());
+                this.onEdgeSelected(edgeData);
             }
             
             // Send edge selection to extension

@@ -713,14 +713,33 @@ class SidePanel {
         attributesTable.className = 'property-table';
         
         // Add all other properties as attributes
-        const excludedKeys = ['id', 'type', 'name', 'label'];
+        const excludedKeys = ['id', 'type', 'name', 'label', '$type'];
         const attributeKeys = Object.keys(nodeData).filter(key => !excludedKeys.includes(key));
+        
+        let hasAttributes = false;
         
         if (attributeKeys.length > 0) {
             attributeKeys.forEach(key => {
-                this.addPropertyRow(attributesTable, key, nodeData[key]);
+                if (key === 'Attributes' && nodeData[key] && typeof nodeData[key] === 'object') {
+                    // Special handling for nested Attributes object (C# Dictionary)
+                    // Extract individual key-value pairs from the Attributes object
+                    const nestedAttributes = nodeData[key];
+                    for (const [attrKey, attrValue] of Object.entries(nestedAttributes)) {
+                        // Skip $type metadata from C# serialization
+                        if (attrKey !== '$type') {
+                            this.addPropertyRow(attributesTable, attrKey, attrValue);
+                            hasAttributes = true;
+                        }
+                    }
+                } else {
+                    // Handle regular properties
+                    this.addPropertyRow(attributesTable, key, nodeData[key]);
+                    hasAttributes = true;
+                }
             });
-        } else {
+        }
+        
+        if (!hasAttributes) {
             const emptyRow = document.createElement('div');
             emptyRow.className = 'empty-attributes';
             emptyRow.textContent = 'No additional attributes';
@@ -781,14 +800,33 @@ class SidePanel {
         attributesTable.className = 'property-table';
         
         // Add all other properties as attributes
-        const excludedKeys = ['id', 'type', 'source', 'target'];
+        const excludedKeys = ['id', 'type', 'source', 'target', '$type'];
         const attributeKeys = Object.keys(edgeData).filter(key => !excludedKeys.includes(key));
+        
+        let hasAttributes = false;
         
         if (attributeKeys.length > 0) {
             attributeKeys.forEach(key => {
-                this.addPropertyRow(attributesTable, key, edgeData[key]);
+                if (key === 'Attributes' && edgeData[key] && typeof edgeData[key] === 'object') {
+                    // Special handling for nested Attributes object (C# Dictionary)
+                    // Extract individual key-value pairs from the Attributes object
+                    const nestedAttributes = edgeData[key];
+                    for (const [attrKey, attrValue] of Object.entries(nestedAttributes)) {
+                        // Skip $type metadata from C# serialization
+                        if (attrKey !== '$type') {
+                            this.addPropertyRow(attributesTable, attrKey, attrValue);
+                            hasAttributes = true;
+                        }
+                    }
+                } else {
+                    // Handle regular properties
+                    this.addPropertyRow(attributesTable, key, edgeData[key]);
+                    hasAttributes = true;
+                }
             });
-        } else {
+        }
+        
+        if (!hasAttributes) {
             const emptyRow = document.createElement('div');
             emptyRow.className = 'empty-attributes';
             emptyRow.textContent = 'No additional attributes';

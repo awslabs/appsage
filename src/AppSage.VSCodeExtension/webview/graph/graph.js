@@ -249,14 +249,26 @@
                 continue;
             }
 
-            // Valid node
+            // Valid node - preserve all original properties
             nodeIds.add(node.Id);
-            validNodes.push({
-                data: {
-                    id: node.Id,
-                    name: node.Name || node.Id,
-                    type: node.Type || 'default'
+            
+            // Create the data object with all original properties
+            const nodeData = {
+                id: node.Id,
+                name: node.Name || node.Id,
+                type: node.Type || 'default'
+            };
+            
+            // Add all other properties from the original node as additional attributes
+            for (const [key, value] of Object.entries(node)) {
+                // Skip the properties we've already handled
+                if (key !== 'Id' && key !== 'Name' && key !== 'Type') {
+                    nodeData[key] = value;
                 }
+            }
+            
+            validNodes.push({
+                data: nodeData
             });
         }
 
@@ -299,15 +311,27 @@
                 continue;
             }
 
-            // Valid edge
+            // Valid edge - preserve all original properties
             edgeIds.add(edge.Id);
-            validEdges.push({
-                data: {
-                    id: edge.Id,
-                    source: sourceId,
-                    target: targetId,
-                    type: edge.Type || 'default'
+            
+            // Create the data object with all original properties
+            const edgeData = {
+                id: edge.Id,
+                source: sourceId,
+                target: targetId,
+                type: edge.Type || 'default'
+            };
+            
+            // Add all other properties from the original edge as additional attributes
+            for (const [key, value] of Object.entries(edge)) {
+                // Skip the properties we've already handled
+                if (key !== 'Id' && key !== 'Source' && key !== 'Target' && key !== 'Type') {
+                    edgeData[key] = value;
                 }
+            }
+            
+            validEdges.push({
+                data: edgeData
             });
         }
 
