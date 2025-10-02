@@ -367,6 +367,11 @@
             <a class="nav-link @(ViewContext.RouteData.Values["Page"]?.ToString() == "/Settings/Account" ? "active" : "")" asp-page="/Settings/Account">
                 <i class="bi bi-gear"></i> Account
             </a>
+
+            <div class="nav-section-title">Extensions</div>
+            <a class="nav-link @(ViewContext.RouteData.Values["Page"]?.ToString() == "/Exetnsions/Index" ? "active" : "")" asp-page="/Extensions/Index">
+                <i class="bi bi-person"></i> Marketplace
+            </a>
         </div>
     </nav>
     

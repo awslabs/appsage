@@ -20,6 +20,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\AppSage.Core\AppSage.Core.csproj" />
+    <ProjectReference Include="..\AppSage.Infrastructure\AppSage.Infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>
