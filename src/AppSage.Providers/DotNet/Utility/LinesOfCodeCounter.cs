@@ -58,7 +58,7 @@ namespace AppSage.Providers.DotNet.Utility
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Error counting lines of code for document {document.Name}: {ex.Message}");
+                _logger.LogError("Error counting lines of code for document {DocumentName}: {ErrorMessage}", document.Name, ex.Message);
             }
 
             return linesOfCode;
@@ -133,7 +133,7 @@ namespace AppSage.Providers.DotNet.Utility
                     Microsoft.CodeAnalysis.VisualBasic.Syntax.MethodBlockSyntax vbMethod => vbMethod.SubOrFunctionStatement.Identifier.ValueText,
                     _ => "Unknown"
                 };
-                _logger.LogError($"Error counting lines of code for {identifier}: {ex.Message}");
+                _logger.LogError("Error counting lines of code for {Identifier}: {ErrorMessage}", identifier, ex.Message);
             }
             return totalLinesOfCode;
         }
@@ -172,7 +172,7 @@ namespace AppSage.Providers.DotNet.Utility
             }
             catch (Exception ex)
             {
-                _logger.LogWarning($"Error checking multi-line comment: {ex.Message}");
+                _logger.LogWarning("Error checking multi-line comment: {ErrorMessage}", ex.Message);
                 return false;
             }
         }

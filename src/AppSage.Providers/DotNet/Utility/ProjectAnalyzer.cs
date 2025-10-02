@@ -56,7 +56,7 @@ namespace AppSage.Providers.DotNet.Utility
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Error retrieving .NET version for project {projectFilePath}", ex);
+                _logger.LogError("Error retrieving .NET version for project {ProjectFilePath}", ex, projectFilePath);
             }
 
             return ConstString.UNDEFINED;
@@ -98,7 +98,7 @@ namespace AppSage.Providers.DotNet.Utility
                     }
                     else
                     {
-                        _logger.LogWarning($"PackageReference element in {projectFilePath} does not have Include attribute.");
+                        _logger.LogWarning("PackageReference element in {ProjectFilePath} does not have Include attribute.", projectFilePath);
                     }
                 }
 
@@ -246,7 +246,7 @@ namespace AppSage.Providers.DotNet.Utility
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Error retrieving references for project {projectFilePath}", ex);
+                _logger.LogError("Error retrieving references for project {ProjectFilePath}", ex, projectFilePath);
             }
 
             return result;
@@ -335,7 +335,7 @@ namespace AppSage.Providers.DotNet.Utility
 
             documentList.Where(d => d.SourceCodeKind == SourceCodeKind.Regular).AsParallel().WithDegreeOfParallelism(_DocumentMaxParallelism).ForAll(document =>
             {
-                _logger.LogInformation($"Processing document: {document.FilePath}");
+                _logger.LogInformation("Processing document: {DocumentFilePath}", document.FilePath);
 
                 // Perform static code analysis
 
@@ -413,7 +413,7 @@ namespace AppSage.Providers.DotNet.Utility
                 }
                 else
                 {
-                    _logger.LogWarning($"Unsupported language: {document.Project.Language}");
+                    _logger.LogWarning("Unsupported language: {Language}", document.Project.Language);
                 }
 
             });

@@ -47,7 +47,7 @@ namespace AppSage.Providers.Samples
             var metric2=new MetricValue<int>("MyCompany.MyAnalyzer.TotalFileCountMetric", FullQualifiedName, files.Length);
 
             collectorQueue.Add(metric1);
-            _logger.LogInformation($"Collected metrics");
+            _logger.LogInformation("Collected metrics");
             collectorQueue.CompleteAdding();
         }
     }

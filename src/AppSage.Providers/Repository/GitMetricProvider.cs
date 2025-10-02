@@ -31,7 +31,7 @@ namespace AppSage.Providers.Repository
 
             try
             {
-                _logger.LogInformation($"Running the provider:{GetType().FullName}");
+                _logger.LogInformation("Running the provider:{ProviderType}", GetType().FullName);
 
                 var gitFolderList = _gitFolderProvider.GetResources();
                 metrics.Add(new MetricValue<int>
@@ -46,10 +46,10 @@ namespace AppSage.Providers.Repository
                 gitFolderList.AsParallel().WithDegreeOfParallelism(MAX_PARALLEL_SCANS).ForAll(resource =>
                 {
                     string folder = resource.Path;
-                    _logger.LogInformation($"Processing:{folder}");
+                    _logger.LogInformation("Processing:{Folder}", folder);
                     try
                     {
-                        _logger.LogInformation($"Processing git repository: {folder}");
+                        _logger.LogInformation("Processing git repository: {Folder}", folder);
 
                         // Fully qualify the Repository class to avoid ambiguity
                         using (var repo = new LibGit2Sharp.Repository(folder))
@@ -179,11 +179,11 @@ namespace AppSage.Providers.Repository
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogError($"Error processing git repository at {folder}: {ex.Message}");
+                        _logger.LogError("Error processing git repository at {Folder}: {Message}", folder, ex.Message);
                     }
 
                 });
-                _logger.LogInformation($"{FullQualifiedName}:[Completed]");
+                _logger.LogInformation("{FullQualifiedName}:[Completed]", FullQualifiedName);
             }
             finally
             {

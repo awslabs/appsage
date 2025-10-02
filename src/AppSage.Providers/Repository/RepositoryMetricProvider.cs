@@ -40,7 +40,7 @@ namespace AppSage.Providers.Repository
                 {
                     string resourceName = _workspace.GetResourceName(repo);
 
-                    _logger.LogInformation($"Processing repository: {resourceName}");
+                    _logger.LogInformation("Processing repository: {ResourceName}", resourceName);
 
                     metrics.Add(new ResourceMetricValue<string>
                      (
@@ -112,11 +112,11 @@ namespace AppSage.Providers.Repository
                         }
                         catch (UnauthorizedAccessException ex)
                         {
-                            _logger.LogWarning($"Access denied to {currentFolder}: {ex.Message}");
+                            _logger.LogWarning("Access denied to {CurrentFolder}: {Message}", currentFolder, ex.Message);
                         }
                         catch (Exception ex)
                         {
-                            _logger.LogWarning($"Error accessing {currentFolder}: {ex.Message}");
+                            _logger.LogWarning("Error accessing {CurrentFolder}: {Message}", currentFolder, ex.Message);
                         }
                     }
 
@@ -164,11 +164,11 @@ namespace AppSage.Providers.Repository
                         value: fileTypeSummary
                     );
                     metrics.Add(repoSummary);
-                    _logger.LogInformation($"Finished processing repository: {resourceName}");
+                    _logger.LogInformation("Finished processing repository: {ResourceName}", resourceName);
 
 
                 });
-                _logger.LogInformation($"{FullQualifiedName}:[Completed]");
+                _logger.LogInformation("{FullQualifiedName}:[Completed]", FullQualifiedName);
             }
             finally
             {

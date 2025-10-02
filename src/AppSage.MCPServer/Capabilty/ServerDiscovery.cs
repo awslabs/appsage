@@ -53,7 +53,7 @@ namespace AppSage.MCPServer.CapabilityBuilder
             {
                 if (kvp.Value > 1)
                 {
-                    _logger.LogError($"Capability name '{kvp.Key}' is registered {kvp.Value} times. Please ensure each capability has a unique name.");
+                    _logger.LogError("Capability name '{CapabilityName}' is registered {Count} times. Please ensure each capability has a unique name.", kvp.Key, kvp.Value);
                     hasCollision = true;
                 }
             }

@@ -52,7 +52,7 @@ public class ToolDiscovery
                 var toolsToIgnore= _config.Get<string[]>("AppSage.McpServer.Capability.Tools.ToolDiscovery:ToolNamesToIgnore");
                 if (toolsToIgnore != null && toolsToIgnore.Contains(type.GetCustomAttribute<CapabilityRegistrationAttribute>().Name, StringComparer.OrdinalIgnoreCase))
                 {
-                    _logger.LogInformation($"Skipping registration of capability '{type.GetCustomAttribute<CapabilityRegistrationAttribute>().Name}' as it is present in the ignore list.");
+                    _logger.LogInformation("Skipping registration of capability '{CapabilityName}' as it is present in the ignore list.", type.GetCustomAttribute<CapabilityRegistrationAttribute>().Name);
                     continue;
                 }
                 var capabilityRegistration = type.GetCustomAttribute<CapabilityRegistrationAttribute>();
@@ -71,7 +71,7 @@ public class ToolDiscovery
                 }
             }
         }
-        _logger.LogDebug($"Discovered {classCount} class(es) with {typeof(CapabilityRegistrationAttribute).Name} defined along with {methodCount} method(s) with {typeof(McpServerToolAttribute).Name} defined.");
+        _logger.LogDebug("Discovered {ClassCount} class(es) with {AttributeName} defined along with {MethodCount} method(s) with {ToolAttributeName} defined.", classCount, typeof(CapabilityRegistrationAttribute).Name, methodCount, typeof(McpServerToolAttribute).Name);
         BuildToolListFromGuides();
     }
 
@@ -276,12 +276,12 @@ public class ToolDiscovery
         }
         catch (McpException ex)
         {
-            _logger.LogError($"Error invoking tool", ex);
+            _logger.LogError("Error invoking tool", ex);
             throw;
         }
         catch (Exception ex)
         {
-            _logger.LogError($"Error invoking tool",ex);
+            _logger.LogError("Error invoking tool", ex);
 
             // Unwrap invocation exceptions
             throw new McpException($"Error invoking tool:{ex.ToString()}");

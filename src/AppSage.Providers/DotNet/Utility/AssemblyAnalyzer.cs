@@ -43,7 +43,7 @@ namespace AppSage.Providers.DotNet.Utility
             }
             catch
             {
-                _logger.LogWarning($"Failed to get file name for assembly at path {path}");
+                _logger.LogWarning("Failed to get file name for assembly at path {Path}", path);
                 result.Name = ConstString.UNKNOWN;
             }
 
@@ -64,7 +64,7 @@ namespace AppSage.Providers.DotNet.Utility
                 catch (Exception ex)
                 {
                     result.Version = ConstString.UNKNOWN;
-                    _logger.LogWarning($"Failed to get version info for assembly {result.Name}:{ex.Message}");
+                    _logger.LogWarning("Failed to get version info for assembly {AssemblyName}:{ErrorMessage}", result.Name, ex.Message);
                 }
                 try
                 {
@@ -74,7 +74,7 @@ namespace AppSage.Providers.DotNet.Utility
                 catch (Exception ex)
                 {
                     result.TargetFramework = ConstString.UNKNOWN;
-                    _logger.LogWarning($"Failed to get file version info for assembly {result.Name}: {ex.Message}");
+                    _logger.LogWarning("Failed to get file version info for assembly {AssemblyName}: {ErrorMessage}", result.Name, ex.Message);
                 }
             }
             else

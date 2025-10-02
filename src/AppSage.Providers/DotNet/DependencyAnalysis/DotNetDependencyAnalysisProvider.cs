@@ -342,7 +342,7 @@ namespace AppSage.Providers.DotNet.DependencyAnalysis
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Error analyzing dependencies for project {p.Name}: {ex.Message}");
+                _logger.LogError("Error analyzing dependencies for project {ProjectName}: {ErrorMessage}", p.Name, ex.Message);
             }
 
             return result;
@@ -444,7 +444,7 @@ namespace AppSage.Providers.DotNet.DependencyAnalysis
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Error analyzing code dependencies for project {project.Name}: {ex.Message}");
+                _logger.LogError("Error analyzing code dependencies for project {ProjectName}: {ErrorMessage}", project.Name, ex.Message);
             }
         }
 
@@ -581,7 +581,7 @@ namespace AppSage.Providers.DotNet.DependencyAnalysis
                     }
                     else
                     {
-                        _logger.LogWarning($"Duplicate method key found: {methodKey} in class {nameTypeInfo.Key}. This may indicate an issue with the class summary data.");
+                        _logger.LogWarning("Duplicate method key found: {MethodKey} in class {ClassName}. This may indicate an issue with the class summary data.", methodKey, nameTypeInfo.Key);
                     }
                 }
             }
@@ -745,7 +745,7 @@ namespace AppSage.Providers.DotNet.DependencyAnalysis
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Error analyzing method call dependencies for type {typeSymbol.Name}: {ex.Message}");
+                _logger.LogError("Error analyzing method call dependencies for type {TypeName}: {ErrorMessage}", typeSymbol.Name, ex.Message);
             }
         }
 

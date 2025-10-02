@@ -72,17 +72,17 @@ namespace AppSage.Providers.DotNet.AIAnalysis
                         {
                             if (task.IsCompletedSuccessfully)
                             {
-                                _logger.LogInformation($"Processing solution: {slnFile}");
+                                _logger.LogInformation("Processing solution: {SlnFile}", slnFile);
 
 
                                 var solution = task.Result;
-                                _logger.LogInformation($"Opened solution: {slnFile} with {solution.Projects.Count()} projects.");
+                                _logger.LogInformation("Opened solution: {SlnFile} with {ProjectCount} projects.", slnFile, solution.Projects.Count());
 
                                 int projectMaxParallelism = _configuration.Get<int>("AppSage.Providers.DotNet.AIAnalysis.DotNetAIAnalysisProvider:ProjectMaxParallelism");
 
                                 solution.Projects.AsParallel().WithDegreeOfParallelism(projectMaxParallelism).ForAll(project =>
                                 {
-                                    _logger.LogInformation($"Analyzing project : {project.Name}");
+                                    _logger.LogInformation("Analyzing project : {ProjectName}", project.Name);
                                     projectSolutionMapping[solutionRelativePath].Add(_workspace.GetResourceName(project.FilePath));
                                     var result = SummarizeProject(project);
                                     projectSummaryList.Add(result);
@@ -90,15 +90,15 @@ namespace AppSage.Providers.DotNet.AIAnalysis
                             }
                             else
                             {
-                                _logger.LogError($"Failed to open solution {slnFile}: {task.Exception?.Message}");
+                                _logger.LogError("Failed to open solution {SlnFile}: {ErrorMessage}", slnFile, task.Exception?.Message);
                             }
-                            _logger.LogInformation($"Processed solution: {slnFile}");
+                            _logger.LogInformation("Processed solution: {SlnFile}", slnFile);
                         });
                         //Let's now overcomplicate things and analyze one solution at a time. 
                         task.Wait();
                     }
                 }
-                _logger.LogInformation($"{FullQualifiedName}:Solution Analysis:[Completed]");
+                _logger.LogInformation("{FullQualifiedName}:Solution Analysis:[Completed]", FullQualifiedName);
 
                 jobs.Clear();
 
@@ -113,7 +113,7 @@ namespace AppSage.Providers.DotNet.AIAnalysis
 
                 foreach (var projectFile in projectFileList)
                 {
-                    _logger.LogInformation($"Processing project file: {projectFile.Name}");
+                    _logger.LogInformation("Processing project file: {ProjectFileName}", projectFile.Name);
                     if (!projectsWithSoutions.Contains(projectFile.Name))
                     {
                         projectSolutionMapping[ConstString.UNDEFINED].Add(projectFile.Name);
@@ -130,17 +130,17 @@ namespace AppSage.Providers.DotNet.AIAnalysis
                                 }
                                 else
                                 {
-                                    _logger.LogError($"Failed to open project {projectFile.Name}: {task.Exception?.Message}");
+                                    _logger.LogError("Failed to open project {ProjectFileName}: {ErrorMessage}", projectFile.Name, task.Exception?.Message);
                                 }
                             });
                             jobs.Add(task);
                         }
                     }
-                    _logger.LogInformation($"Processed project file: {projectFile.Name}");
+                    _logger.LogInformation("Processed project file: {ProjectFileName}", projectFile.Name);
                 }
 
                 jobs.ForEach(t => t.Wait());
-                _logger.LogInformation($"{FullQualifiedName}:Project Analysis:[Completed]");
+                _logger.LogInformation("{FullQualifiedName}:Project Analysis:[Completed]", FullQualifiedName);
 
                 GetMetrics(projectSummaryList).ForEach(m => metrics.Add(m));
             }
@@ -339,7 +339,7 @@ Keep each section concise but actionable.";
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Error creating overarching summary: {ex.Message}");
+                _logger.LogError("Error creating overarching summary: {ErrorMessage}", ex.Message);
                 return $"Error generating overarching summary: {ex.Message}";
             }
         }
@@ -377,7 +377,7 @@ Keep each section concise but actionable.";
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogError($"Error analyzing document {doc.FilePath}: {ex.Message}");
+                        _logger.LogError("Error analyzing document {DocFilePath}: {ErrorMessage}", doc.FilePath, ex.Message);
                     }
                 });
 
@@ -385,11 +385,11 @@ Keep each section concise but actionable.";
                 // Step 4: Synthesize project-level summary
                 SynthesizeProjectSummary(projectSummary);
 
-                _logger.LogInformation($"Completed analysis for project: {p.Name} with {projectSummary.Documents.Count} important documents");
+                _logger.LogInformation("Completed analysis for project: {ProjectName} with {DocumentCount} important documents", p.Name, projectSummary.Documents.Count);
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Error analyzing project {p.Name}: {ex.Message}");
+                _logger.LogError("Error analyzing project {ProjectName}: {ErrorMessage}", p.Name, ex.Message);
             }
 
             return projectSummary;
@@ -445,7 +445,7 @@ Keep response concise and focused.";
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Error analyzing project metadata for {project.Name}: {ex.Message}");
+                _logger.LogError("Error analyzing project metadata for {ProjectName}: {ErrorMessage}", project.Name, ex.Message);
                 return "";
             }
         }
@@ -590,7 +590,7 @@ Keep each section to 1-2 sentences max.";
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Error analyzing document {document.FilePath}: {ex.Message}");
+                _logger.LogError("Error analyzing document {DocumentFilePath}: {ErrorMessage}", document.FilePath, ex.Message);
                 return null;
             }
         }
@@ -634,7 +634,7 @@ Keep each section concise but informative.";
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Error synthesizing project summary for {projectSummary.AssemblyName}: {ex.Message}");
+                _logger.LogError("Error synthesizing project summary for {AssemblyName}: {ErrorMessage}", projectSummary.AssemblyName, ex.Message);
             }
         }
 
@@ -666,7 +666,7 @@ Keep each section concise but informative.";
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Error parsing structured response: {ex.Message}");
+                _logger.LogError("Error parsing structured response: {ErrorMessage}", ex.Message);
             }
         }
 
