@@ -9,7 +9,7 @@
  * @param {string|null|undefined} str - The string to sanitize
  * @returns {string} - The sanitized string
  */
-function sanitize(str) {
+function sanitizeForHTML(str) {
     if (str == null) return '';
     
     return String(str)
@@ -22,12 +22,12 @@ function sanitize(str) {
 
 // Make it globally available
 if (typeof window !== 'undefined') {
-    window.sanitize = sanitize;
+    window.sanitizeForHTML = sanitizeForHTML;
 }
 
 // Export for modules
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = {
-        sanitize
+        sanitizeForHTML
     };
 }

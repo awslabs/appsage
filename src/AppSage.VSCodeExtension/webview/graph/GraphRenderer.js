@@ -705,7 +705,7 @@ class GraphRenderer {
         if (container) {
             // Use sanitize function if available, otherwise create safe element manually
             if (typeof sanitize === 'function') {
-                container.innerHTML = `<div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #ff6b6b; font-family: Arial, sans-serif; text-align: center; padding: 20px;">${sanitize(message)}</div>`;
+                container.innerHTML = `<div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #ff6b6b; font-family: Arial, sans-serif; text-align: center; padding: 20px;">${sanitizeForHTML(message)}</div>`;
             } else {
                 // Fallback: create element safely without innerHTML
                 const errorDiv = document.createElement('div');

@@ -44,23 +44,23 @@
             let html = `
                 <div class="property-container">
                     <div class="property-header">
-                        <span class="type-badge ${typeBadgeClass}">${sanitize(properties.type)}</span>
-                        Selected ${sanitize(properties.type.charAt(0).toUpperCase() + properties.type.slice(1))}
+                        <span class="type-badge ${typeBadgeClass}">${sanitizeForHTML(properties.type)}</span>
+                        Selected ${sanitizeForHTML(properties.type.charAt(0).toUpperCase() + properties.type.slice(1))}
                     </div>
                     
                     <div class="property-row">
                         <span class="property-label">ID:</span>
-                        <span class="property-value">${sanitize(properties.id || 'N/A')}</span>
+                        <span class="property-value">${sanitizeForHTML(properties.id || 'N/A')}</span>
                     </div>
                     
                     <div class="property-row">
                         <span class="property-label">Type:</span>
-                        <span class="property-value">${sanitize(properties.type || 'N/A')}</span>
+                        <span class="property-value">${sanitizeForHTML(properties.type || 'N/A')}</span>
                     </div>
                     
                     <div class="property-row">
                         <span class="property-label">Name:</span>
-                        <span class="property-value">${sanitize(properties.name || 'N/A')}</span>
+                        <span class="property-value">${sanitizeForHTML(properties.name || 'N/A')}</span>
                     </div>
                 </div>
             `;
@@ -77,8 +77,8 @@
                     const displayValue = typeof value === 'object' ? JSON.stringify(value) : String(value);
                     html += `
                         <div class="attribute-item">
-                            <span class="attribute-key">${sanitize(key)}:</span>
-                            <span class="attribute-value">${sanitize(displayValue)}</span>
+                            <span class="attribute-key">${sanitizeForHTML(key)}:</span>
+                            <span class="attribute-value">${sanitizeForHTML(displayValue)}</span>
                         </div>
                     `;
                 }
