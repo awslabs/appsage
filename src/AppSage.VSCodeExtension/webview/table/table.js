@@ -1,89 +1,64 @@
 (function() {
     const vscode = acquireVsCodeApi();
-    let gridApi;
-    let gridColumnApi;
 
-    function initializeGrid() {
-        const gridDiv = document.querySelector('#tableGrid');
-        
-        const gridOptions = {
-            columnDefs: [],
-            rowData: [],
-            defaultColDef: {
-                sortable: true,
-                filter: true,
-                resizable: true,
-                minWidth: 100
-            },
-            enableRangeSelection: true,
-            enableColResize: true,
-            animateRows: true,
-            pagination: true,
-            paginationPageSize: 100
-        };
-
-        gridApi = agGrid.createGrid(gridDiv, gridOptions);
+    function initialize() {
+        console.log('Table viewer initialized with static content');
         setupControls();
+        
+        // Signal to VS Code that the webview is ready
+        vscode.postMessage({
+            type: 'webview-ready'
+        });
     }
 
     function setupControls() {
-        document.getElementById('exportBtn').addEventListener('click', () => {
-            if (gridApi) {
-                gridApi.exportDataAsCsv();
-            }
-        });
+        const exportBtn = document.getElementById('exportBtn');
+        const filterBtn = document.getElementById('filterBtn');
+        const searchInput = document.getElementById('searchInput');
+        
+        if (exportBtn) {
+            exportBtn.addEventListener('click', () => {
+                console.log('Export button clicked - future implementation');
+                // TODO: Implement CSV export for pure HTML table
+            });
+        }
 
-        document.getElementById('filterBtn').addEventListener('click', () => {
-            if (gridApi) {
-                const isFloatingFilter = gridApi.getFloatingFiltersHeight() > 0;
-                gridApi.setFloatingFiltersHeight(isFloatingFilter ? 0 : 35);
-            }
-        });
+        if (filterBtn) {
+            filterBtn.addEventListener('click', () => {
+                console.log('Filter button clicked - future implementation');
+                // TODO: Implement filtering for pure HTML table
+            });
+        }
 
-        document.getElementById('searchInput').addEventListener('input', (e) => {
-            if (gridApi) {
-                gridApi.setQuickFilter(e.target.value);
-            }
-        });
-    }
-
-    function updateTable(tableData) {
-        try {
-            const table = JSON.parse(tableData);
-            
-            if (gridApi) {
-                // Update column definitions
-                const columnDefs = table.columns.map(col => ({
-                    field: col.field,
-                    headerName: col.headerName,
-                    width: col.width || 150,
-                    sortable: col.sortable !== false,
-                    filter: col.filter !== false,
-                    type: col.type || 'text'
-                }));
-
-                gridApi.setColumnDefs(columnDefs);
-                gridApi.setRowData(table.rows);
-                
-                // Auto-size columns to fit content
-                gridApi.sizeColumnsToFit();
-            }
-            
-        } catch (error) {
-            console.error('Error parsing table data:', error);
+        if (searchInput) {
+            searchInput.addEventListener('input', (e) => {
+                console.log('Search input changed - future implementation:', e.target.value);
+                // TODO: Implement search functionality for pure HTML table
+            });
         }
     }
 
     window.addEventListener('message', event => {
         const message = event.data;
+        console.log('Received message:', message.type);
+        
         switch (message.type) {
             case 'update':
-                updateTable(message.content);
+                console.log('Update message received - future implementation will render dynamic table');
+                // TODO: Future implementation will parse tableData and render dynamic HTML table
+                break;
+            default:
+                console.log('Unknown message type:', message.type);
                 break;
         }
     });
 
-    document.addEventListener('DOMContentLoaded', () => {
-        initializeGrid();
-    });
+    // Initialize when DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initialize);
+    } else {
+        initialize();
+    }
+
+    console.log('Table viewer script loaded - using static HTML table');
 })();

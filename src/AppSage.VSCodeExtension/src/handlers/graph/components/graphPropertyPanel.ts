@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { GraphNode, GraphEdge, AppSageGraph } from '../types/graph';
 import { AppSageLogger } from '../../../shared/logging';
+import { TemplateLoader } from '../../../shared/utils/templateLoader';
 
 export interface GraphPropertyData {
     id: string;
@@ -16,7 +17,8 @@ export class GraphPropertyPanel {
     private static instance: GraphPropertyPanel;
     private graphDataMap = new Map<string, AppSageGraph>();
     private logger?: AppSageLogger;
-    private componentLogger: any;
+    private componentLogger?: ReturnType<AppSageLogger['forComponent']>;
+    private _context?: vscode.ExtensionContext;
 
     private constructor() {}
 
@@ -30,55 +32,37 @@ export class GraphPropertyPanel {
     public setLogger(logger: AppSageLogger) {
         this.logger = logger;
         this.componentLogger = logger.forComponent('GraphPropertyPanel');
-        this.componentLogger.info('Logger initialized');
+        this.componentLogger.info('GraphPropertyPanel logger initialized');
     }
 
-    private log(message: string, ...args: any[]) {
-        if (this.componentLogger) {
-            this.componentLogger.info(message, ...args);
-        } else {
-            console.log(`[GraphPropertyPanel] ${message}`, ...args);
-        }
+    public setContext(context: vscode.ExtensionContext) {
+        this._context = context;
     }
 
-    private logError(message: string, ...args: any[]) {
-        if (this.componentLogger) {
-            this.componentLogger.error(message, ...args);
-        } else {
-            console.error(`[GraphPropertyPanel] ${message}`, ...args);
-        }
-    }
 
-    private logWarning(message: string, ...args: any[]) {
-        if (this.componentLogger) {
-            this.componentLogger.warning(message, ...args);
-        } else {
-            console.warn(`[GraphPropertyPanel] ${message}`, ...args);
-        }
-    }
 
     public setGraphData(documentUri: string, graphData: AppSageGraph) {
         this.graphDataMap.set(documentUri, graphData);
-        this.log(`Graph data set for ${documentUri}: ${graphData.Nodes.length} nodes, ${graphData.Edges.length} edges`);
+        this.componentLogger?.info(`Graph data set for ${documentUri}: ${graphData.Nodes.length} nodes, ${graphData.Edges.length} edges`);
     }
 
     public removeGraphData(documentUri: string) {
         this.graphDataMap.delete(documentUri);
-        this.log(`Graph data removed for ${documentUri}`);
+        this.componentLogger?.info(`Graph data removed for ${documentUri}`);
     }
 
     public getNodeData(documentUri: string, nodeId: string): GraphPropertyData | null {
-        this.log(`Getting node data: ${nodeId} in document: ${documentUri}`);
+        this.componentLogger?.info(`Getting node data: ${nodeId} in document: ${documentUri}`);
         
         const graphData = this.graphDataMap.get(documentUri);
         if (!graphData) {
-            this.logError(`No graph data found for document: ${documentUri}`);
+            this.componentLogger?.error(`No graph data found for document: ${documentUri}`);
             return null;
         }
 
         const node = graphData.Nodes.find(n => n.Id === nodeId);
         if (node) {
-            this.log(`Found node: ${node.Name} (${node.Type})`);
+            this.componentLogger?.info(`Found node: ${node.Name} (${node.Type})`);
             const propertyData: GraphPropertyData = {
                 id: node.Id,
                 type: 'node',
@@ -90,23 +74,23 @@ export class GraphPropertyPanel {
             };
             return propertyData;
         } else {
-            this.logWarning(`Node with ID '${nodeId}' not found in graph data`);
+            this.componentLogger?.warning(`Node with ID '${nodeId}' not found in graph data`);
             return null;
         }
     }
 
     public getEdgeData(documentUri: string, edgeId: string): GraphPropertyData | null {
-        this.log(`Getting edge data: ${edgeId} in document: ${documentUri}`);
+        this.componentLogger?.info(`Getting edge data: ${edgeId} in document: ${documentUri}`);
         
         const graphData = this.graphDataMap.get(documentUri);
         if (!graphData) {
-            this.logError(`No graph data found for document: ${documentUri}`);
+            this.componentLogger?.error(`No graph data found for document: ${documentUri}`);
             return null;
         }
 
         const edge = graphData.Edges.find(e => e.Id === edgeId);
         if (edge) {
-            this.log(`Found edge: ${edge.Name} (${edge.Type})`);
+            this.componentLogger?.info(`Found edge: ${edge.Name} (${edge.Type})`);
             const propertyData: GraphPropertyData = {
                 id: edge.Id,
                 type: 'edge',
@@ -120,8 +104,32 @@ export class GraphPropertyPanel {
             };
             return propertyData;
         } else {
-            this.logWarning(`Edge with ID '${edgeId}' not found in graph data`);
+            this.componentLogger?.warning(`Edge with ID '${edgeId}' not found in graph data`);
             return null;
         }
+    }
+
+    public getWebviewContent(webview: vscode.Webview): string {
+        if (!this._context) {
+            throw new Error('Context not set. Call setContext() first.');
+        }
+
+        const styleUri = webview.asWebviewUri(
+            vscode.Uri.joinPath(this._context.extensionUri, 'webview', 'graph', 'properties.css')
+        );
+
+        const sharedUtilsUri = webview.asWebviewUri(
+            vscode.Uri.joinPath(this._context.extensionUri, 'webview', 'shared', 'js', 'shared-utils.js')
+        );
+
+        const domPurifyUri = webview.asWebviewUri(
+            vscode.Uri.joinPath(this._context.extensionUri, 'webview', 'lib', 'dompurify.min.js')
+        );
+
+        return TemplateLoader.loadTemplate(this._context, 'graph/properties.html', webview, {
+            STYLE_URI: styleUri.toString(),
+            SHARED_UTILS_URI: sharedUtilsUri.toString(),
+            DOMPURIFY_URI: domPurifyUri.toString()
+        });
     }
 }

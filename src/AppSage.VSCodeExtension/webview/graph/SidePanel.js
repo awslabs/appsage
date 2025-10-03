@@ -3,30 +3,32 @@
  */
 class SidePanel {
     constructor(vscode, enhancedViewCustomizer) {
-        console.log('=== SIDEPANEL CONSTRUCTOR START ===');
         this.vscode = vscode;
+        this.logger = new WebViewLogger(vscode, 'SidePanel');
+        
+        this.logger.info('=== SIDEPANEL CONSTRUCTOR START ===');
         this.enhancedViewCustomizer = enhancedViewCustomizer;
         this.sidebarOpen = true; // Default to true since Show Side Panel is checked by default
         this.activeTab = 'properties';
         
-        console.log('SidePanel constructor - sidebarOpen set to:', this.sidebarOpen);
-        console.log('SidePanel constructor - activeTab set to:', this.activeTab);
+        this.logger.debug('SidePanel constructor - sidebarOpen set to:', this.sidebarOpen);
+        this.logger.debug('SidePanel constructor - activeTab set to:', this.activeTab);
         
         this.initialize();
-        console.log('=== SIDEPANEL CONSTRUCTOR END ===');
+        this.logger.info('=== SIDEPANEL CONSTRUCTOR END ===');
     }
 
     initialize() {
-        console.log('SidePanel.initialize() called');
+        this.logger.info('SidePanel.initialize() called');
         this.setupSidebarPanel();
         this.setupEventListeners();
-        console.log('SidePanel.initialize() completed');
+        this.logger.info('SidePanel.initialize() completed');
     }
 
     setupEventListeners() {
         // Listen for customization changes to update legend
         document.addEventListener('customizationChanged', (event) => {
-            console.log('SidePanel: Customization changed, updating legend');
+            this.logger.debug('SidePanel: Customization changed, updating legend');
             if (this.activeTab === 'legend') {
                 this.updateLegend();
             }
@@ -34,23 +36,23 @@ class SidePanel {
     }
 
     setupSidebarPanel() {
-        console.log('=== SIDEPANEL SETUP START ===');
+        this.logger.info('=== SIDEPANEL SETUP START ===');
         const sidebarPanel = document.getElementById('sidebar-panel');
         const closeSidebarBtn = document.getElementById('closeSidebarBtn');
         const tabBtns = document.querySelectorAll('.tab-btn');
 
-        console.log('setupSidebarPanel - sidebarPanel found:', !!sidebarPanel);
-        console.log('setupSidebarPanel - closeSidebarBtn found:', !!closeSidebarBtn);
-        console.log('setupSidebarPanel - tabBtns found:', tabBtns.length);
+        this.logger.debug('setupSidebarPanel - sidebarPanel found:', !!sidebarPanel);
+        this.logger.debug('setupSidebarPanel - closeSidebarBtn found:', !!closeSidebarBtn);
+        this.logger.debug('setupSidebarPanel - tabBtns found:', tabBtns.length);
         
         if (sidebarPanel) {
-            console.log('setupSidebarPanel - current sidebar display:', window.getComputedStyle(sidebarPanel).display);
+            this.logger.debug('setupSidebarPanel - current sidebar display:', window.getComputedStyle(sidebarPanel).display);
         }
 
         // Close sidebar button
         if (closeSidebarBtn) {
             closeSidebarBtn.addEventListener('click', () => {
-                console.log('Close sidebar button clicked');
+                this.logger.debug('Close sidebar button clicked');
                 this.toggle(false);
             });
         }
@@ -234,7 +236,6 @@ class SidePanel {
         // Ensure enhanced view customizer is initialized
         if (!this.enhancedViewCustomizer) {
             console.log('Enhanced view customizer not initialized, cannot show customize tab');
-            alert('Enhanced view customizer is not available. Please refresh the page.');
             return;
         }
         
@@ -437,7 +438,7 @@ class SidePanel {
             detailsLabel.className = 'legend-details';
             detailsLabel.style.fontSize = '0.8em';
             detailsLabel.style.color = '#666';
-            detailsLabel.textContent = `Style: ${sanitizeForHTML(customization.style)}, Arrow: ${sanitizeForHTML(customization.arrow)}, Width: ${sanitizeForHTML(customization.width)}px`;
+            detailsLabel.textContent = `Style: ${customization.style}, Arrow: ${customization.arrow}, Width: ${customization.width}px`;
             
             labelContainer.appendChild(typeLabel);
             labelContainer.appendChild(detailsLabel);
@@ -761,7 +762,7 @@ class SidePanel {
         }
         
         // Set title
-        propertyTitle.textContent = `Edge: ${sanitizeForHTML(edgeData.source)} → ${sanitizeForHTML(edgeData.target)}`;
+        propertyTitle.textContent = `Edge: ${edgeData.source} → ${edgeData.target}`;
         
         // Clear existing content
         propertyContent.innerHTML = '';

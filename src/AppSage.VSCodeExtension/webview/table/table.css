@@ -39,16 +39,53 @@ body {
     border-radius: 2px;
 }
 
-#tableGrid {
+#tableContainer {
     flex: 1;
+    overflow: auto;
+    padding: 10px;
     background-color: var(--vscode-editor-background);
 }
 
-.ag-theme-alpine {
-    --ag-background-color: var(--vscode-editor-background);
-    --ag-foreground-color: var(--vscode-foreground);
-    --ag-border-color: var(--vscode-panel-border);
-    --ag-header-background-color: var(--vscode-panel-background);
-    --ag-header-foreground-color: var(--vscode-foreground);
-    --ag-odd-row-background-color: var(--vscode-list-inactiveSelectionBackground);
+#dataTable {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: var(--vscode-editor-background);
+    color: var(--vscode-foreground);
+    font-family: var(--vscode-font-family);
+    font-size: var(--vscode-font-size);
+}
+
+#dataTable th {
+    background-color: var(--vscode-panel-background);
+    color: var(--vscode-foreground);
+    border: 1px solid var(--vscode-panel-border);
+    padding: 8px 12px;
+    text-align: left;
+    font-weight: 600;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+#dataTable td {
+    border: 1px solid var(--vscode-panel-border);
+    padding: 8px 12px;
+    background-color: var(--vscode-editor-background);
+}
+
+#dataTable tr:nth-child(even) td {
+    background-color: var(--vscode-list-inactiveSelectionBackground);
+}
+
+#dataTable tr:hover td {
+    background-color: var(--vscode-list-hoverBackground);
+}
+
+#message {
+    padding: 20px;
+    text-align: center;
+    color: var(--vscode-descriptionForeground);
+    font-style: italic;
+    border-top: 1px solid var(--vscode-panel-border);
+    background-color: var(--vscode-panel-background);
 }

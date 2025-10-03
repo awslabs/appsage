@@ -46,27 +46,44 @@ export class AppSageLogger implements ILogger {
     private log(level: LogLevel, message: string, component?: string, ...args: any[]): void {
         const formattedMessage = this.formatMessage(level, message, component);
         
-        // Log to output channel
+        // Log to output channel - use safe concatenation
         if (args.length > 0) {
-            this.outputChannel.appendLine(`${formattedMessage} ${JSON.stringify(args)}`);
+            const safeArgsString = JSON.stringify(args);
+            this.outputChannel.appendLine(formattedMessage + ' ' + safeArgsString);
         } else {
             this.outputChannel.appendLine(formattedMessage);
         }
 
-        // Also log to console for development
-        const consoleMessage = component ? `[${component}] ${message}` : message;
+        // Also log to console for development - use safe format with literal format strings
+        const logPrefix = component ? `[${component}]` : '';
         switch (level) {
             case LogLevel.Error:
-                console.error(consoleMessage, ...args);
+                if (args.length > 0) {
+                    console.error('%s %s', logPrefix, message, ...args);
+                } else {
+                    console.error('%s %s', logPrefix, message);
+                }
                 break;
             case LogLevel.Warning:
-                console.warn(consoleMessage, ...args);
+                if (args.length > 0) {
+                    console.warn('%s %s', logPrefix, message, ...args);
+                } else {
+                    console.warn('%s %s', logPrefix, message);
+                }
                 break;
             case LogLevel.Info:
-                console.info(consoleMessage, ...args);
+                if (args.length > 0) {
+                    console.info('%s %s', logPrefix, message, ...args);
+                } else {
+                    console.info('%s %s', logPrefix, message);
+                }
                 break;
             case LogLevel.Debug:
-                console.log(consoleMessage, ...args);
+                if (args.length > 0) {
+                    console.log('%s %s', logPrefix, message, ...args);
+                } else {
+                    console.log('%s %s', logPrefix, message);
+                }
                 break;
         }
     }

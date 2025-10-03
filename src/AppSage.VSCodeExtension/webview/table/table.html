@@ -3,51 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="{{CSP_SOURCE}}">
     <title>AppSage Table Viewer</title>
-    <style>
-        body {
-            font-family: var(--vscode-font-family);
-            color: var(--vscode-foreground);
-            background-color: var(--vscode-editor-background);
-            margin: 0;
-            padding: 0;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        #toolbar {
-            padding: 10px;
-            background-color: var(--vscode-panel-background);
-            border-bottom: 1px solid var(--vscode-panel-border);
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-
-        #toolbar button {
-            background-color: var(--vscode-button-background);
-            color: var(--vscode-button-foreground);
-            border: none;
-            padding: 6px 12px;
-            border-radius: 2px;
-            cursor: pointer;
-        }
-
-        #toolbar button:hover {
-            background-color: var(--vscode-button-hoverBackground);
-        }
-
-        #toolbar input {
-            background-color: var(--vscode-input-background);
-            color: var(--vscode-input-foreground);
-            border: 1px solid var(--vscode-input-border);
-            padding: 4px 8px;
-            border-radius: 2px;
-        }
-
-        #tableGrid {
-            flex: 1;
+    <link rel="stylesheet" href="{{STYLE_URI}}">
+</head>
+<body>
+    <div id="toolbar">
+        <button id="exportBtn">Export CSV</button>
+        <button id="filterBtn">Toggle Filters</button>
+        <input type="text" id="searchInput" placeholder="Search...">
+    </div>
+    
+    <div id="tableContainer">
+        <table id="dataTable">
+            <thead>
+                <tr>
+                    <th>Column 1</th>
+                    <th>Column 2</th>
+                    <th>Column 3</th>
+                    <th>Column 4</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Sample Data 1</td>
+                    <td>Sample Data 2</td>
+                    <td>Sample Data 3</td>
+                    <td>Sample Data 4</td>
+                </tr>
+                <tr>
+                    <td>Row 2 Data 1</td>
+                    <td>Row 2 Data 2</td>
+                    <td>Row 2 Data 3</td>
+                    <td>Row 2 Data 4</td>
+                </tr>
+                <tr>
+                    <td>Row 3 Data 1</td>
+                    <td>Row 3 Data 2</td>
+                    <td>Row 3 Data 3</td>
+                    <td>Row 3 Data 4</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    
+    <div id="message">
+        <p>Static table placeholder - Future implementation will render dynamic data</p>
+    </div>
+</body>
+</html>
             background-color: var(--vscode-editor-background);
         }
 

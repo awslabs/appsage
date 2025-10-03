@@ -10,6 +10,12 @@ export class GraphViewer extends BaseViewer {
     protected logger = AppSageLogger.getInstance();
     protected componentLogger = this.logger.forComponent('GraphViewer');
 
+    constructor(context: vscode.ExtensionContext) {
+        super(context);
+        this.propertyPanel.setContext(context);
+        this.propertyPanel.setLogger(this.logger);
+    }
+
     public async resolveCustomTextEditor(
         document: vscode.TextDocument,
         webviewPanel: vscode.WebviewPanel,
@@ -170,6 +176,16 @@ export class GraphViewer extends BaseViewer {
         const sharedUtilsUri = webview.asWebviewUri(
             vscode.Uri.joinPath(this.context.extensionUri, 'webview', 'shared', 'js', 'shared-utils.js')
         );
+        
+        // WebView logger for secure logging
+        const webviewLoggerUri = webview.asWebviewUri(
+            vscode.Uri.joinPath(this.context.extensionUri, 'webview', 'shared', 'js', 'webview-logger.js')
+        );
+
+        // DOMPurify for XSS prevention
+        const domPurifyUri = webview.asWebviewUri(
+            vscode.Uri.joinPath(this.context.extensionUri, 'webview', 'lib', 'dompurify.min.js')
+        );
 
         // Refactored component scripts
         const graphRendererUri = webview.asWebviewUri(
@@ -198,7 +214,9 @@ export class GraphViewer extends BaseViewer {
             GRAPH_RENDERER_URI: graphRendererUri.toString(),
             TOP_MENU_URI: topMenuUri.toString(),
             SIDE_PANEL_URI: sidePanelUri.toString(),
-            SHARED_UTILS_URI: sharedUtilsUri.toString()
+            DOMPURIFY_URI: domPurifyUri.toString(),
+            SHARED_UTILS_URI: sharedUtilsUri.toString(),
+            WEBVIEW_LOGGER_URI: webviewLoggerUri.toString()
         });
     }
 

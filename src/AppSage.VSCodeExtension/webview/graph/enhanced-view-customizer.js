@@ -75,7 +75,7 @@ class EnhancedViewCustomizer {
         const customizeTabPane = document.createElement('div');
         customizeTabPane.id = 'customize-tab';
         customizeTabPane.className = 'tab-pane';
-        customizeTabPane.innerHTML = this.createCustomizationHTML();
+        customizeTabPane.innerHTML = DOMPurify.sanitize(this.createCustomizationHTML());
         tabContent.appendChild(customizeTabPane);
         
         console.log('Customize tab content added');
@@ -92,7 +92,7 @@ class EnhancedViewCustomizer {
         }
 
         // Populate the content
-        customizeContent.innerHTML = this.createCustomizationHTML();
+        customizeContent.innerHTML = DOMPurify.sanitize(this.createCustomizationHTML());
         console.log('Existing customize tab populated with content');
         
         // Populate the customizations after content is added
@@ -218,12 +218,12 @@ class EnhancedViewCustomizer {
         row.className = 'customization-row';
         row.setAttribute('data-type', nodeType);
 
-        row.innerHTML = `
+        row.innerHTML = DOMPurify.sanitize(`
             <div class="control-column type-column">
-                <span class="type-name">${sanitizeForHTML(nodeType)}</span>
+                <span class="type-name">${nodeType}</span>
             </div>
             <div class="control-column color-column">
-                <input type="color" value="${sanitizeForHTML(customization.color)}" data-property="color">
+                <input type="color" value="${customization.color}" data-property="color">
             </div>
             <div class="control-column shape-column">
                 <select data-property="shape">
@@ -239,11 +239,11 @@ class EnhancedViewCustomizer {
             <div class="control-column size-value-column">
                 <input type="number" 
                        min="1" max="100" 
-                       value="${sanitizeForHTML(customization.staticSize)}" 
+                       value="${customization.staticSize}" 
                        data-property="staticSize"
                        ${customization.sizeMode === 'dynamic' ? 'style="display:none"' : ''}>
                 <input type="text" 
-                       value="${sanitizeForHTML(customization.dynamicKey)}" 
+                       value="${customization.dynamicKey}" 
                        placeholder="Attribute key" 
                        data-property="dynamicKey"
                        ${customization.sizeMode === 'static' ? 'style="display:none"' : ''}>
@@ -251,7 +251,7 @@ class EnhancedViewCustomizer {
             <div class="control-column action-column">
                 <button class="remove-btn" title="Remove">×</button>
             </div>
-        `;
+        `);
 
         return row;
     }
@@ -275,12 +275,12 @@ class EnhancedViewCustomizer {
         row.className = 'customization-row';
         row.setAttribute('data-type', edgeType);
 
-        row.innerHTML = `
+        row.innerHTML = DOMPurify.sanitize(`
             <div class="control-column type-column">
-                <span class="type-name">${sanitizeForHTML(edgeType)}</span>
+                <span class="type-name">${edgeType}</span>
             </div>
             <div class="control-column color-column">
-                <input type="color" value="${sanitizeForHTML(customization.color)}" data-property="color">
+                <input type="color" value="${customization.color}" data-property="color">
             </div>
             <div class="control-column style-column">
                 <select data-property="style">
@@ -293,12 +293,12 @@ class EnhancedViewCustomizer {
                 </select>
             </div>
             <div class="control-column width-column">
-                <input type="number" min="1" max="10" value="${sanitizeForHTML(customization.width)}" data-property="width">
+                <input type="number" min="1" max="10" value="${customization.width}" data-property="width">
             </div>
             <div class="control-column action-column">
                 <button class="remove-btn" title="Remove">×</button>
             </div>
-        `;
+        `);
 
         return row;
     }
@@ -306,21 +306,21 @@ class EnhancedViewCustomizer {
     createShapeOptions(selectedShape) {
         const shapes = this.graphCustomization.getAvailableNodeShapes();
         return shapes.map(shape => 
-            `<option value="${sanitizeForHTML(shape)}" ${shape === selectedShape ? 'selected' : ''}>${sanitizeForHTML(shape)}</option>`
+            `<option value="${shape}" ${shape === selectedShape ? 'selected' : ''}>${shape}</option>`
         ).join('');
     }
 
     createEdgeStyleOptions(selectedStyle) {
         const styles = this.graphCustomization.getAvailableEdgeStyles();
         return styles.map(style => 
-            `<option value="${sanitizeForHTML(style)}" ${style === selectedStyle ? 'selected' : ''}>${sanitizeForHTML(style)}</option>`
+            `<option value="${style}" ${style === selectedStyle ? 'selected' : ''}>${style}</option>`
         ).join('');
     }
 
     createArrowOptions(selectedArrow) {
         const arrows = this.graphCustomization.getAvailableArrowShapes();
         return arrows.map(arrow => 
-            `<option value="${sanitizeForHTML(arrow)}" ${arrow === selectedArrow ? 'selected' : ''}>${sanitizeForHTML(arrow)}</option>`
+            `<option value="${arrow}" ${arrow === selectedArrow ? 'selected' : ''}>${arrow}</option>`
         ).join('');
     }
 

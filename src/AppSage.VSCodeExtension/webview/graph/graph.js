@@ -1,9 +1,10 @@
 (function() {
-    console.log('=== GRAPH.JS SCRIPT STARTING ===');
-    console.log('Document ready state:', document.readyState);
-    console.log('Current timestamp:', new Date().toISOString());
-    
     const vscode = acquireVsCodeApi();
+    const logger = new WebViewLogger(vscode, 'GraphMain');
+    
+    logger.info('=== GRAPH.JS SCRIPT STARTING ===');
+    logger.info('Document ready state:', document.readyState);
+    logger.info('Current timestamp:', new Date().toISOString());
     
     // Main application components
     let graphRenderer = null;
@@ -18,53 +19,53 @@
     let currentGraphData = null;
 
     function initializeComponents() {
-        console.log('=== INITIALIZATION START ===');
-        console.log('Initializing components...');
+        logger.info('=== INITIALIZATION START ===');
+        logger.info('Initializing components...');
         
         // Check if DOM elements exist
-        console.log('DOM Check - sidebar-panel exists:', !!document.getElementById('sidebar-panel'));
-        console.log('DOM Check - showSidePanel exists:', !!document.getElementById('showSidePanel'));
-        console.log('DOM Check - cy exists:', !!document.getElementById('cy'));
+        logger.debug('DOM Check - sidebar-panel exists:', !!document.getElementById('sidebar-panel'));
+        logger.debug('DOM Check - showSidePanel exists:', !!document.getElementById('showSidePanel'));
+        logger.debug('DOM Check - cy exists:', !!document.getElementById('cy'));
         
         // Initialize enhanced view components first
         if (!initializeEnhancedView()) {
-            console.warn('Enhanced view components not available');
+            logger.warning('Enhanced view components not available');
         }
         
         // Initialize graph renderer
-        console.log('Initializing GraphRenderer...');
+        logger.info('Initializing GraphRenderer...');
         graphRenderer = new GraphRenderer(vscode, graphCustomization, enhancedViewCustomizer);
         if (!graphRenderer.initialize()) {
-            console.error('Failed to initialize GraphRenderer');
+            logger.error('Failed to initialize GraphRenderer');
             return false;
         }
-        console.log('GraphRenderer initialized successfully');
+        logger.info('GraphRenderer initialized successfully');
         
         // Initialize side panel
-        console.log('Initializing SidePanel...');
+        logger.info('Initializing SidePanel...');
         try {
             sidePanel = new SidePanel(vscode, enhancedViewCustomizer);
-            console.log('SidePanel initialized, sidebarOpen:', sidePanel.sidebarOpen);
+            logger.info('SidePanel initialized, sidebarOpen:', sidePanel.sidebarOpen);
         } catch (error) {
-            console.error('Failed to initialize SidePanel:', error);
+            logger.error('Failed to initialize SidePanel:', error);
             return false;
         }
         
         // Initialize top menu
-        console.log('Initializing TopMenu...');
+        logger.info('Initializing TopMenu...');
         try {
             topMenu = new TopMenu(graphRenderer, sidePanel);
             topMenu.setCoseBilkentAvailable(graphRenderer.getCoseBilkentAvailable());
-            console.log('TopMenu initialized successfully');
+            logger.info('TopMenu initialized successfully');
         } catch (error) {
-            console.error('Failed to initialize TopMenu:', error);
+            logger.error('Failed to initialize TopMenu:', error);
             return false;
         }
         
         // Set up event handlers between components
         setupComponentInteractions();
         
-        console.log('All components initialized successfully');
+        logger.info('All components initialized successfully');
         
         // Signal to VS Code that the webview is ready to receive data
         if (typeof vscode !== 'undefined') {
@@ -86,19 +87,19 @@
     }
 
     function initializeEnhancedView() {
-        console.log('Initializing Enhanced View...');
+        logger.info('Initializing Enhanced View...');
         
         // Initialize graph customization
         if (typeof GraphCustomization !== 'undefined') {
             try {
                 graphCustomization = new GraphCustomization();
-                console.log('GraphCustomization initialized successfully');
+                logger.info('GraphCustomization initialized successfully');
             } catch (error) {
-                console.error('Failed to initialize GraphCustomization:', error);
+                logger.error('Failed to initialize GraphCustomization:', error);
                 return false;
             }
         } else {
-            console.error('GraphCustomization class not available');
+            logger.error('GraphCustomization class not available');
             return false;
         }
 
@@ -107,30 +108,30 @@
             try {
                 enhancedViewCustomizer = new EnhancedViewCustomizer(vscode, graphCustomization);
                 enhancedViewCustomizer.initialize(); // Initialize the customizer
-                console.log('EnhancedViewCustomizer initialized successfully');
+                logger.info('EnhancedViewCustomizer initialized successfully');
                 // Load saved customization
                 enhancedViewCustomizer.loadFromState();
             } catch (error) {
-                console.error('Failed to initialize EnhancedViewCustomizer:', error);
+                logger.error('Failed to initialize EnhancedViewCustomizer:', error);
                 return false;
             }
         } else {
-            console.error('EnhancedViewCustomizer class not available or GraphCustomization failed');
+            logger.error('EnhancedViewCustomizer class not available or GraphCustomization failed');
             return false;
         }
 
         return true;
     }    function updateGraph(graphData) {
         if (!graphRenderer || !graphRenderer.getIsInitialized()) {
-            console.warn('Graph renderer not initialized yet, delaying graph update');
+            logger.warning('Graph renderer not initialized yet, delaying graph update');
             setTimeout(() => updateGraph(graphData), 100);
             return;
         }
 
         try {
-            console.log('Parsing graph data...');
+            logger.debug('Parsing graph data...');
             const graph = JSON.parse(graphData);
-            console.log('Graph data parsed successfully');
+            logger.debug('Graph data parsed successfully');
             
             const validationResult = validateGraphData(graph);
             if (!validationResult.isValid) {
@@ -149,28 +150,28 @@
             if (topMenu && typeof topMenu.updateTypes === 'function') {
                 topMenu.updateTypes(validNodes, validEdges);
             } else {
-                console.warn('TopMenu not available or updateTypes method missing');
+                logger.warning('TopMenu not available or updateTypes method missing');
             }
             
             // Update legend in side panel (legend now gets data from customization settings)
             if (sidePanel && typeof sidePanel.updateLegend === 'function') {
                 sidePanel.updateLegend();
             } else {
-                console.warn('SidePanel not available or updateLegend method missing');
+                logger.warning('SidePanel not available or updateLegend method missing');
             }
             
             // Update the graph
             const success = graphRenderer.updateGraph(validNodes, validEdges);
             if (success) {
-                console.log(`Graph updated successfully: ${validNodes.length} nodes, ${validEdges.length} edges`);
+                logger.info(`Graph updated successfully: ${validNodes.length} nodes, ${validEdges.length} edges`);
             }
             
         } catch (error) {
             if (error instanceof SyntaxError) {
-                console.error('JSON parsing error:', error.message);
+                logger.error('JSON parsing error:', error.message);
                 showError(`Invalid JSON format: ${error.message}`);
             } else {
-                console.error('Error parsing graph data:', error);
+                logger.error('Error parsing graph data:', error);
                 showError('Error processing graph data. Please check the console for details.');
             }
         }
@@ -218,7 +219,7 @@
 
         // Helper function to log errors to VS Code output
         const logError = (message) => {
-            console.error(message);
+            logger.error(message);
             if (typeof vscode !== 'undefined') {
                 vscode.postMessage({
                     type: 'error',
@@ -339,7 +340,7 @@
         if (nodeErrors > 0 || edgeErrors > 0) {
             logError(`Graph validation completed with ${nodeErrors} node errors and ${edgeErrors} edge errors`);
         } else {
-            console.log(`Graph validation passed: ${validNodes.length} valid nodes, ${validEdges.length} valid edges`);
+            logger.info(`Graph validation passed: ${validNodes.length} valid nodes, ${validEdges.length} valid edges`);
         }
 
         return { validNodes, validEdges };
@@ -372,24 +373,24 @@
                 }
                 break;
             default:
-                console.log('Unknown message type:', message.type);
+                logger.debug('Unknown message type:', message.type);
         }
     });
 
     // Wait for external libraries to load before initializing
     function waitForCytoscape(maxAttempts = 50, currentAttempt = 0) {
-        console.log('=== WAITING FOR CYTOSCAPE ===');
-        console.log(`waitForCytoscape attempt ${currentAttempt + 1}/${maxAttempts}`);
-        console.log('Cytoscape available:', typeof cytoscape !== 'undefined');
+        logger.debug('=== WAITING FOR CYTOSCAPE ===');
+        logger.debug(`waitForCytoscape attempt ${currentAttempt + 1}/${maxAttempts}`);
+        logger.debug('Cytoscape available:', typeof cytoscape !== 'undefined');
         
         if (typeof cytoscape !== 'undefined') {
-            console.log('Cytoscape loaded, initializing components...');
+            logger.info('Cytoscape loaded, initializing components...');
             initializeComponents();
         } else if (currentAttempt < maxAttempts) {
-            console.log(`Waiting for Cytoscape to load... (attempt ${currentAttempt + 1}/${maxAttempts})`);
+            logger.debug(`Waiting for Cytoscape to load... (attempt ${currentAttempt + 1}/${maxAttempts})`);
             setTimeout(() => waitForCytoscape(maxAttempts, currentAttempt + 1), 100);
         } else {
-            console.error('Failed to load Cytoscape after maximum attempts');
+            logger.error('Failed to load Cytoscape after maximum attempts');
             showError('Failed to load graph visualization library. Please refresh the editor.');
             
             // Signal ready even on failure so extension doesn't hang

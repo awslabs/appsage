@@ -59,6 +59,31 @@ export abstract class BaseViewer implements vscode.CustomTextEditorProvider {
                         updateWebview();
                     }
                     break;
+                case 'webview-log':
+                    // Forward webview log messages to the extension logger
+                    const logLevel = message.level;
+                    const logMessage = message.message;
+                    const component = message.component || 'Webview';
+                    const args = message.args ? [message.args] : [];
+                    
+                    switch (logLevel) {
+                        case 'error':
+                            this.componentLogger.error(logMessage, component, ...args);
+                            break;
+                        case 'warning':
+                            this.componentLogger.warning(logMessage, component, ...args);
+                            break;
+                        case 'info':
+                            this.componentLogger.info(logMessage, component, ...args);
+                            break;
+                        case 'debug':
+                            this.componentLogger.debug(logMessage, component, ...args);
+                            break;
+                        default:
+                            this.componentLogger.info(logMessage, component, ...args);
+                            break;
+                    }
+                    break;
                 case 'error':
                     // Log errors to centralized logger
                     this.componentLogger.error(`Webview error: ${message.message}`);

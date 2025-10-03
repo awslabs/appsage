@@ -16,12 +16,15 @@ class GraphRenderer {
         this.onNodeSelected = null;
         this.onEdgeSelected = null;
         this.onSelectionCleared = null;
+        
+        // Initialize logger for this component
+        this.logger = new WebViewLogger(vscode, 'GraphRenderer');
     }
 
     checkLibraries() {
         // Check Cytoscape
         if (typeof cytoscape === 'undefined') {
-            console.error('Cytoscape library not loaded');
+            this.logger.error('Cytoscape library not loaded');
             return false;
         }
 
@@ -32,16 +35,16 @@ class GraphRenderer {
                 if (cytoscape && typeof cytoscape.use === 'function') {
                     cytoscape.use(cytoscapeCoseBilkent);
                     this.coseBilkentAvailable = true;
-                    console.log('Cose-bilkent extension registered successfully');
+                    this.logger.info('Cose-bilkent extension registered successfully');
                 } else {
-                    console.warn('Cytoscape.use method not available, skipping cose-bilkent registration');
+                    this.logger.warning('Cytoscape.use method not available, skipping cose-bilkent registration');
                 }
             } catch (error) {
-                console.warn('Failed to register cose-bilkent extension:', error);
+                this.logger.warning('Failed to register cose-bilkent extension:', error);
                 this.coseBilkentAvailable = false;
             }
         } else {
-            console.warn('Cose-bilkent extension not available - some layouts may not work');
+            this.logger.warning('Cose-bilkent extension not available - some layouts may not work');
             this.coseBilkentAvailable = false;
         }
 
@@ -56,7 +59,7 @@ class GraphRenderer {
         try {
             const container = document.getElementById('cy');
             if (!container) {
-                console.error('Graph container element with id "cy" not found');
+                this.logger.error('Graph container element with id "cy" not found');
                 return false;
             }
 
@@ -70,25 +73,25 @@ class GraphRenderer {
             this.setupEventHandlers();
             this.setupResizeHandler();
             
-            console.log('Cytoscape initialized successfully');
+            this.logger.info('Cytoscape initialized successfully');
             
             // Expose functions globally for enhanced view customizer
             window.applyEnhancedView = () => this.applyEnhancedView();
             window.applyViewMode = () => this.applyViewMode();
-            console.log('Enhanced view functions exposed globally');
+            this.logger.info('Enhanced view functions exposed globally');
             
             // Listen for customization changes
             document.addEventListener('customizationChanged', (event) => {
-                console.log('Customization changed event received:', event.detail);
+                this.logger.info('Customization changed event received:', event.detail);
                 if (this.currentViewMode === 'enhanced') {
-                    console.log('Applying enhanced view due to customization change');
+                    this.logger.info('Applying enhanced view due to customization change');
                     this.applyEnhancedView();
                 }
             });
             
             return true;
         } catch (error) {
-            console.error('Error initializing Cytoscape:', error);
+            this.logger.error('Error initializing Cytoscape:', error);
             this.showError('Failed to initialize graph visualization. Please refresh the editor.');
             return false;
         }
@@ -102,7 +105,7 @@ class GraphRenderer {
             const node = event.target;
             const nodeId = node.data('id');
             const nodeData = node.data();
-            console.log('Node selected:', nodeId, 'Full node data:', nodeData);
+            this.logger.debug('Node selected:', nodeId, 'Full node data:', nodeData);
             
             if (this.onNodeSelected) {
                 this.onNodeSelected(nodeData);
@@ -120,7 +123,7 @@ class GraphRenderer {
             const edge = event.target;
             const edgeId = edge.data('id');
             const edgeData = edge.data();
-            console.log('Edge selected:', edgeId, 'Full edge data:', edgeData);
+            this.logger.debug('Edge selected:', edgeId, 'Full edge data:', edgeData);
             
             if (this.onEdgeSelected) {
                 this.onEdgeSelected(edgeData);
@@ -137,12 +140,12 @@ class GraphRenderer {
         this.cy.on('dbltap', 'node', (event) => {
             const node = event.target;
             const nodeData = node.data();
-            console.log('Node double-clicked:', nodeData.id, 'Full node data:', nodeData);
+            this.logger.debug('Node double-clicked:', nodeData.id, 'Full node data:', nodeData);
             
             // Check if the node has ResourceFilePath attribute in the Attributes object
             const resourceFilePath = nodeData.Attributes && nodeData.Attributes.ResourceFilePath;
             if (resourceFilePath && typeof resourceFilePath === 'string') {
-                console.log('Opening file:', resourceFilePath);
+                this.logger.info('Opening file:', resourceFilePath);
                 
                 // Send message to VS Code extension to open the file
                 this.vscode.postMessage({
@@ -151,8 +154,8 @@ class GraphRenderer {
                     nodeId: nodeData.id
                 });
             } else {
-                console.log('Node does not have ResourceFilePath attribute in Attributes object');
-                console.log('Available attributes:', nodeData.Attributes);
+                this.logger.debug('Node does not have ResourceFilePath attribute in Attributes object');
+                this.logger.debug('Available attributes:', nodeData.Attributes);
             }
         });
 
@@ -160,7 +163,7 @@ class GraphRenderer {
         this.cy.on('tap', (event) => {
             // Only clear if tapping on background (not on nodes or edges)
             if (event.target === this.cy) {
-                console.log('Background clicked - clearing selection');
+                this.logger.debug('Background clicked - clearing selection');
                 
                 if (this.onSelectionCleared) {
                     this.onSelectionCleared();
@@ -274,22 +277,22 @@ class GraphRenderer {
     }
 
     applyViewMode() {
-        console.log('Applying view mode:', this.currentViewMode);
+        this.logger.info('Applying view mode:', this.currentViewMode);
         
         if (!this.cy || !this.isInitialized) {
-            console.warn('Cytoscape not initialized, cannot apply view mode');
+            this.logger.warning('Cytoscape not initialized, cannot apply view mode');
             return;
         }
 
         if (this.currentViewMode === 'basic') {
-            console.log('Applying basic view');
+            this.logger.info('Applying basic view');
             this.applyBasicView();
         } else if (this.currentViewMode === 'enhanced') {
-            console.log('Applying enhanced view');
+            this.logger.info('Applying enhanced view');
             this.applyEnhancedView();
         }
         
-        console.log('View mode applied successfully');
+        this.logger.info('View mode applied successfully');
     }
 
     applyBasicView() {
@@ -300,30 +303,30 @@ class GraphRenderer {
     }
 
     applyEnhancedView() {
-        console.log('Starting applyEnhancedView...');
+        this.logger.info('Starting applyEnhancedView...');
         
         if (!this.graphCustomization) {
-            console.error('GraphCustomization not available for enhanced view');
+            this.logger.error('GraphCustomization not available for enhanced view');
             return;
         }
 
-        console.log('GraphCustomization available, proceeding...');
+        this.logger.info('GraphCustomization available, proceeding...');
         
         const enhancedStyles = [];
         const nodes = this.cy.nodes();
         const edges = this.cy.edges();
 
-        console.log(`Processing ${nodes.length} nodes and ${edges.length} edges`);
+        this.logger.info(`Processing ${nodes.length} nodes and ${edges.length} edges`);
 
         // Build dynamic size maps for nodes that use dynamic sizing
         const dynamicSizeMaps = new Map();
         const nodeTypes = this.graphCustomization.getAllNodeTypes();
         
-        console.log('Available node types:', nodeTypes);
+        this.logger.debug('Available node types:', nodeTypes);
         
         nodeTypes.forEach(nodeType => {
             const customization = this.graphCustomization.getNodeCustomization(nodeType);
-            console.log(`Node type ${nodeType} customization:`, customization);
+            this.logger.debug(`Node type ${nodeType} customization:`, customization);
             
             if (customization.sizeMode === 'dynamic' && customization.dynamicKey) {
                 // Convert Cytoscape nodes to the format expected by calculateDynamicSize
@@ -337,7 +340,7 @@ class GraphRenderer {
                     }
                 });
                 
-                console.log(`Found ${nodeDataArray.length} nodes of type ${nodeType} for dynamic sizing`);
+                this.logger.debug(`Found ${nodeDataArray.length} nodes of type ${nodeType} for dynamic sizing`);
                 
                 if (nodeDataArray.length > 0) {
                     const sizeMap = this.graphCustomization.calculateDynamicSize(
@@ -346,7 +349,7 @@ class GraphRenderer {
                         customization.dynamicKey
                     );
                     dynamicSizeMaps.set(nodeType, sizeMap);
-                    console.log(`Dynamic size map for ${nodeType}:`, sizeMap);
+                    this.logger.debug(`Dynamic size map for ${nodeType}:`, sizeMap);
                 }
             }
         });
@@ -366,12 +369,12 @@ class GraphRenderer {
         });
 
         // Apply node customizations
-        console.log('Applying node customizations...');
+        this.logger.debug('Applying node customizations...');
         nodeTypes.forEach(nodeType => {
             const customization = this.graphCustomization.getNodeCustomization(nodeType);
             const selector = `node[type="${nodeType}"]`;
             
-            console.log(`Creating style for ${selector}:`, customization);
+            this.logger.debug(`Creating style for ${selector}:`, customization);
             
             const style = {
                 'background-color': customization.color,
@@ -410,15 +413,15 @@ class GraphRenderer {
         });
 
         // Apply edge customizations
-        console.log('Applying edge customizations...');
+        this.logger.debug('Applying edge customizations...');
         const edgeTypes = this.graphCustomization.getAllEdgeTypes();
-        console.log('Available edge types:', edgeTypes);
+        this.logger.debug('Available edge types:', edgeTypes);
         
         edgeTypes.forEach(edgeType => {
             const customization = this.graphCustomization.getEdgeCustomization(edgeType);
             const selector = `edge[type="${edgeType}"]`;
             
-            console.log(`Creating edge style for ${selector}:`, customization);
+            this.logger.debug(`Creating edge style for ${selector}:`, customization);
             
             const style = {
                 'line-color': customization.color,
@@ -452,7 +455,7 @@ class GraphRenderer {
         // Apply default styles for unmatched node types
         actualNodeTypes.forEach(nodeType => {
             if (!nodeTypes.includes(nodeType)) {
-                console.log(`Applying default style for unmatched node type: ${nodeType}`);
+                this.logger.debug(`Applying default style for unmatched node type: ${nodeType}`);
                 enhancedStyles.push({
                     selector: `node[type="${nodeType}"]`,
                     style: {
@@ -477,7 +480,7 @@ class GraphRenderer {
         // Apply default styles for unmatched edge types
         actualEdgeTypes.forEach(edgeType => {
             if (!edgeTypes.includes(edgeType)) {
-                console.log(`Applying default style for unmatched edge type: ${edgeType}`);
+                this.logger.debug(`Applying default style for unmatched edge type: ${edgeType}`);
                 enhancedStyles.push({
                     selector: `edge[type="${edgeType}"]`,
                     style: {
@@ -500,7 +503,7 @@ class GraphRenderer {
             }
         });
 
-        console.log('Enhanced styles to apply:', enhancedStyles);
+        this.logger.debug('Enhanced styles to apply:', enhancedStyles);
         
         try {
             // Clear existing styles first
@@ -508,7 +511,7 @@ class GraphRenderer {
             
             // Apply new styles
             this.cy.style(enhancedStyles);
-            console.log('Enhanced styles applied successfully');
+            this.logger.info('Enhanced styles applied successfully');
             
             // Force a refresh of the styles
             this.cy.style().update();
@@ -523,7 +526,7 @@ class GraphRenderer {
             }, 100);
             
         } catch (error) {
-            console.error('Error applying enhanced styles:', error);
+            this.logger.error('Error applying enhanced styles:', error);
         }
     }
 
@@ -571,9 +574,9 @@ class GraphRenderer {
             const visibleNodes = this.cy.nodes().filter(node => node.style('display') !== 'none');
             const visibleEdges = this.cy.edges().filter(edge => edge.style('display') !== 'none');
             
-            console.log(`Applied filters: ${visibleNodes.length} visible nodes, ${visibleEdges.length} visible edges (positions preserved)`);
+            this.logger.info(`Applied filters: ${visibleNodes.length} visible nodes, ${visibleEdges.length} visible edges (positions preserved)`);
         } catch (error) {
-            console.error('Error applying filters:', error);
+            this.logger.error('Error applying filters:', error);
         }
     }
 
@@ -582,7 +585,7 @@ class GraphRenderer {
         
         // Show all nodes and edges
         this.cy.elements().style('display', 'element');
-        console.log('Reset all element visibility - all nodes and edges are now visible');
+        this.logger.info('Reset all element visibility - all nodes and edges are now visible');
     }
 
     applyLayout(layoutName) {
@@ -592,7 +595,7 @@ class GraphRenderer {
         const visibleNodes = this.cy.nodes().filter(node => node.style('display') !== 'none');
         const visibleEdges = this.cy.edges().filter(edge => edge.style('display') !== 'none');
         
-        console.log(`Applying ${layoutName} layout to ${visibleNodes.length} visible nodes and ${visibleEdges.length} visible edges`);
+        this.logger.info(`Applying ${layoutName} layout to ${visibleNodes.length} visible nodes and ${visibleEdges.length} visible edges`);
 
         const layoutConfig = {
             name: layoutName,
@@ -616,7 +619,7 @@ class GraphRenderer {
                     layoutConfig.edgeElasticity = 0.45;
                     layoutConfig.nestingFactor = 0.1;
                 } else {
-                    console.warn('Cose-bilkent layout not available, falling back to cose');
+                    this.logger.warning('Cose-bilkent layout not available, falling back to cose');
                     layoutConfig.name = 'cose';
                 }
                 break;
@@ -645,7 +648,7 @@ class GraphRenderer {
             const layout = visibleElements.layout(layoutConfig);
             layout.run();
         } catch (error) {
-            console.error(`Error applying ${layoutName} layout:`, error);
+            this.logger.error(`Error applying ${layoutName} layout:`, error);
             // Fallback to basic cose layout on visible elements only
             const visibleElements = visibleNodes.union(visibleEdges);
             visibleElements.layout({ name: 'cose', animate: true }).run();
@@ -654,7 +657,7 @@ class GraphRenderer {
 
     updateGraph(validNodes, validEdges) {
         if (!this.isInitialized || !this.cy) {
-            console.warn('Cytoscape not initialized yet, cannot update graph');
+            this.logger.warning('Cytoscape not initialized yet, cannot update graph');
             return false;
         }
 
@@ -668,10 +671,10 @@ class GraphRenderer {
             
             // Add new elements with error handling
             this.cy.add(validNodes);
-            console.log(`Added ${validNodes.length} nodes to graph`);
+            this.logger.info(`Added ${validNodes.length} nodes to graph`);
             
             this.cy.add(validEdges);
-            console.log(`Added ${validEdges.length} edges to graph`);
+            this.logger.info(`Added ${validEdges.length} edges to graph`);
             
             // Apply layout
             this.applyLayout('cose');
@@ -684,11 +687,11 @@ class GraphRenderer {
                 this.cy.fit();
             }, 600);
             
-            console.log(`Graph updated successfully: ${validNodes.length} nodes, ${validEdges.length} edges`);
+            this.logger.info(`Graph updated successfully: ${validNodes.length} nodes, ${validEdges.length} edges`);
             return true;
             
         } catch (error) {
-            console.error('Error updating graph:', error);
+            this.logger.error('Error updating graph:', error);
             this.showError('Error rendering graph elements. Please check the console for details.');
             return false;
         }
@@ -703,9 +706,9 @@ class GraphRenderer {
     showError(message) {
         const container = document.getElementById('cy');
         if (container) {
-            // Use sanitize function if available, otherwise create safe element manually
-            if (typeof sanitize === 'function') {
-                container.innerHTML = `<div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #ff6b6b; font-family: Arial, sans-serif; text-align: center; padding: 20px;">${sanitizeForHTML(message)}</div>`;
+            // Use DOMPurify for safe HTML rendering
+            if (typeof DOMPurify !== 'undefined') {
+                container.innerHTML = DOMPurify.sanitize(`<div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #ff6b6b; font-family: Arial, sans-serif; text-align: center; padding: 20px;">${message}</div>`);
             } else {
                 // Fallback: create element safely without innerHTML
                 const errorDiv = document.createElement('div');
