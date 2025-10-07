@@ -1,0 +1,35 @@
+[
+  {
+    "TableName": "Empty.Table",
+    "Columns": [
+      {
+        "Name": "ID",
+        "DataType": "System.Int64"
+      },
+      {
+        "Name": "Name",
+        "DataType": "System.String"
+      }
+    ],
+    "Rows": []
+  },
+  {
+    "TableName": "Single.Row",
+    "Columns": [
+      {
+        "Name": "Metric",
+        "DataType": "System.String"
+      },
+      {
+        "Name": "Value",
+        "DataType": "System.Int64"
+      }
+    ],
+    "Rows": [
+      {
+        "Metric": "Total Users",
+        "Value": 15000
+      }
+    ]
+  }
+]

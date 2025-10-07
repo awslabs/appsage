@@ -118,3 +118,13 @@ Each handler implements `vscode.CustomTextEditorProvider` to process specific fi
 - **Features**: Sorting, filtering, search, CSV export
 - **Sample file**: `samples/SampleTable.appsagetable`
 
+## Chart handler
+- **File Type**: `.appsagechart`
+- **Visualization**: Interactive charts using Apache ECharts 5.4.3
+- **Features**: Multiple chart types, customizable appearance, multi-table support
+- **Chart Types**: Bar, Line, Pie, Scatter, Area, Heatmap, Radar, Gauge
+- **Customization**: Chart titles, legend positioning, color themes, grid display, animations
+- **Data Format**: JSON-serialized DataTable arrays with custom serialization
+- **Single Table Selection**: Dropdown to select which table to visualize
+- **Sample files**: `samples/SampleChart.appsagechart`, `samples/ComprehensiveChart.appsagechart`
+

@@ -53,6 +53,15 @@
             "filenamePattern": "*.appsagetable"
           }
         ]
+      },
+      {
+        "viewType": "appsage.chartViewer",
+        "displayName": "AppSage Chart Viewer",
+        "selector": [
+          {
+            "filenamePattern": "*.appsagechart"
+          }
+        ]
       }
     ],
     "commands": [

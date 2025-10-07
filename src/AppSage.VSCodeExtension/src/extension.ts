@@ -1,7 +1,9 @@
 import * as vscode from 'vscode';
 import { GraphViewer } from './handlers/graph/graphViewer';
 import { TableViewer } from './handlers/table/tableViewer';
+import { ChartViewer } from './handlers/chart/chartViewer';
 import { GraphPropertyPanel } from './handlers/graph/components/graphPropertyPanel';
+import { ChartPropertyPanel } from './handlers/chart/components/chartPropertyPanel';
 import { AppSageLogger } from './shared/logging';
 import { ProfileManager } from './shared/providers/profileManager';
 import { ProfileTreeDataProvider } from './shared/providers/profileTreeDataProvider';
@@ -35,10 +37,14 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(profileTreeView);
     extensionLogger.info('Profile tree view registered');
 
-    // Set up the property panel
-    const propertyPanel = GraphPropertyPanel.getInstance();
-    propertyPanel.setLogger(logger);
+    // Set up the property panels
+    const graphPropertyPanel = GraphPropertyPanel.getInstance();
+    graphPropertyPanel.setLogger(logger);
     extensionLogger.info('Graph property panel initialized');
+
+    const chartPropertyPanel = ChartPropertyPanel.getInstance();
+    chartPropertyPanel.setLogger(logger);
+    extensionLogger.info('Chart property panel initialized');
 
     // Register Graph Viewer
     const graphProvider = new GraphViewer(context);
@@ -71,6 +77,22 @@ export function activate(context: vscode.ExtensionContext) {
         )
     );
     extensionLogger.info('Table viewer registered');
+
+    // Register Chart Viewer
+    const chartProvider = new ChartViewer(context);
+    context.subscriptions.push(
+        vscode.window.registerCustomEditorProvider(
+            'appsage.chartViewer',
+            chartProvider,
+            {
+                webviewOptions: {
+                    retainContextWhenHidden: true,
+                },
+                supportsMultipleEditorsPerDocument: false,
+            }
+        )
+    );
+    extensionLogger.info('Chart viewer registered');
 
     // Register commands
     context.subscriptions.push(

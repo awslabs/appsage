@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="{{CSP_SOURCE}}">
+    <title>AppSage Chart Viewer</title>
+    <link rel="stylesheet" href="{{STYLE_URI}}">
+</head>
+<body>
+    <div id="controls">
+        <div class="control-group">
+            <div class="control-item">
+                <label for="chartTypeSelect">Chart Type:</label>
+                <select id="chartTypeSelect">
+                    <option value="bar">Bar Chart</option>
+                    <option value="line">Line Chart</option>
+                    <option value="pie">Pie Chart</option>
+                    <option value="scatter">Scatter Plot</option>
+                    <option value="area">Area Chart</option>
+                    <option value="heatmap">Heatmap</option>
+                    <option value="radar">Radar Chart</option>
+                    <option value="gauge">Gauge</option>
+                </select>
+            </div>
+            
+            <div class="control-item">
+                <label for="tableSelect">Select Table:</label>
+                <select id="tableSelect">
+                    <!-- Options will be populated dynamically -->
+                </select>
+            </div>
+            
+            <div class="control-item">
+                <label for="columnTypesSelect">Columns:</label>
+                <div class="multi-select-container">
+                    <div class="multi-select-display" id="columnTypesDisplay">
+                        Select columns...
+                    </div>
+                    <div class="multi-select-dropdown" id="columnTypesDropdown">
+                        <!-- Options will be populated dynamically -->
+                    </div>
+                </div>
+            </div>
+            
+            <div class="control-item">
+                <label for="xAxisSelect">X-Axis Column:</label>
+                <select id="xAxisSelect">
+                    <option value="auto">Auto (First Category Column)</option>
+                    <!-- Options will be populated dynamically -->
+                </select>
+            </div>
+            
+            <div class="control-item">
+                <button id="refreshBtn" title="Refresh Chart">🔄 Refresh</button>
+                <button id="exportBtn" title="Export Chart">📥 Export</button>
+            </div>
+        </div>
+        
+        <div class="customization-group">
+            <details>
+                <summary>Customization Options</summary>
+                <div class="customization-controls">
+                    <div class="control-item">
+                        <label for="chartTitle">Title:</label>
+                        <input type="text" id="chartTitle" placeholder="Enter chart title">
+                    </div>
+                    
+                    <div class="control-item">
+                        <label>
+                            <input type="checkbox" id="showLegend" checked> Show Legend
+                        </label>
+                    </div>
+                    
+                    <div class="control-item">
+                        <label for="legendPosition">Legend Position:</label>
+                        <select id="legendPosition">
+                            <option value="top">Top</option>
+                            <option value="bottom">Bottom</option>
+                            <option value="left">Left</option>
+                            <option value="right">Right</option>
+                        </select>
+                    </div>
+                    
+                    <div class="control-item">
+                        <label>
+                            <input type="checkbox" id="showGrid" checked> Show Grid
+                        </label>
+                    </div>
+                    
+                    <div class="control-item">
+                        <label>
+                            <input type="checkbox" id="enableAnimation" checked> Enable Animation
+                        </label>
+                    </div>
+                    
+                    <div class="control-item">
+                        <label for="colorTheme">Color Theme:</label>
+                        <select id="colorTheme">
+                            <option value="default">Default</option>
+                            <option value="blue">Blue</option>
+                            <option value="green">Green</option>
+                            <option value="purple">Purple</option>
+                            <option value="orange">Orange</option>
+                        </select>
+                    </div>
+                </div>
+            </details>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div id="chartContainer">
+            <div id="loadingMessage">Loading chart data...</div>
+            <div id="errorMessage" style="display: none;">
+                <h3>Error</h3>
+                <p id="errorText"></p>
+            </div>
+        </div>
+        
+        <div id="sidebar" class="sidebar">
+            <div class="sidebar-header">
+                <h3>Chart Information</h3>
+                <button id="closeSidebarBtn" class="close-btn">&times;</button>
+            </div>
+            <div class="sidebar-content">
+                <div id="tableInfo">
+                    <h4>Selected Table</h4>
+                    <div id="tableList"></div>
+                </div>
+                <div id="chartStats">
+                    <h4>Chart Statistics</h4>
+                    <div id="statsList"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script nonce="{{NONCE}}" src="{{ECHARTS_URI}}"></script>
+    <script nonce="{{NONCE}}" src="{{DOMPURIFY_URI}}"></script>
+    <script nonce="{{NONCE}}" src="{{WEBVIEW_LOGGER_URI}}"></script>
+    <script nonce="{{NONCE}}" src="{{SHARED_UTILS_URI}}"></script>
+    <script nonce="{{NONCE}}" src="{{CHART_RENDERER_URI}}"></script>
+    <script nonce="{{NONCE}}" src="{{CHART_CONTROLS_URI}}"></script>
+    <script nonce="{{NONCE}}" src="{{SCRIPT_URI}}"></script>
+</body>
+</html>

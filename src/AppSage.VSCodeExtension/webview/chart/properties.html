@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chart Properties</title>
+    <link rel="stylesheet" href="{{STYLE_URI}}">
+</head>
+<body>
+    <div id="content">
+        <div class="no-selection">
+            Click on chart elements to view their properties
+        </div>
+    </div>
+
+    <script src="{{DOMPURIFY_URI}}"></script>
+    <script src="{{SHARED_UTILS_URI}}"></script>
+    <script>
+        const vscode = acquireVsCodeApi();
+        
+        // Send ready message
+        vscode.postMessage({ command: 'ready' });
+        
+        // Handle messages from extension
+        window.addEventListener('message', event => {
+            const message = event.data;
+            
+            switch (message.command) {
+                case 'updateProperties':
+                    updatePropertiesDisplay(message.properties);
+                    break;
+            }
+        });
+        
+        function updatePropertiesDisplay(properties) {
+            const content = document.getElementById('content');
+            
+            if (!properties) {
+                content.innerHTML = '<div class="no-selection">Click on chart elements to view their properties</div>';
+                return;
+            }
+            
+            let html = '<div class="properties-container">';
+            html += '<h3>Chart Properties</h3>';
+            
+            if (properties.chartType) {
+                html += `<div class="property-group">
+                    <h4>Chart Configuration</h4>
+                    <div class="property-item">
+                        <span class="property-label">Type:</span>
+                        <span class="property-value">${properties.chartType}</span>
+                    </div>
+                </div>`;
+            }
+            
+            if (properties.selectedTables && properties.selectedTables.length > 0) {
+                html += `<div class="property-group">
+                    <h4>Data Sources</h4>`;
+                properties.selectedTables.forEach(table => {
+                    html += `<div class="property-item">
+                        <span class="property-label">Table:</span>
+                        <span class="property-value">${table}</span>
+                    </div>`;
+                });
+                html += '</div>';
+            }
+            
+            if (properties.customizations) {
+                html += `<div class="property-group">
+                    <h4>Customizations</h4>`;
+                Object.entries(properties.customizations).forEach(([key, value]) => {
+                    html += `<div class="property-item">
+                        <span class="property-label">${formatLabel(key)}:</span>
+                        <span class="property-value">${formatValue(value)}</span>
+                    </div>`;
+                });
+                html += '</div>';
+            }
+            
+            html += '</div>';
+            content.innerHTML = html;
+        }
+        
+        function formatLabel(key) {
+            return key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+        }
+        
+        function formatValue(value) {
+            if (typeof value === 'boolean') {
+                return value ? 'Yes' : 'No';
+            }
+            return String(value);
+        }
+    </script>
+</body>
+</html>

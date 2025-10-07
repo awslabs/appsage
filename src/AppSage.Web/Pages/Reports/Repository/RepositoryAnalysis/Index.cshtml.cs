@@ -4,8 +4,11 @@ using AppSage.Core.Const;
 using AppSage.Core.Logging;
 using AppSage.Core.Metric;
 using AppSage.Core.Workspace;
+using AppSage.Infrastructure.Serialization;
 using AppSage.Providers.Repository;
 using AppSage.Web.Components.Filter;
+using DocumentFormat.OpenXml.Spreadsheet;
+using Newtonsoft.Json;
 using System.Data;
 
 namespace AppSage.Web.Pages.Reports.Repository.RepositoryAnalysis
@@ -279,6 +282,25 @@ namespace AppSage.Web.Pages.Reports.Repository.RepositoryAnalysis
         {
             var model = new IndexViewModel();
             var metrics = GetFilteredMetrics();
+            var name = new List<string>{ "Repository.FileTypesByExtensions", "DotNet.Project.MethodStatistics" };
+
+            var k = metrics.Where(x => x is IMetricValue<DataTable> && name.Contains(x.Name)).Select(x => (x as IMetricValue<DataTable>)).ToList();
+            k.ForEach(x => x.Value.TableName = $"{x.Name}-{x.Segment}");
+            var g=k.Select(x => x.Value).ToArray();
+
+            var f=k.Select(x => new { TableName= $"{x.Name}-{x.Segment}", Data= x.Value }).ToArray();
+
+            string jsonArray = JsonConvert.SerializeObject(
+    g,
+    Formatting.Indented,
+    new DataTablesExactArrayConverter()
+);
+
+            string filePath = @"c:\temp\mytablelist.appsagechart";
+
+            System.IO.File.WriteAllText(filePath, jsonArray);
+
+            //AppSageSerializer.SerializeToFile(@"c:\temp\mytablelist.appsagechart",f);
 
             PopulateMetricBoxes(metrics, ref model);
             PopulateCommitActivitySummary(metrics, ref model);

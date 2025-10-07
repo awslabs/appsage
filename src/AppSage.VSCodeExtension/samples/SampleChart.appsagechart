@@ -1,0 +1,108 @@
+[
+  {
+    "TableName": "SampleData.Performance",
+    "Columns": [
+      {
+        "Name": "Metric",
+        "DataType": "System.String"
+      },
+      {
+        "Name": "Value",
+        "DataType": "System.Int64"
+      },
+      {
+        "Name": "Target",
+        "DataType": "System.Int64"
+      },
+      {
+        "Name": "Category",
+        "DataType": "System.String"
+      }
+    ],
+    "Rows": [
+      {
+        "Metric": "Response Time",
+        "Value": 250,
+        "Target": 200,
+        "Category": "Performance"
+      },
+      {
+        "Metric": "Throughput",
+        "Value": 1500,
+        "Target": 2000,
+        "Category": "Performance"
+      },
+      {
+        "Metric": "Error Rate",
+        "Value": 5,
+        "Target": 2,
+        "Category": "Quality"
+      },
+      {
+        "Metric": "CPU Usage",
+        "Value": 75,
+        "Target": 80,
+        "Category": "Resource"
+      },
+      {
+        "Metric": "Memory Usage",
+        "Value": 60,
+        "Target": 70,
+        "Category": "Resource"
+      }
+    ]
+  },
+  {
+    "TableName": "SampleData.Usage",
+    "Columns": [
+      {
+        "Name": "Month",
+        "DataType": "System.String"
+      },
+      {
+        "Name": "Users",
+        "DataType": "System.Int64"
+      },
+      {
+        "Name": "Sessions",
+        "DataType": "System.Int64"
+      },
+      {
+        "Name": "PageViews",
+        "DataType": "System.Int64"
+      }
+    ],
+    "Rows": [
+      {
+        "Month": "January",
+        "Users": 1200,
+        "Sessions": 3500,
+        "PageViews": 15000
+      },
+      {
+        "Month": "February",
+        "Users": 1350,
+        "Sessions": 4100,
+        "PageViews": 18500
+      },
+      {
+        "Month": "March",
+        "Users": 1500,
+        "Sessions": 4800,
+        "PageViews": 22000
+      },
+      {
+        "Month": "April",
+        "Users": 1650,
+        "Sessions": 5200,
+        "PageViews": 25500
+      },
+      {
+        "Month": "May",
+        "Users": 1800,
+        "Sessions": 5800,
+        "PageViews": 28000
+      }
+    ]
+  }
+]

@@ -1,0 +1,195 @@
+[
+  {
+    "TableName": "Sales.Performance",
+    "Columns": [
+      {
+        "Name": "Region",
+        "DataType": "System.String"
+      },
+      {
+        "Name": "Q1_Sales",
+        "DataType": "System.Int64"
+      },
+      {
+        "Name": "Q2_Sales",
+        "DataType": "System.Int64"
+      },
+      {
+        "Name": "Q3_Sales",
+        "DataType": "System.Int64"
+      },
+      {
+        "Name": "Q4_Sales",
+        "DataType": "System.Int64"
+      },
+      {
+        "Name": "Target",
+        "DataType": "System.Int64"
+      }
+    ],
+    "Rows": [
+      {
+        "Region": "North America",
+        "Q1_Sales": 125000,
+        "Q2_Sales": 135000,
+        "Q3_Sales": 142000,
+        "Q4_Sales": 158000,
+        "Target": 150000
+      },
+      {
+        "Region": "Europe",
+        "Q1_Sales": 98000,
+        "Q2_Sales": 105000,
+        "Q3_Sales": 112000,
+        "Q4_Sales": 125000,
+        "Target": 110000
+      },
+      {
+        "Region": "Asia Pacific",
+        "Q1_Sales": 78000,
+        "Q2_Sales": 85000,
+        "Q3_Sales": 92000,
+        "Q4_Sales": 105000,
+        "Target": 90000
+      },
+      {
+        "Region": "Latin America",
+        "Q1_Sales": 45000,
+        "Q2_Sales": 52000,
+        "Q3_Sales": 58000,
+        "Q4_Sales": 65000,
+        "Target": 55000
+      },
+      {
+        "Region": "Middle East",
+        "Q1_Sales": 32000,
+        "Q2_Sales": 38000,
+        "Q3_Sales": 42000,
+        "Q4_Sales": 48000,
+        "Target": 40000
+      }
+    ]
+  },
+  {
+    "TableName": "Product.Categories",
+    "Columns": [
+      {
+        "Name": "Category",
+        "DataType": "System.String"
+      },
+      {
+        "Name": "Revenue",
+        "DataType": "System.Int64"
+      },
+      {
+        "Name": "Units_Sold",
+        "DataType": "System.Int64"
+      },
+      {
+        "Name": "Market_Share",
+        "DataType": "System.Double"
+      }
+    ],
+    "Rows": [
+      {
+        "Category": "Electronics",
+        "Revenue": 250000,
+        "Units_Sold": 1500,
+        "Market_Share": 35.5
+      },
+      {
+        "Category": "Clothing",
+        "Revenue": 180000,
+        "Units_Sold": 2800,
+        "Market_Share": 25.7
+      },
+      {
+        "Category": "Home & Garden",
+        "Revenue": 120000,
+        "Units_Sold": 950,
+        "Market_Share": 17.1
+      },
+      {
+        "Category": "Sports",
+        "Revenue": 95000,
+        "Units_Sold": 750,
+        "Market_Share": 13.6
+      },
+      {
+        "Category": "Books",
+        "Revenue": 55000,
+        "Units_Sold": 1200,
+        "Market_Share": 8.1
+      }
+    ]
+  },
+  {
+    "TableName": "Customer.Satisfaction",
+    "Columns": [
+      {
+        "Name": "Month",
+        "DataType": "System.String"
+      },
+      {
+        "Name": "Satisfaction_Score",
+        "DataType": "System.Double"
+      },
+      {
+        "Name": "Response_Time",
+        "DataType": "System.Int64"
+      },
+      {
+        "Name": "Resolution_Rate",
+        "DataType": "System.Double"
+      },
+      {
+        "Name": "Complaints",
+        "DataType": "System.Int64"
+      }
+    ],
+    "Rows": [
+      {
+        "Month": "Jan 2024",
+        "Satisfaction_Score": 4.2,
+        "Response_Time": 24,
+        "Resolution_Rate": 85.5,
+        "Complaints": 45
+      },
+      {
+        "Month": "Feb 2024",
+        "Satisfaction_Score": 4.3,
+        "Response_Time": 22,
+        "Resolution_Rate": 87.2,
+        "Complaints": 38
+      },
+      {
+        "Month": "Mar 2024",
+        "Satisfaction_Score": 4.5,
+        "Response_Time": 20,
+        "Resolution_Rate": 89.1,
+        "Complaints": 32
+      },
+      {
+        "Month": "Apr 2024",
+        "Satisfaction_Score": 4.4,
+        "Response_Time": 21,
+        "Resolution_Rate": 88.7,
+        "Complaints": 35
+      },
+      {
+        "Month": "May 2024",
+        "Satisfaction_Score": 4.6,
+        "Response_Time": 19,
+        "Resolution_Rate": 91.3,
+        "Complaints": 28
+      },
+      {
+        "Month": "Jun 2024",
+        "Satisfaction_Score": 4.7,
+        "Response_Time": 18,
+        "Resolution_Rate": 92.8,
+        "Complaints": 22
+      }
+    ]
+  }
+]

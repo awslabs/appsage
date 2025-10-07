@@ -1,3 +1,4 @@
+using Amazon.Runtime;
 using AppSage.Core.Configuration;
 using AppSage.Core.Const;
 using AppSage.Core.Logging;
@@ -30,6 +31,9 @@ namespace AppSage.Web.Pages.Reports.DotNet.SolutionAnalysis
             string providerName = "AppSage.Providers.DotNet.BasicCodeAnalysis.DotNetBasicCodeAnalysisProvider";
 
             var allMetrics=GetAllMetrics();
+
+
+
             var result=allMetrics.Where(x => x.Provider == providerName).ToList();
             return result;
         }

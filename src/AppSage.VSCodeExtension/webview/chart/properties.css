@@ -1,0 +1,82 @@
+/* Chart Properties Panel Styles */
+body {
+    margin: 0;
+    padding: 8px;
+    font-family: var(--vscode-font-family);
+    background-color: var(--vscode-sideBar-background);
+    color: var(--vscode-sideBar-foreground);
+    font-size: 13px;
+}
+
+.no-selection {
+    text-align: center;
+    color: var(--vscode-descriptionForeground);
+    padding: 20px;
+    font-style: italic;
+}
+
+.properties-container {
+    padding: 0;
+}
+
+.properties-container h3 {
+    margin: 0 0 16px 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--vscode-sideBarTitle-foreground);
+    border-bottom: 1px solid var(--vscode-panel-border);
+    padding-bottom: 8px;
+}
+
+.property-group {
+    margin-bottom: 20px;
+}
+
+.property-group h4 {
+    margin: 0 0 8px 0;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--vscode-descriptionForeground);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.property-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 0;
+    border-bottom: 1px solid var(--vscode-panel-border);
+}
+
+.property-item:last-child {
+    border-bottom: none;
+}
+
+.property-label {
+    font-weight: 500;
+    color: var(--vscode-sideBar-foreground);
+    flex: 0 0 auto;
+    margin-right: 12px;
+}
+
+.property-value {
+    color: var(--vscode-descriptionForeground);
+    text-align: right;
+    flex: 1;
+    word-break: break-word;
+    font-family: var(--vscode-editor-font-family);
+}
+
+/* Scrollable content */
+body {
+    overflow-y: auto;
+    max-height: 100vh;
+}
+
+/* Dark theme adjustments */
+@media (prefers-color-scheme: dark) {
+    .property-value {
+        color: var(--vscode-sideBar-foreground);
+    }
+}

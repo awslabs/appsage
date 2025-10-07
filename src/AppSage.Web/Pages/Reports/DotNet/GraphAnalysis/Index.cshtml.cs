@@ -5,6 +5,7 @@ using AppSage.Core.Logging;
 using AppSage.Core.Metric;
 using AppSage.Core.Workspace;
 using AppSage.Web.Components.Filter;
+using System.Data;
 
 namespace AppSage.Web.Pages.Reports.DotNet.GraphAnalysis
 {
@@ -34,6 +35,8 @@ namespace AppSage.Web.Pages.Reports.DotNet.GraphAnalysis
                     if (_lazyGraph == null)
                     {
                         var metrics = GetFilteredMetrics();
+
+ 
 
                         // Load project-level dependency graphs
                         var projectDependencies = metrics
