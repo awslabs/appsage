@@ -1,5 +1,4 @@
 ﻿using AppSage.Core.ComplexType.Graph;
-using AppSage.Core.Const;
 using AppSage.Core.Logging;
 using AppSage.Core.Metric;
 using AppSage.Core.Workspace;
@@ -84,7 +83,7 @@ namespace AppSage.MCPServer.Capabilty.Tools.CodeGraph
 
             var projectDependencies = metrics
                 .Where(x => x.Provider == providerName)
-                .Where(x => x.Name == MetricName.DotNet.Project.CODE_DEPENDENCY_GRAPH)
+                .Where(x => x is IResourceMetricValue<DirectedGraph>)
                 .Cast<IResourceMetricValue<DirectedGraph>>().Select(r => r.Value);
 
             _graph= DirectedGraph.MergeGraph(projectDependencies);

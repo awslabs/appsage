@@ -1,6 +1,4 @@
-﻿using LibGit2Sharp;
-using AppSage.Core.Const;
-using AppSage.Core.Logging;
+﻿using AppSage.Core.Logging;
 using AppSage.Core.Metric;
 using AppSage.Core.ComplexType;
 using AppSage.Core.Resource;

@@ -1,11 +1,10 @@
 using AppSage.Core.ComplexType;
 using AppSage.Core.Configuration;
-using AppSage.Core.Const;
 using AppSage.Core.Logging;
 using AppSage.Core.Metric;
 using AppSage.Core.Workspace;
 using AppSage.Infrastructure.Serialization;
-using AppSage.Providers.Repository;
+using AppSage.Providers.BasicRepositoryMetric;
 using AppSage.Web.Components.Filter;
 using DocumentFormat.OpenXml.Spreadsheet;
 using Newtonsoft.Json;
@@ -25,33 +24,33 @@ namespace AppSage.Web.Pages.Reports.Repository.RepositoryAnalysis
         }
         private void PopulateMetricBoxes(IEnumerable<IMetric> metrics, ref IndexViewModel model)
         {
-            model.RepositoryCount.Value = metrics.Where(x => x.Name == MetricName.Repository.REPOSITORY_COUNT).Select(x => (IMetricValue<int>)x).Sum(x => x.Value);
-            int gitRepoCount = metrics.Where(x => x.Name == MetricName.Repository.Git.REPOSITORY_COUNT).Select(x => (IMetricValue<int>)x).Sum(x => x.Value);
+            model.RepositoryCount.Value = metrics.Where(x => x.Name == Providers.BasicRepositoryMetric.MetricName.Repository.REPOSITORY_COUNT).Select(x => (IMetricValue<int>)x).Sum(x => x.Value);
+            int gitRepoCount = metrics.Where(x => x.Name == Providers.GitMetric.MetricName.Repository.Git.REPOSITORY_COUNT).Select(x => (IMetricValue<int>)x).Sum(x => x.Value);
             model.RepositoryCount.Annotations.Add($"Total number of git repositories:{gitRepoCount}");
             model.RepositoryCount.Annotations.Add($"Other types of repositories: {model.RepositoryCount.Value - gitRepoCount}");
 
-            model.FileCount = metrics.Where(metrics => metrics.Name == MetricName.Repository.FILE_COUNT).Select(x => (IMetricValue<int>)x).Sum(x => x.Value);
-            model.LinesOfCode.Value = metrics.Where(metrics => metrics.Name == MetricName.Repository.LINES_OF_CODE_COUNT).Select(x => (IMetricValue<int>)x).Sum(x => x.Value);
+            model.FileCount = metrics.Where(metrics => metrics.Name == Providers.BasicRepositoryMetric.MetricName.Repository.FILE_COUNT).Select(x => (IMetricValue<int>)x).Sum(x => x.Value);
+            model.LinesOfCode.Value = metrics.Where(metrics => metrics.Name == Providers.BasicRepositoryMetric.MetricName.Repository.LINES_OF_CODE_COUNT).Select(x => (IMetricValue<int>)x).Sum(x => x.Value);
             model.LinesOfCode.Annotations.Add($"Total number of lines of code is estimated by counting lines of code files."); model.LinesOfCode.Annotations.Add($"Binary files are ignored");
 
-            model.ContributorCount.Value = metrics.Where(metrics => metrics.Name == MetricName.Repository.Git.CONTRIBUTOR_COUNT).Select(x => (IMetricValue<int>)x).Sum(x => x.Value);
+            model.ContributorCount.Value = metrics.Where(metrics => metrics.Name == Providers.GitMetric.MetricName.Repository.Git.CONTRIBUTOR_COUNT).Select(x => (IMetricValue<int>)x).Sum(x => x.Value);
             model.ContributorCount.Annotations.Add($"Total number of contributors is estimated using git contributors");
 
-            model.BranchCount.Value = metrics.Where(metrics => metrics.Name == MetricName.Repository.Git.BRANCH_COUNT).Select(x => (IMetricValue<int>)x).Sum(x => x.Value);
+            model.BranchCount.Value = metrics.Where(metrics => metrics.Name == Providers.GitMetric.MetricName.Repository.Git.BRANCH_COUNT).Select(x => (IMetricValue<int>)x).Sum(x => x.Value);
             model.BranchCount.Annotations.Add($"Total number of branches is estimated using git branches");
 
-            if (metrics.Where(metrics => metrics.Name == MetricName.Repository.Git.FIRST_COMMIT_DATE).Any())
+            if (metrics.Where(metrics => metrics.Name == Providers.GitMetric.MetricName.Repository.Git.FIRST_COMMIT_DATE).Any())
             {
-                model.FirstCommitDate.Value = metrics.Where(metrics => metrics.Name == MetricName.Repository.Git.FIRST_COMMIT_DATE).Select(x => (IResourceMetricValue<DateTimeOffset>)x).Min(x => x.Value).ToString("yyyy-MMM-dd");
+                model.FirstCommitDate.Value = metrics.Where(metrics => metrics.Name == Providers.GitMetric.MetricName.Repository.Git.FIRST_COMMIT_DATE).Select(x => (IResourceMetricValue<DateTimeOffset>)x).Min(x => x.Value).ToString("yyyy-MMM-dd");
                 model.FirstCommitDate.Annotations.Add($"First commit date is estimated using git commit data");
             }
             else
             {
                 model.FirstCommitDate.Value = "Can't estimate.";
             }
-            if (metrics.Where(metrics => metrics.Name == MetricName.Repository.Git.LAST_COMMIT_DATE).Any())
+            if (metrics.Where(metrics => metrics.Name == Providers.GitMetric.MetricName.Repository.Git.LAST_COMMIT_DATE).Any())
             {
-                model.LastCommitDate.Value = metrics.Where(metrics => metrics.Name == MetricName.Repository.Git.LAST_COMMIT_DATE).Select(x => (IResourceMetricValue<DateTimeOffset>)x).Max(x => x.Value).ToString("yyyy-MMM-dd");
+                model.LastCommitDate.Value = metrics.Where(metrics => metrics.Name == Providers.GitMetric.MetricName.Repository.Git.LAST_COMMIT_DATE).Select(x => (IResourceMetricValue<DateTimeOffset>)x).Max(x => x.Value).ToString("yyyy-MMM-dd");
                 model.LastCommitDate.Annotations.Add($"Last commit date is estimated using git commit data");
             }
             else
@@ -86,7 +85,7 @@ namespace AppSage.Web.Pages.Reports.Repository.RepositoryAnalysis
         private void PopulateCommitActivitySummary(IEnumerable<IMetric> metrics, ref IndexViewModel model)
         {
             // Process the commit activity data
-            var allCommitActivity = metrics.Where(metrics => metrics.Name == MetricName.Repository.Git.COMMIT_COUNT_PER_MONTH)
+            var allCommitActivity = metrics.Where(metrics => metrics.Name == Providers.GitMetric.MetricName.Repository.Git.COMMIT_COUNT_PER_MONTH)
                 .Select(x => x as IResourceMetricValue<XYSeries<string, int>>)
                 .Where(x => x != null)
                 .Select(x => x!.Value)
@@ -167,7 +166,7 @@ namespace AppSage.Web.Pages.Reports.Repository.RepositoryAnalysis
 
         private void PopulateContributors(IEnumerable<IMetric> metrics, ref IndexViewModel model)
         {
-            var contributors = metrics.Where(metrics => metrics.Name == MetricName.Repository.Git.CONTRIBUTOR_COMMIT_COUNT)
+            var contributors = metrics.Where(metrics => metrics.Name == Providers.GitMetric.MetricName.Repository.Git.CONTRIBUTOR_COMMIT_COUNT)
             .Select(x => x as IResourceMetricValue<Dictionary<string, int>>)
             .Where(x => x != null)
             .Select(x => x!.Value)
@@ -196,7 +195,7 @@ namespace AppSage.Web.Pages.Reports.Repository.RepositoryAnalysis
 
         private void PopulateTechnologyDistribution(IEnumerable<IMetric> metrics, ref IndexViewModel model)
         {
-            var techInfo = metrics.Where(metrics => metrics.Name == MetricName.Repository.FILE_TYPES_BY_EXTENSION)
+            var techInfo = metrics.Where(metrics => metrics.Name == Providers.BasicRepositoryMetric.MetricName.Repository.FILE_TYPES_BY_EXTENSION)
             .Select(x => x as IResourceMetricValue<DataTable>)
             .Where(x => x != null)
             .Select(x => x!.Value)
@@ -207,7 +206,7 @@ namespace AppSage.Web.Pages.Reports.Repository.RepositoryAnalysis
             {
                 foreach (DataRow row in tech.Rows)
                 {
-                    string category = Convert.ToString(row[nameof(FileExtensionClassification.Category)]);
+                    string category = Convert.ToString(row[nameof(Providers.BasicRepositoryMetric.FileExtensionClassification.Category)]);
                     string subCategory = Convert.ToString(row[nameof(FileExtensionClassification.SubCategory)]);
                     int fileCount = Convert.ToInt32(row[MetricName.Repository.FILE_COUNT]);
                     technologyDistribution.Add((Category: category, SubCategory: subCategory, Count: fileCount));
