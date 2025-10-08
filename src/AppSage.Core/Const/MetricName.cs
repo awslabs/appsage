@@ -6,49 +6,49 @@
         {
             public const string TOOL_RUN_INFO = "AppSage.ToolRunInfo";
         }
-        public static class Repository
-        {
-            public const string REPOSITORY_COUNT = "AGGREGATE:Repository.RepositoryCount";
-            public const string FILE_COUNT = "AGGREGATE:Repository.FileCount";
-            public const string LINES_OF_CODE_COUNT = "AGGREGATE:Repository.LinesOfCodeCount";
-            public const string REPOSITORY_NAME = "Repository.Name";
-            public const string FILE_TYPES_BY_EXTENSION = "Repository.FileTypesByExtensions";
+        //public static class Repository
+        //{
+        //    public const string REPOSITORY_COUNT = "AGGREGATE:Repository.RepositoryCount";
+        //    public const string FILE_COUNT = "AGGREGATE:Repository.FileCount";
+        //    public const string LINES_OF_CODE_COUNT = "AGGREGATE:Repository.LinesOfCodeCount";
+        //    public const string REPOSITORY_NAME = "Repository.Name";
+        //    public const string FILE_TYPES_BY_EXTENSION = "Repository.FileTypesByExtensions";
 
-            public static class Git
-            {
-                public const string REPOSITORY_COUNT = "Repository.Git.RepositoryCount";
-                public const string BRANCH_COUNT = "Repository.Git.BranchCount";
-                public const string LAST_COMMIT_DATE = "Repository.Git.LastCommitDate";
-                public const string FIRST_COMMIT_DATE = "Repository.Git.FirstCommitDate";
-                public const string TOTAL_COMMIT_COUNT = "Repository.Git.CommitCount";
-                public const string COMMIT_COUNT_PER_MONTH = "Repository.Git.CommitCountPerMonth";
-                public const string TOTAL_CONTRIBUTOR_COMMIT_COUNT = "Repository.Git.TotalContributorCount";
-                public const string CONTRIBUTOR_COUNT = "Repository.Git.ContributorCount";
-                public const string CONTRIBUTOR_COMMIT_COUNT = "Repository.Git.ContributorCommitCount";
-            }
+        //    public static class Git
+        //    {
+        //        public const string REPOSITORY_COUNT = "Repository.Git.RepositoryCount";
+        //        public const string BRANCH_COUNT = "Repository.Git.BranchCount";
+        //        public const string LAST_COMMIT_DATE = "Repository.Git.LastCommitDate";
+        //        public const string FIRST_COMMIT_DATE = "Repository.Git.FirstCommitDate";
+        //        public const string TOTAL_COMMIT_COUNT = "Repository.Git.CommitCount";
+        //        public const string COMMIT_COUNT_PER_MONTH = "Repository.Git.CommitCountPerMonth";
+        //        public const string TOTAL_CONTRIBUTOR_COMMIT_COUNT = "Repository.Git.TotalContributorCount";
+        //        public const string CONTRIBUTOR_COUNT = "Repository.Git.ContributorCount";
+        //        public const string CONTRIBUTOR_COMMIT_COUNT = "Repository.Git.ContributorCommitCount";
+        //    }
 
-            public static class SVN
-            {
-                public const string REPOSITORY_COUNT = "Repository.SVN.RepositoryCount";
-                public const string BRANCH_COUNT = "Repository.SVN.BranchCount";
-                public const string LAST_COMMIT_DATE = "Repository.SVN.LastCommitDate";
-                public const string FIRST_COMMIT_DATE = "Repository.SVN.FirstCommitDate";
-                public const string TOTAL_COMMIT_COUNT = "Repository.SVN.CommitCount";
-                public const string COMMIT_COUNT_PER_MONTH = "Repository.SVN.CommitCountPerMonth";
-                public const string CONTRIBUTOR_COUNT = "Repository.SVN.ContributorCount";
-                public const string CONTRIBUTOR_COMMIT_COUNT = "Repository.SVN.ContributorCommitCount";
-            }
+        //    public static class SVN
+        //    {
+        //        public const string REPOSITORY_COUNT = "Repository.SVN.RepositoryCount";
+        //        public const string BRANCH_COUNT = "Repository.SVN.BranchCount";
+        //        public const string LAST_COMMIT_DATE = "Repository.SVN.LastCommitDate";
+        //        public const string FIRST_COMMIT_DATE = "Repository.SVN.FirstCommitDate";
+        //        public const string TOTAL_COMMIT_COUNT = "Repository.SVN.CommitCount";
+        //        public const string COMMIT_COUNT_PER_MONTH = "Repository.SVN.CommitCountPerMonth";
+        //        public const string CONTRIBUTOR_COUNT = "Repository.SVN.ContributorCount";
+        //        public const string CONTRIBUTOR_COMMIT_COUNT = "Repository.SVN.ContributorCommitCount";
+        //    }
 
-            //Catch all
-            public static class Other
-            {
-                public const string REPOSITORY_COUNT = "Repository.Other.RepositoryCount";
-                public const string FILE_COUNT = "Repository.Other.FileCount";
-            }
+        //    //Catch all
+        //    public static class Other
+        //    {
+        //        public const string REPOSITORY_COUNT = "Repository.Other.RepositoryCount";
+        //        public const string FILE_COUNT = "Repository.Other.FileCount";
+        //    }
 
             
 
-        }
+        //}
 
         public static class DotNet
         {

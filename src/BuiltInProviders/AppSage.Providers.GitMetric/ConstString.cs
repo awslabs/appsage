@@ -1,6 +1,6 @@
 ﻿using AppSage.Core.Localization;
 
-namespace AppSage.Providers.Repository
+namespace AppSage.Providers.GitMetric
 {
     public class ConstString : LocalizationManager
     {

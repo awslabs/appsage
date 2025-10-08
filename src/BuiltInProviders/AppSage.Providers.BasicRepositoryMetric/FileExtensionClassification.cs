@@ -1,4 +1,4 @@
-﻿namespace AppSage.Providers.Repository
+﻿namespace AppSage.Providers.BasicRepositoryMetric
 {
     public class FileExtensionClassification
     {

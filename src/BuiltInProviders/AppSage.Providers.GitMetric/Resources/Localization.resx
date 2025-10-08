@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <!-- Base constants -->
+  <data name="AppSage.Providers.Repository.ConstString.UNKNOWN" xml:space="preserve">
+    <value>Unknown</value>
+  </data>
+  <data name="AppSage.Providers.Repository.ConstString.UNCATEGORIZED" xml:space="preserve">
+    <value>Uncategorized</value>
+  </data>
+  <data name="AppSage.Providers.Repository.ConstString.REPOSITORY" xml:space="preserve">
+    <value>Repository</value>
+  </data>
+  <data name="AppSage.Providers.Repository.ConstString.BRANCH" xml:space="preserve">
+    <value>Branch</value>
+  </data>
+  <data name="AppSage.Providers.Repository.ConstString.COMMIT" xml:space="preserve">
+    <value>Commit</value>
+  </data>
+  <data name="AppSage.Providers.Repository.ConstString.AUTHOR" xml:space="preserve">
+    <value>Author</value>
+  </data>
+  <data name="AppSage.Providers.Repository.ConstString.DATE" xml:space="preserve">
+    <value>Date</value>
+  </data>
+  <data name="AppSage.Providers.Repository.ConstString.LAST_MODIFIED" xml:space="preserve">
+    <value>Last Modified</value>
+  </data>
+  <data name="AppSage.Providers.Repository.ConstString.TOTAL_COMMITS" xml:space="preserve">
+    <value>Total Commits</value>
+  </data>
+  <data name="AppSage.Providers.Repository.ConstString.TOTAL_BRANCHES" xml:space="preserve">
+    <value>Total Branches</value>
+  </data>
+  <data name="AppSage.Providers.Repository.ConstString.CONTRIBUTORS" xml:space="preserve">
+    <value>Contributors</value>
+  </data>
+  
+  <!-- Commit info -->
+  <data name="AppSage.Providers.Repository.ConstString+CommitInfo.HASH" xml:space="preserve">
+    <value>Hash</value>
+  </data>
+  <data name="AppSage.Providers.Repository.ConstString+CommitInfo.MESSAGE" xml:space="preserve">
+    <value>Message</value>
+  </data>
+  <data name="AppSage.Providers.Repository.ConstString+CommitInfo.TIMESTAMP" xml:space="preserve">
+    <value>Timestamp</value>
+  </data>
+  <data name="AppSage.Providers.Repository.ConstString+CommitInfo.COMMITTER" xml:space="preserve">
+    <value>Committer</value>
+  </data>
+  <data name="AppSage.Providers.Repository.ConstString+CommitInfo.FILES_CHANGED" xml:space="preserve">
+    <value>Files Changed</value>
+  </data>
+  <data name="AppSage.Providers.Repository.ConstString+CommitInfo.INSERTIONS" xml:space="preserve">
+    <value>Insertions</value>
+  </data>
+  <data name="AppSage.Providers.Repository.ConstString+CommitInfo.DELETIONS" xml:space="preserve">
+    <value>Deletions</value>
+  </data>
+  
+  <!-- Repository metrics -->
+  <data name="AppSage.Providers.Repository.ConstString+RepositoryMetrics.ACTIVITY" xml:space="preserve">
+    <value>Activity</value>
+  </data>
+  <data name="AppSage.Providers.Repository.ConstString+RepositoryMetrics.CHURN" xml:space="preserve">
+    <value>Churn</value>
+  </data>
+  <data name="AppSage.Providers.Repository.ConstString+RepositoryMetrics.COMPLEXITY" xml:space="preserve">
+    <value>Complexity</value>
+  </data>
+  <data name="AppSage.Providers.Repository.ConstString+RepositoryMetrics.HOTSPOTS" xml:space="preserve">
+    <value>Hotspots</value>
+  </data>
+  <data name="AppSage.Providers.Repository.ConstString+RepositoryMetrics.CONTRIBUTION" xml:space="preserve">
+    <value>Contribution</value>
+  </data>
+</root>

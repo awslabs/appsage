@@ -4,9 +4,9 @@ using AppSage.Core.Metric;
 using AppSage.Core.Workspace;
 using System.Data;
 
-namespace AppSage.Providers.Repository
+namespace AppSage.Providers.BasicRepositoryMetric
 {
-    public class RepositoryMetricProvider : IMetricProvider
+    public class RepositoryMetricProvider : IMetricProvider,IMetricMetadataProvider
     {
         IAppSageLogger _logger;
         IAppSageWorkspace _workspace;
@@ -14,6 +14,8 @@ namespace AppSage.Providers.Repository
         public string FullQualifiedName => this.GetType().FullName;
 
         public string Description => "Provides basic repository information. It identifies content based on file types";
+
+        public IEnumerable<MetricMetadata> MetricInfo => MetricName.GetMetricMetaData();
 
         private Dictionary<string, FileExtensionClassification> _fileExtensionClassification = FileExtensionClassification.GetComprehensiveFileTypes();
         public RepositoryMetricProvider(IAppSageLogger logger, IAppSageWorkspace workspace)
@@ -177,5 +179,5 @@ namespace AppSage.Providers.Repository
             }
         }
     }
-    }
+}
 

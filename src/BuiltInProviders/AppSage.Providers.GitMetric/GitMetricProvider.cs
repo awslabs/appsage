@@ -6,9 +6,9 @@ using AppSage.Core.ComplexType;
 using AppSage.Core.Resource;
 using AppSage.Core.Workspace;
 
-namespace AppSage.Providers.Repository
+namespace AppSage.Providers.GitMetric
 {
-    public class GitMetricProvider : IMetricProvider
+    public class GitMetricProvider : IMetricProvider,IMetricMetadataProvider
     {
         // Limit parallel scans to the number of available cores or 4, whichever is smaller
         private int MAX_PARALLEL_SCANS = Math.Min(4, Environment.ProcessorCount);
@@ -25,6 +25,8 @@ namespace AppSage.Providers.Repository
         public string FullQualifiedName => GetType().FullName;
 
         public string Description => "Provide Git based repository statistics and information.";
+
+        public IEnumerable<MetricMetadata> MetricInfo => MetricName.GetMetricMetaData();
 
         public void Run(IMetricCollector metrics)
         {

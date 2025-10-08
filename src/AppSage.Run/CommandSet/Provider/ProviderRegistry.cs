@@ -5,9 +5,10 @@ using AppSage.Infrastructure.Caching;
 using AppSage.Providers.DotNet.AIAnalysis;
 using AppSage.Providers.DotNet.BasicCodeAnalysis;
 using AppSage.Providers.DotNet.DependencyAnalysis;
-using AppSage.Providers.Repository;
 using Microsoft.Extensions.DependencyInjection;
 using AppSage.Infrastructure.AWS;
+using AppSage.Providers.BasicRepositoryMetric;
+using AppSage.Providers.GitMetric;
 namespace AppSage.Run.CommandSet.Provider
 {
     public static class ProviderRegistry

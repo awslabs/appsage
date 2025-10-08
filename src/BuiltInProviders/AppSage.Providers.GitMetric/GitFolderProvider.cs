@@ -2,7 +2,7 @@
 using AppSage.Core.Logging;
 using AppSage.Core.Resource;
 using AppSage.Core.Workspace;
-namespace AppSage.Providers.Repository
+namespace AppSage.Providers.GitMetric
 {
     internal class GitFolderProvider : IResourceProvider
     {
