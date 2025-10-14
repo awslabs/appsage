@@ -57,6 +57,6 @@ export class TemplateLoader {
      * @returns CSP string
      */
     public static createCSP(webview: vscode.Webview, nonce: string): string {
-        return `default-src 'none'; style-src ${webview.cspSource} 'unsafe-inline'; script-src ${webview.cspSource} 'nonce-${nonce}' https://unpkg.com; img-src ${webview.cspSource} data: https:; font-src ${webview.cspSource} data:; connect-src ${webview.cspSource} https:;`;
+        return `default-src 'none'; style-src ${webview.cspSource} 'unsafe-inline'; script-src ${webview.cspSource} 'nonce-${nonce}'; img-src ${webview.cspSource} data: https:; font-src ${webview.cspSource} data:; connect-src ${webview.cspSource} https:;`;
     }
 }
