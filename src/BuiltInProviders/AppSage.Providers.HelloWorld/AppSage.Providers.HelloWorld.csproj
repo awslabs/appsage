@@ -1,0 +1,49 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <!-- NuGet Package Properties -->
+    <PackageId>AppSage.Providers.HelloWorld</PackageId>
+    <PackageVersion>1.0.0</PackageVersion>
+    <Authors>AppSage Team</Authors>
+    <Company>AppSage</Company>
+    <Description>A simple AppSage extension that demonstrates basic metrics collection with minimal dependencies. Perfect for learning and testing the AppSage extension system.</Description>
+    <PackageTags>appsage;extension;helloworld;metrics;sample;demo</PackageTags>
+    <PackageProjectUrl>https://github.com/your-repo</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/your-repo</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    
+    <!-- Extension-specific settings -->
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <PrivateAssets>none</PrivateAssets>
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+  </PropertyGroup>
+  
+  <!-- Host Dependencies (resolved by host application) -->
+  <ItemGroup>
+    <ProjectReference Include="..\..\AppSage.Core\AppSage.Core.csproj" />
+    <ProjectReference Include="..\..\AppSage.Extension\AppSage.Extension.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Prefer framework-specific manifest -->
+    <Content Include="AppSageManifest\AppSageExtension.$(TargetFramework).json" Condition="Exists('AppSageManifest\AppSageExtension.$(TargetFramework).json')" Pack="true" PackagePath="lib/$(TargetFramework)/AppSageExtension.manifest.json" CopyToOutputDirectory="Never" />
+
+    <!-- Fallback to default manifest if framework-specific one not present -->
+    <Content Include="AppSageManifest\AppSageExtension.json" Condition="!Exists('AppSageManifest\AppSageExtension.$(TargetFramework).json')" Pack="true" PackagePath="lib/$(TargetFramework)/AppSageExtension.manifest.json" CopyToOutputDirectory="Never" />
+  </ItemGroup>
+
+
+
+
+
+</Project>

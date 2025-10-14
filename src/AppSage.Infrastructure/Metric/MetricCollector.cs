@@ -58,6 +58,11 @@ namespace AppSage.Infrastructure.Metric
                 lock (_metrics)
                 {
                     _totalCollectedMetricCount++;
+                    if(string.IsNullOrWhiteSpace(metric.Provider))
+                    {
+                        metric.Provider = _providerName;
+                    }
+
                     _metrics.Enqueue(metric);
                     if(IsTimeToFlush())
                     {

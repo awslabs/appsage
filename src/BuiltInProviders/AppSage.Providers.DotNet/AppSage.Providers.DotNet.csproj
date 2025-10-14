@@ -1,22 +1,19 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\..\AppSage.Core\AppSage.Core.csproj" />
     <ProjectReference Include="..\..\AppSage.Infrastructure\AppSage.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\AppSage.Extension\AppSage.Extension.csproj" />
   </ItemGroup>
-
   <ItemGroup>
     <EmbeddedResource Update="Resources\Localization.fr.resx">
       <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>
-
   <ItemGroup>
     <PackageReference Include="Microsoft.Build.Locator" Version="1.7.8" />
     <PackageReference Include="Microsoft.CodeAnalysis" Version="4.13.0" />
@@ -25,4 +22,39 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
 
+
+  <PropertyGroup>
+    <!-- NuGet Package Properties -->
+    <PackageId>AppSage.Providers.DotNet</PackageId>
+    <PackageVersion>1.0.0</PackageVersion>
+    <Authors>AppSage Team</Authors>
+    <Company>AWS</Company>
+    <Description>AppSage provider for .NET code analysis and metrics</Description>
+    <PackageTags>appsage;aws;dotnet;analysis;metrics;roslyn</PackageTags>
+    <PackageProjectUrl>https://github.com/awslabs/appsage</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/awslabs/appsage</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- AppSage Extension Package -->
+    
+    <!-- Prefer framework-specific manifest -->
+    <Content Include="AppSage\Manifest\AppSageManifest.$(TargetFramework).json" Condition="Exists('AppSage\Manifest\manifest.$(TargetFramework).json')" Pack="true" PackagePath="lib/$(TargetFramework)/AppSageManifest.json" CopyToOutputDirectory="Always" />
+    <!-- Fallback to default manifest if the framework-specific one is not present -->
+    <Content Include="AppSage\Manifest\AppSageManifest.json" Condition="!Exists('AppSage\Manifest\manifest.$(TargetFramework).json')" Pack="true" PackagePath="lib/$(TargetFramework)/AppSageManifest.json" CopyToOutputDirectory="Always" />
+    
+    <None Include="README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="AppSage\**\*" Pack="true"  PackagePath="lib\$(TargetFramework)\AppSage" >
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  
 </Project>

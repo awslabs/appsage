@@ -11,7 +11,6 @@
     {
         //input folders
         protected const string REPOSITORIES_ROOT_FOLDER_NAME = "Repositories";
-        protected const string DATABASE_SCHEMA_ROOT_FOLDER_NAME = "DatabaseSchemas";
         protected const string DOCS_ROOT_FOLDER_NAME = "Docs";
 
         //output folders
@@ -20,8 +19,8 @@
         protected const string MCP_SERVER_OUTPUT_FOLDER_NAME = "MCPServer";
         protected const string LOGS_ROOT_FOLDER_NAME = "Logs";
 
-        //Provider related folders
-        protected const string PROVIDER_ROOT_FOLDER_NAME = "Providers";
+        //Extensions related folders
+        protected const string EXTENSION_ROOT_FOLDER_NAME = "Extensions";
 
         //Hidden cache folder
         protected const string CACHE_ROOT_FOLDER_NAME = ".Cache";
@@ -34,15 +33,13 @@
 
         string RepositoryFolder => Path.Combine(RootFolder, REPOSITORIES_ROOT_FOLDER_NAME);
 
-        string DatabaseSchemaFolder => Path.Combine(RootFolder, DATABASE_SCHEMA_ROOT_FOLDER_NAME);
-
         string ProviderOutputFolder => Path.Combine(RootFolder, OUTPUT_ROOT_FOLDER_NAME, PROVIDER_OUTPUT_FOLDER_NAME);
 
         string MCPServerOutputFolder => Path.Combine(RootFolder, OUTPUT_ROOT_FOLDER_NAME, MCP_SERVER_OUTPUT_FOLDER_NAME);
 
         string LogsFolder => Path.Combine(RootFolder, LOGS_ROOT_FOLDER_NAME);
 
-        string ProviderFolder => Path.Combine(RootFolder, PROVIDER_ROOT_FOLDER_NAME);
+        string ExtensionFolder => Path.Combine(RootFolder, EXTENSION_ROOT_FOLDER_NAME);
 
         string DocsFolder => Path.Combine(RootFolder, DOCS_ROOT_FOLDER_NAME);
 

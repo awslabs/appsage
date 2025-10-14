@@ -78,8 +78,6 @@ namespace AppSage.Infrastructure.Workspace
                 Directory.CreateDirectory(ws.RootFolder);
                 logger.LogInformation("{MessagePrefix} [{RepositoryFolder}]. This is where you put all your code repositories. You have to keep seperate folders for each repository.", messagePrefix, ws.RepositoryFolder);
                 Directory.CreateDirectory(ws.RepositoryFolder);
-                logger.LogInformation("{MessagePrefix} [{DatabaseSchemaFolder}]. This is where you keep your database schemas. You have to keep seperate folders for each database.", messagePrefix, ws.DatabaseSchemaFolder);
-                Directory.CreateDirectory(ws.DatabaseSchemaFolder);
 
                 logger.LogInformation("{MessagePrefix} [{ProviderOutputFolder}]. This is where all tooling output after code scan will be saved.", messagePrefix, ws.ProviderOutputFolder);
                 Directory.CreateDirectory(ws.ProviderOutputFolder);
@@ -90,16 +88,11 @@ namespace AppSage.Infrastructure.Workspace
                 logger.LogInformation("{MessagePrefix} [{LogsFolder}]. This is where all logs will be saved.", messagePrefix, ws.LogsFolder);
                 Directory.CreateDirectory(ws.LogsFolder);
 
-                logger.LogInformation("{MessagePrefix} [{ProviderFolder}]. This is where all provider plugins should be placed. One folder for each plugin.", messagePrefix, ws.ProviderFolder);
-                Directory.CreateDirectory(ws.ProviderFolder);
+                logger.LogInformation("{MessagePrefix} [{ExtensionFolder}]. This is where all extensions/plugins should be placed. One folder for each extension.", messagePrefix, ws.ExtensionFolder);
+                Directory.CreateDirectory(ws.ExtensionFolder);
 
                 logger.LogInformation("{MessagePrefix} [{DocsFolder}]. This is where documents will be kept.", messagePrefix, ws.DocsFolder);
                 Directory.CreateDirectory(ws.DocsFolder);
-
-                string directory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-                string docsDirectory = Path.Combine(directory,"Workspace","Docs");
-                CopyDirectoryIterative(docsDirectory, ws.DocsFolder);
-
 
                 logger.LogInformation("{MessagePrefix} hidden AppSage config folder folder [{AppSageConfigFolder}]. Used by AppSage to identify configuration.", messagePrefix, ws.AppSageConfigFolder);
                 Directory.CreateDirectory(ws.AppSageConfigFolder);
@@ -115,6 +108,7 @@ namespace AppSage.Infrastructure.Workspace
                 writer.Set("AppSage.Core:CreatedDateTime", DateTime.Now.ToUniversalTime().ToString());
                 writer.Set("AppSage.Core:CreatedBy", Environment.UserName);
 
+
                 logger.LogInformation("{MessagePrefix} hidden cache folder [{CacheFolder}]. Used by AppSage for internal caching.", messagePrefix, ws.CacheFolder);
                 Directory.CreateDirectory(ws.CacheFolder);
                 File.SetAttributes(ws.CacheFolder, File.GetAttributes(ws.CacheFolder) | FileAttributes.Hidden);
@@ -126,6 +120,55 @@ namespace AppSage.Infrastructure.Workspace
                 return -1;
             }
             return 0;
+        }
+
+        static string[] DiscoverBuiltInIMetricProvider() {
+
+            List<string> buildInProviders = new List<string>();
+            //Find all assemblies with classes that implements the interface AppSage.Core.Metric.IMetricProvider
+
+            var metricProviderType = typeof(AppSage.Core.Metric.IMetricProvider);
+            var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+            
+            foreach (var assembly in assemblies) 
+            {
+                try
+                {
+                    // Get all types from the assembly that implement IMetricProvider
+                    var providerTypes = assembly.GetTypes()
+                        .Where(type => type.IsClass && 
+                               !type.IsAbstract && 
+                               metricProviderType.IsAssignableFrom(type))
+                        .Select(type => type.FullName)
+                        .Where(name => name != null);
+
+                    buildInProviders.AddRange(providerTypes);
+                }
+                catch (ReflectionTypeLoadException ex)
+                {
+                    // Some assemblies may have types that can't be loaded
+                    // Continue with the types that could be loaded
+                    if (ex.Types != null)
+                    {
+                        var loadedProviderTypes = ex.Types
+                            .Where(type => type != null && 
+                                   type.IsClass && 
+                                   !type.IsAbstract && 
+                                   metricProviderType.IsAssignableFrom(type))
+                            .Select(type => type.FullName)
+                            .Where(name => name != null);
+
+                        buildInProviders.AddRange(loadedProviderTypes);
+                    }
+                }
+                catch (Exception)
+                {
+                    // Skip assemblies that can't be introspected
+                    continue;
+                }
+            }
+
+            return buildInProviders.ToArray();
         }
 
 
@@ -226,11 +269,6 @@ namespace AppSage.Infrastructure.Workspace
             {
                 string relativePath = path.Substring(ws.RepositoryFolder.Length).TrimStart('\\').Replace("\\", "/");
                 return $"/{IAppSageWorkspace.REPOSITORIES_ROOT_FOLDER_NAME}/{relativePath}";
-            }
-            else if (path.StartsWith(ws.DatabaseSchemaFolder, StringComparison.OrdinalIgnoreCase))
-            {
-                string relativePath = path.Substring(ws.DatabaseSchemaFolder.Length).TrimStart('\\').Replace("\\", "/");
-                return $"/{IAppSageWorkspace.DATABASE_SCHEMA_ROOT_FOLDER_NAME}/{relativePath}";
             }
             throw new ArgumentException($"Path {path} has unknown workspace folder type.");
         }
