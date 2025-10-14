@@ -32,7 +32,7 @@ namespace AppSage.Providers.DotNet.AIAnalysis
             _workspace = workspace;
             _serviceProvider = serviceProvider;
             _configuration = configuration;
-            _aiQuery = _serviceProvider.GetServices<IAIQuery>().Where(q => q.GetType() == typeof(OllamaService)).FirstOrDefault();
+            _aiQuery = _serviceProvider.GetServices<IAIQuery>().Where(q => q.GetType() == typeof(BedrockService)).FirstOrDefault();
 
         }
 
