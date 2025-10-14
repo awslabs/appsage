@@ -19,17 +19,17 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppSage.MCPServer", "AppSage.MCPServer\AppSage.MCPServer.csproj", "{4821E7EA-28E6-4AE4-8D0A-01A853A1AB40}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "BuiltInProviders", "BuiltInProviders", "{D2B9AECA-94F8-48EC-BC77-DE095AD46248}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "BuiltInExtensions", "BuiltInExtensions", "{D2B9AECA-94F8-48EC-BC77-DE095AD46248}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppSage.Providers.BasicRepositoryMetric", "BuiltInProviders\AppSage.Providers.BasicRepositoryMetric\AppSage.Providers.BasicRepositoryMetric.csproj", "{907B9FE6-77F9-451A-A979-0297711AF64D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppSage.Providers.BasicRepositoryMetric", "BuiltInExtensions\AppSage.Providers.BasicRepositoryMetric\AppSage.Providers.BasicRepositoryMetric.csproj", "{907B9FE6-77F9-451A-A979-0297711AF64D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppSage.Providers.GitMetric", "BuiltInProviders\AppSage.Providers.GitMetric\AppSage.Providers.GitMetric.csproj", "{81E5D243-3913-49EF-8C3E-B652E3A32B21}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppSage.Providers.GitMetric", "BuiltInExtensions\AppSage.Providers.GitMetric\AppSage.Providers.GitMetric.csproj", "{81E5D243-3913-49EF-8C3E-B652E3A32B21}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppSage.Providers.DotNet", "BuiltInProviders\AppSage.Providers.DotNet\AppSage.Providers.DotNet.csproj", "{C70BA245-085E-4EDC-B9D6-0BEBE2F644F5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppSage.Providers.DotNet", "BuiltInExtensions\AppSage.Providers.DotNet\AppSage.Providers.DotNet.csproj", "{C70BA245-085E-4EDC-B9D6-0BEBE2F644F5}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppSage.Extension", "AppSage.Extension\AppSage.Extension.csproj", "{C380BC68-F86B-45D8-B570-BAA01848CF95}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppSage.Providers.HelloWorld", "BuiltInProviders\AppSage.Providers.HelloWorld\AppSage.Providers.HelloWorld.csproj", "{A0ED0B6B-D3AD-44AE-9DA8-60ACED7CEA34}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppSage.Providers.HelloWorld", "BuiltInExtensions\AppSage.Providers.HelloWorld\AppSage.Providers.HelloWorld.csproj", "{A0ED0B6B-D3AD-44AE-9DA8-60ACED7CEA34}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
