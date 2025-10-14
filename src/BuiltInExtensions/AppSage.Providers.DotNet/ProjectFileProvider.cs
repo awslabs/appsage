@@ -33,6 +33,8 @@ namespace AppSage.Providers.DotNet
                 }
             }
 
+            Spectre.Console.AnsiConsole.MarkupLine($"[green]Found {result.Count} project files.[/]");
+
             return result;
         }
     }

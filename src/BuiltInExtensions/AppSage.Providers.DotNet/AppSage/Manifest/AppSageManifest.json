@@ -10,18 +10,10 @@
   "Dependencies": {
     "Bundled": [
       {
-        "Name": "Microsoft.Build.Locator",
-        "Version": "1.7.8",
-        "Assemblies": ["Microsoft.Build.Locator.dll"]
-      },
-      {
-        "Name": "Microsoft.CodeAnalysis",
-        "Version": "4.13.0",
+        "Name": "Spectre.Console",
+        "Version": "13.0.0",
         "Assemblies": [
-          "Microsoft.CodeAnalysis.dll",
-          "Microsoft.CodeAnalysis.CSharp.dll",
-          "Microsoft.CodeAnalysis.Workspaces.dll",
-          "Microsoft.CodeAnalysis.Workspaces.MSBuild.dll"
+          "Spectre.Console.dll"
         ]
       }
     ],
@@ -37,10 +29,6 @@
       {
         "Name": "AppSage.Extension",
         "Version": "1.0.0"
-      },
-      {
-        "Name": "Newtonsoft.Json",
-        "Version": "13.0.0"
       }
     ],
     "External": [
@@ -48,11 +36,6 @@
         "Name": "Microsoft.Build.Locator",
         "Version": "1.7.8",
         "Source": "https://api.nuget.org/v3-flatcontainer/Microsoft.Build.Locator"
-      },
-      {
-        "Name": "Microsoft.CodeAnalysis",
-        "Version": "4.13.0",
-        "Source": "https://api.nuget.org/v3-flatcontainer/Microsoft.CodeAnalysis"
       }
 
     ]

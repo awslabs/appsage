@@ -46,9 +46,9 @@
   <ItemGroup>
     <ProjectReference Include="..\AppSage.Core\AppSage.Core.csproj" />
     <ProjectReference Include="..\AppSage.Infrastructure\AppSage.Infrastructure.csproj" />
-    <ProjectReference Include="..\BuiltInProviders\AppSage.Providers.BasicRepositoryMetric\AppSage.Providers.BasicRepositoryMetric.csproj" />
-    <ProjectReference Include="..\BuiltInProviders\AppSage.Providers.DotNet\AppSage.Providers.DotNet.csproj" />
-    <ProjectReference Include="..\BuiltInProviders\AppSage.Providers.GitMetric\AppSage.Providers.GitMetric.csproj" />
+    <ProjectReference Include="..\BuiltInExtensions\AppSage.Providers.BasicRepositoryMetric\AppSage.Providers.BasicRepositoryMetric.csproj" />
+    <ProjectReference Include="..\BuiltInExtensions\AppSage.Providers.DotNet\AppSage.Providers.DotNet.csproj" />
+    <ProjectReference Include="..\BuiltInExtensions\AppSage.Providers.GitMetric\AppSage.Providers.GitMetric.csproj" />
   </ItemGroup>
 
   <ItemGroup>

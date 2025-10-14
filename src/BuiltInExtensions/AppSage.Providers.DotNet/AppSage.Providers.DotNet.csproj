@@ -19,7 +19,8 @@
     <PackageReference Include="Microsoft.CodeAnalysis" Version="4.13.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.13.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.MSBuild" Version="4.13.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="Spectre.Console" Version="0.52.0" />
+ 
   </ItemGroup>
 
 
@@ -52,9 +53,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="AppSage\**\*" Pack="true"  PackagePath="lib\$(TargetFramework)\AppSage" >
+    <Content Include="AppSage\**\*" Pack="true" PackagePath="lib\$(TargetFramework)\AppSage">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
-  
+
 </Project>
