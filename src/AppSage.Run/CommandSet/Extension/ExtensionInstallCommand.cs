@@ -3,20 +3,19 @@ using AppSage.Run.CommandSet.Root;
 using Microsoft.Extensions.DependencyInjection;
 using System.CommandLine;
 
-namespace AppSage.Run.CommandSet.Provider
+namespace AppSage.Run.CommandSet.Extension
 {
-
-    public sealed class ProviderUninstallCommand : ISubCommandWithNoOptions
+    public sealed class ExtensionInstallCommand : ISubCommandWithNoOptions
     {
         private readonly IAppSageLogger _logger;
-        public ProviderUninstallCommand(IServiceCollection services)
+        public ExtensionInstallCommand(IServiceCollection services)
         {
             var serviceProvider = services.BuildServiceProvider();
             _logger = serviceProvider.GetRequiredService<IAppSageLogger>();
         }
 
-        public string Name => "uninstall";
-        public string Description => "uninstall providers";
+        public string Name => "install";
+        public string Description => "Install an extension";
 
         public Command Build()
         {
@@ -31,7 +30,7 @@ namespace AppSage.Run.CommandSet.Provider
         }
         public int Execute()
         {
-            _logger.LogInformation("Nothing happens. Uninstallation of providers is not yet implemented.");
+            _logger.LogInformation("Nothing happens. Installation of extension is not yet implemented.");
             return 0;
         }
     }

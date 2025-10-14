@@ -2,25 +2,25 @@
 using Microsoft.Extensions.DependencyInjection;
 using System.CommandLine;
 
-namespace AppSage.Run.CommandSet.Provider
+namespace AppSage.Run.CommandSet.Extension
 {
     public record ProviderOptions
     {
         public Command ProviderCommand { get; set; }
     }
-    public sealed class ProviderCommand : ISubCommand<ProviderOptions>
+    public sealed class ExtensionCommand : ISubCommand<ProviderOptions>
     {
         IServiceCollection _serviceCollection;
         IAppSageLogger _logger;
-        public ProviderCommand(IServiceCollection serviceCollection)
+        public ExtensionCommand(IServiceCollection serviceCollection)
         {
             _serviceCollection = serviceCollection;
             ServiceProvider provider = serviceCollection.BuildServiceProvider();
             _logger = provider.GetService<IAppSageLogger>();
         }
 
-        public string Name => "provider";
-        public string Description => "Perform provider related tasks";
+        public string Name => "extension";
+        public string Description => "Perform extension related tasks";
 
         public Command Build()
         {
@@ -29,10 +29,10 @@ namespace AppSage.Run.CommandSet.Provider
             cmd.TreatUnmatchedTokensAsErrors = false;
 
             var subCommandRegistry = new List<ISubCommand>();
-            subCommandRegistry.Add(new ProviderListCommand(_serviceCollection));
-            subCommandRegistry.Add(new ProviderInstallCommand(_serviceCollection));
-            subCommandRegistry.Add(new ProviderUninstallCommand(_serviceCollection));
-            subCommandRegistry.Add(new ProviderRunCommand(_serviceCollection));
+            subCommandRegistry.Add(new ExtensionListCommand(_serviceCollection));
+            subCommandRegistry.Add(new ExtensionInstallCommand(_serviceCollection));
+            subCommandRegistry.Add(new ExtensionUninstallCommand(_serviceCollection));
+            subCommandRegistry.Add(new ExtensionRunCommand(_serviceCollection));
 
             subCommandRegistry.ForEach(c =>
             {

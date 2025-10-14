@@ -9,9 +9,9 @@ using Microsoft.Extensions.DependencyInjection;
 using AppSage.Infrastructure.AWS;
 using AppSage.Providers.BasicRepositoryMetric;
 using AppSage.Providers.GitMetric;
-namespace AppSage.Run.CommandSet.Provider
+namespace AppSage.Run.CommandSet.Extension
 {
-    public static class ProviderRegistry
+    public static class ExtensionRegistry
     {
         public static IServiceCollection RegisterProviders(IServiceCollection services)
         {

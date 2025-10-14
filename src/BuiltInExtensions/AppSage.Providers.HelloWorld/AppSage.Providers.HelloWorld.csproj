@@ -35,11 +35,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- Prefer framework-specific manifest -->
-    <Content Include="AppSageManifest\AppSageExtension.$(TargetFramework).json" Condition="Exists('AppSageManifest\AppSageExtension.$(TargetFramework).json')" Pack="true" PackagePath="lib/$(TargetFramework)/AppSageExtension.manifest.json" CopyToOutputDirectory="Never" />
 
-    <!-- Fallback to default manifest if framework-specific one not present -->
-    <Content Include="AppSageManifest\AppSageExtension.json" Condition="!Exists('AppSageManifest\AppSageExtension.$(TargetFramework).json')" Pack="true" PackagePath="lib/$(TargetFramework)/AppSageExtension.manifest.json" CopyToOutputDirectory="Never" />
   </ItemGroup>
 
 

@@ -1,20 +1,23 @@
 ﻿using AppSage.Core.Logging;
 using AppSage.Core.Metric;
 using AppSage.Run.CommandSet.Root;
+using AppSage.Run.Utilities;
 using Microsoft.Extensions.DependencyInjection;
+using Serilog;
+using Spectre.Console;
 using System.CommandLine;
 
-namespace AppSage.Run.CommandSet.Provider
+namespace AppSage.Run.CommandSet.Extension
 {
 
-    public sealed class ProviderListCommand : ISubCommandWithNoOptions
+    public sealed class ExtensionListCommand : ISubCommandWithNoOptions
     {
         private IMetricProvider[] _providers;
         private readonly IAppSageLogger _logger;
-        public ProviderListCommand(IServiceCollection services)
+        public ExtensionListCommand(IServiceCollection services)
         {
             var serviceProvider = services.BuildServiceProvider();
-            ProviderRegistry.RegisterProviders(services);
+            ExtensionRegistry.RegisterProviders(services);
             //tentatively registering all metric providers they will be added later based on configuration
             services.AddTransient<IMetricProvider[]>(sp => sp.GetServices<IMetricProvider>().ToArray());
             // Register the main runner service that will execute all providers
@@ -24,7 +27,7 @@ namespace AppSage.Run.CommandSet.Provider
         }
 
         public string Name => "list";
-        public string Description => "List the availble providers";
+        public string Description => "List the availble extensions";
 
         public Command Build()
         {
@@ -39,11 +42,23 @@ namespace AppSage.Run.CommandSet.Provider
         }
         public int Execute()
         {
-            _logger.LogInformation("Available Providers:[Name]:[Description]");
-            _providers.ToList().ForEach(p =>
+
+            var table = new Table();
+            table.Border(TableBorder.Square);
+           
+            table.BorderColor(Color.Grey);
+            table.AddColumn("[bold]ID[/]");
+            table.AddColumn("[bold]Description[/]") ;
+            table.ShowRowSeparators = true;
+
+            _providers.ToList().ForEach(p=>
             {
-                _logger.LogInformation("{FullQualifiedName}:{Description}", p.FullQualifiedName, p.Description);
+                table.AddRow(p.FullQualifiedName, p.Description);
             });
+
+            // Render to ANSI and log via Serilog:
+            var ansi = SpectreRender.ToAnsi(table);
+            _logger.LogInformation("\n{Table}", ansi);
 
             return 0;
         }

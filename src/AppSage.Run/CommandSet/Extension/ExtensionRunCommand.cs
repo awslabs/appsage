@@ -3,19 +3,19 @@ using AppSage.Run.CommandSet.Root;
 using Microsoft.Extensions.DependencyInjection;
 using System.CommandLine;
 
-namespace AppSage.Run.CommandSet.Provider
+namespace AppSage.Run.CommandSet.Extension
 {
     public record ProviderRunOptions
     {
 
     }
-    public sealed class ProviderRunCommand : ISubCommand<ProviderOptions>
+    public sealed class ExtensionRunCommand : ISubCommand<ProviderOptions>
     {
         private Runner _runner;
-        public ProviderRunCommand(IServiceCollection services)
+        public ExtensionRunCommand(IServiceCollection services)
         {
             var serviceProvider = services.BuildServiceProvider();
-            ProviderRegistry.RegisterProviders(services);
+            ExtensionRegistry.RegisterProviders(services);
             //tentatively registering all metric providers they will be added later based on configuration
             services.AddTransient<IMetricProvider[]>(sp => sp.GetServices<IMetricProvider>().ToArray());
             // Register the main runner service that will execute all providers
@@ -28,7 +28,7 @@ namespace AppSage.Run.CommandSet.Provider
         }
 
         public string Name => "run";
-        public string Description => "Run a set of AppSage metric providers";
+        public string Description => "Run a set of AppSage extensions";
 
         public Command Build()
         {

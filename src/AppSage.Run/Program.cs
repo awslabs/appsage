@@ -4,14 +4,17 @@ using AppSage.Core.Logging;
 using AppSage.Core.Workspace;
 using AppSage.Infrastructure.Workspace;
 using AppSage.Run.CommandSet;
+using AppSage.Run.CommandSet.Extension;
 using AppSage.Run.CommandSet.Init;
 using AppSage.Run.CommandSet.MCP;
-using AppSage.Run.CommandSet.Provider;
 using AppSage.Run.CommandSet.Root;
+using DocumentFormat.OpenXml.Bibliography;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using Serilog.Events;
 using Serilog.Formatting.Display;
+using Serilog.Sinks.SpectreConsole;
+using Serilog.Sinks.SystemConsole.Themes;
 using System.CommandLine;
 using System.Globalization;
 namespace AppSage.Run
@@ -125,7 +128,7 @@ namespace AppSage.Run
         {
             var commands = new List<ISubCommand>();
 
-            commands.Add(new ProviderCommand(serviceCollection));
+            commands.Add(new ExtensionCommand(serviceCollection));
             commands.Add(new MCPServerCommand(serviceCollection));
 
 

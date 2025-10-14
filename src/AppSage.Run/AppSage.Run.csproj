@@ -29,6 +29,8 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="9.0.9" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.9" />
     <PackageReference Include="Serilog" Version="4.3.0" />
+    <PackageReference Include="Serilog.Sinks.SpectreConsole" Version="0.3.3" />
+    <PackageReference Include="Spectre.Console" Version="0.52.0" />
     <PackageReference Include="System.CommandLine" Version="2.0.0-rc.1.25451.107" />
   </ItemGroup>
 
@@ -36,9 +38,10 @@
     <ProjectReference Include="..\AppSage.Core\AppSage.Core.csproj" />
     <ProjectReference Include="..\AppSage.Infrastructure\AppSage.Infrastructure.csproj" />
     <ProjectReference Include="..\AppSage.MCPServer\AppSage.MCPServer.csproj" />
-    <ProjectReference Include="..\BuiltInProviders\AppSage.Providers.BasicRepositoryMetric\AppSage.Providers.BasicRepositoryMetric.csproj" />
-    <ProjectReference Include="..\BuiltInProviders\AppSage.Providers.DotNet\AppSage.Providers.DotNet.csproj" />
-    <ProjectReference Include="..\BuiltInProviders\AppSage.Providers.GitMetric\AppSage.Providers.GitMetric.csproj" />
+    <ProjectReference Include="..\BuiltInExtensions\AppSage.Providers.BasicRepositoryMetric\AppSage.Providers.BasicRepositoryMetric.csproj" />
+    <ProjectReference Include="..\BuiltInExtensions\AppSage.Providers.DotNet\AppSage.Providers.DotNet.csproj" />
+    <ProjectReference Include="..\BuiltInExtensions\AppSage.Providers.GitMetric\AppSage.Providers.GitMetric.csproj" />
+    <ProjectReference Include="..\BuiltInExtensions\AppSage.Providers.HelloWorld\AppSage.Providers.HelloWorld.csproj" />
   </ItemGroup>
 
   <ItemGroup>
