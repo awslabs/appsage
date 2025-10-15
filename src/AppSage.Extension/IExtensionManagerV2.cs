@@ -8,6 +8,6 @@ namespace AppSage.Extension
 {
     internal interface IExtensionManagerV2
     {
-        bool InstallExtension(string packageId);
+        bool InstallExtension(string packageId,bool force);
     }
 }

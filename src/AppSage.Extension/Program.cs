@@ -42,7 +42,8 @@ namespace AppSage.Extension
                 // Get the extension manager
                 var extensionManager = serviceProvider.GetRequiredService<IExtensionManagerV2>();
 
-                extensionManager.InstallExtension("AppSage.Providers.HelloWorld");
+                //extensionManager.InstallExtension("AppSage.Providers.HelloWorld",true);
+                extensionManager.InstallExtension("AppSage.Providers.DotNet", true);
 
                 // Load and execute extensions
                 //await LoadAndExecuteExtensions(extensionManager, serviceProvider, logger, extensionPath);
