@@ -15,6 +15,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Runtime.InteropServices;
+using System.Reflection;
 
 namespace AppSage.Extension
 {
@@ -22,17 +24,21 @@ namespace AppSage.Extension
     {
         private readonly IAppSageLogger _logger;
         private readonly IAppSageWorkspace _workspace;
-        private readonly NuGetFramework _targetFramework;
+        private readonly NuGetFramework _hostFramework;
         private readonly ISettings _nugetSettings;
+        private readonly List<PackageSource> _packageSources;
 
         public ExtensionManagerV2(IAppSageLogger logger,IAppSageWorkspace workspace)
         {
             _logger = logger;
             _workspace = workspace;
-            _targetFramework = NuGetFramework.ParseFolder("net8.0");
+            _hostFramework = GetCurrentHostFramework();
             
-            // Initialize NuGet settings with global cache support
+            // Initialize NuGet settings with configurable sources
             _nugetSettings = Settings.LoadDefaultSettings(root: null);
+            _packageSources = GetConfiguredPackageSources();
+            
+            _logger.LogInformation("Host framework detected: {Framework}", _hostFramework.GetShortFolderName());
         }
 
         public bool InstallExtension(string packageId,bool force)
@@ -71,37 +77,38 @@ namespace AppSage.Extension
                     Directory.CreateDirectory(_workspace.ExtensionInstallFolder);
                 }
 
-                // Create installation directory
-                string versionString = version.ToString();
-                string installFolder = Path.Combine(_workspace.ExtensionInstallFolder, resolvedPackageId, versionString);
+                // Create installation directory without version in path
+                string installFolder = Path.Combine(_workspace.ExtensionInstallFolder, resolvedPackageId);
                 
                 if (Directory.Exists(installFolder) && !force)
                 {
-                    _logger.LogInformation("Package {PackageId} version {Version} is already installed. Use Force to force install it", resolvedPackageId, versionString);
+                    _logger.LogInformation("Package {PackageId} is already installed. Use Force to reinstall it", resolvedPackageId);
                     return true;
-                }else if (Directory.Exists(installFolder) && force)
+                }
+                else if (Directory.Exists(installFolder) && force)
                 {
-                    _logger.LogInformation("Force installing package {PackageId} version {Version}", resolvedPackageId, versionString);
+                    _logger.LogInformation("Force installing package {PackageId}", resolvedPackageId);
                     Directory.Delete(installFolder, true);
                 }
 
                 Directory.CreateDirectory(installFolder);
                 _logger.LogInformation("Created installation folder: {InstallFolder}", installFolder);
 
-                // Extract the main package
-                ExtractPackage(resolvedPackage, installFolder);
+                // Extract the main package with proper TFM selection
+                if (!ExtractMainPackage(resolvedPackage, installFolder, resolvedPackageId))
+                {
+                    _logger.LogError("Failed to extract main package: {PackageFile}", resolvedPackage);
+                    return false;
+                }
+
                 _logger.LogInformation("Extracted main package to: {InstallFolder}", installFolder);
 
-                // Resolve and install dependencies
-                var dependencies = ResolveDependencies(resolvedPackage);
-                foreach (var dependency in dependencies)
+                // Resolve and install dependencies recursively to the same folder
+                var processedDependencies = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                if (!InstallDependenciesRecursively(resolvedPackage, installFolder, processedDependencies))
                 {
-                    if(dependency.Id=="AppSage.Core" || dependency.Id=="AppSage.Extension")
-                    {
-                        // Skip core dependencies
-                        continue;
-                    }
-                    InstallDependency(dependency);
+                    _logger.LogWarning("Some dependencies could not be installed for: {PackageId}", resolvedPackageId);
+                    // Don't fail the installation for missing optional dependencies
                 }
 
                 _logger.LogInformation("Successfully installed extension: {PackageId}", packageId);
@@ -112,6 +119,71 @@ namespace AppSage.Extension
                 _logger.LogError("Failed to install extension {PackageId}", ex, packageId);
                 return false;
             }
+        }
+
+        private NuGetFramework GetCurrentHostFramework()
+        {
+            try
+            {
+                // Get the current runtime framework dynamically
+                var frameworkName = Assembly.GetEntryAssembly()?.GetCustomAttribute<System.Runtime.Versioning.TargetFrameworkAttribute>()?.FrameworkName;
+                
+                if (!string.IsNullOrEmpty(frameworkName))
+                {
+                    var framework = NuGetFramework.ParseFrameworkName(frameworkName, new DefaultFrameworkNameProvider());
+                    _logger.LogInformation("Detected host framework from entry assembly: {Framework}", framework.GetShortFolderName());
+                    return framework;
+                }
+
+                // Fallback to runtime information
+                var runtimeVersion = Environment.Version;
+                if (runtimeVersion.Major >= 8)
+                {
+                    return NuGetFramework.ParseFolder("net8.0");
+                }
+                else if (runtimeVersion.Major >= 6)
+                {
+                    return NuGetFramework.ParseFolder("net6.0");
+                }
+                else
+                {
+                    return NuGetFramework.ParseFolder("netcoreapp3.1");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning("Failed to detect host framework, defaulting to net8.0: {Error}", ex.Message);
+                return NuGetFramework.ParseFolder("net8.0");
+            }
+        }
+
+        private List<PackageSource> GetConfiguredPackageSources()
+        {
+            var sources = new List<PackageSource>();
+            
+            try
+            {
+                // Get configured sources from NuGet settings
+                var packageSources = SettingsUtility.GetEnabledSources(_nugetSettings);
+                sources.AddRange(packageSources);
+                
+                // Ensure nuget.org is included as fallback
+                var nugetOrgExists = sources.Any(s => s.SourceUri.Host.Equals("api.nuget.org", StringComparison.OrdinalIgnoreCase));
+                if (!nugetOrgExists)
+                {
+                    sources.Add(new PackageSource("https://api.nuget.org/v3/index.json", "nuget.org"));
+                }
+
+                _logger.LogInformation("Configured package sources: {Sources}", 
+                    string.Join(", ", sources.Select(s => s.Name)));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning("Failed to load configured package sources, using defaults: {Error}", ex.Message);
+                sources.Add(new PackageSource("https://api.nuget.org/v3/index.json", "nuget.org"));
+            }
+
+            return sources;
         }
 
         private (string packageId, NuGetVersion version) ParsePackageIdAndVersion(string packageIdInput)
@@ -185,26 +257,232 @@ namespace AppSage.Extension
             }
         }
 
-        private void ExtractPackage(string packageFile, string extractPath)
+        private bool ExtractMainPackage(string packageFile, string extractPath, string packageId)
         {
-            using var packageReader = new PackageArchiveReader(packageFile);
-            
-            // Extract all files
-            var files = packageReader.GetFiles();
-            
-            foreach (var file in files)
+            try
             {
-                var destinationPath = Path.Combine(extractPath, file);
-                var destinationDir = Path.GetDirectoryName(destinationPath);
+                using var packageReader = new PackageArchiveReader(packageFile);
                 
-                if (!string.IsNullOrEmpty(destinationDir))
+                // Get all files and filter lib files
+                var allFiles = packageReader.GetFiles();
+                var libFiles = allFiles.Where(f => f.StartsWith("lib/", StringComparison.OrdinalIgnoreCase));
+                
+                var bestTfm = SelectBestTargetFramework(libFiles);
+                
+                if (bestTfm != null)
                 {
-                    Directory.CreateDirectory(destinationDir);
+                    var libPattern = $"lib/{bestTfm}/";
+                    var selectedLibFiles = libFiles.Where(f => f.StartsWith(libPattern, StringComparison.OrdinalIgnoreCase));
+                    
+                    foreach (var file in selectedLibFiles)
+                    {
+                        // Extract directly to root, removing lib/tfm/ prefix
+                        var relativePath = file.Substring(libPattern.Length);
+                        var destinationPath = Path.Combine(extractPath, relativePath);
+                        ExtractFile(packageReader, file, destinationPath);
+                    }
+                    
+                    _logger.LogInformation("Extracted lib files for TFM: {TFM}", bestTfm);
+                }
+                else
+                {
+                    _logger.LogWarning("No compatible lib files found for package: {PackageId}", packageId);
                 }
 
-                using var fileStream = packageReader.GetStream(file);
-                using var outputStream = File.Create(destinationPath);
-                fileStream.CopyTo(outputStream);
+                // Extract README file
+                var readmeFiles = packageReader.GetFiles().Where(f => 
+                    Path.GetFileNameWithoutExtension(f).Equals("README", StringComparison.OrdinalIgnoreCase));
+                
+                foreach (var readmeFile in readmeFiles)
+                {
+                    var fileName = Path.GetFileName(readmeFile);
+                    var destinationPath = Path.Combine(extractPath, fileName);
+                    ExtractFile(packageReader, readmeFile, destinationPath);
+                }
+
+                // Extract nuspec file
+                var nuspecFile = packageReader.GetNuspecFile();
+                if (!string.IsNullOrEmpty(nuspecFile))
+                {
+                    var nuspecDestination = Path.Combine(extractPath, $"{packageId}.nuspec");
+                    ExtractFile(packageReader, nuspecFile, nuspecDestination);
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Error extracting main package: {PackageFile}", ex, packageFile);
+                return false;
+            }
+        }
+
+        private string SelectBestTargetFramework(IEnumerable<string> libFiles)
+        {
+            // Extract unique TFMs from lib files
+            var availableTfmStrings = libFiles
+                .Where(f => f.StartsWith("lib/", StringComparison.OrdinalIgnoreCase))
+                .Select(f => f.Split('/')[1])
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
+            if (!availableTfmStrings.Any())
+            {
+                return null;
+            }
+
+            var availableTfms = availableTfmStrings
+                .Select(tfm => 
+                {
+                    try 
+                    { 
+                        return NuGetFramework.ParseFolder(tfm); 
+                    } 
+                    catch 
+                    { 
+                        return null; 
+                    }
+                })
+                .Where(tfm => tfm != null)
+                .ToList();
+
+            if (!availableTfms.Any())
+            {
+                return availableTfmStrings.First(); // fallback to first available
+            }
+
+            // Create framework specific wrappers for NuGetFrameworkUtility
+            var frameworkSpecifics = availableTfms.Select(tfm => new FrameworkSpecificGroup(tfm, Enumerable.Empty<string>())).ToList();
+            
+            // Find the best match for the host framework
+            var bestMatch = NuGetFrameworkUtility.GetNearest(frameworkSpecifics, _hostFramework, x => x.TargetFramework);
+            
+            if (bestMatch == null)
+            {
+                _logger.LogWarning("No compatible TFM found for host framework {HostFramework}, using first available: {AvailableTfm}", 
+                    _hostFramework.GetShortFolderName(), availableTfms.First().GetShortFolderName());
+                return availableTfms.First().GetShortFolderName();
+            }
+            else if (!bestMatch.TargetFramework.Equals(_hostFramework))
+            {
+                _logger.LogWarning("Exact TFM match not found. Host: {HostFramework}, Using: {SelectedTfm}", 
+                    _hostFramework.GetShortFolderName(), bestMatch.TargetFramework.GetShortFolderName());
+            }
+
+            return bestMatch.TargetFramework.GetShortFolderName();
+        }
+
+        private void ExtractFile(PackageArchiveReader packageReader, string sourceFile, string destinationPath)
+        {
+            var destinationDir = Path.GetDirectoryName(destinationPath);
+            if (!string.IsNullOrEmpty(destinationDir))
+            {
+                Directory.CreateDirectory(destinationDir);
+            }
+
+            using var sourceStream = packageReader.GetStream(sourceFile);
+            using var destinationStream = File.Create(destinationPath);
+            sourceStream.CopyTo(destinationStream);
+        }
+
+        private bool InstallDependenciesRecursively(string packageFile, string installFolder, HashSet<string> processedDependencies)
+        {
+            try
+            {
+                var dependencies = ResolveDependencies(packageFile);
+                bool allSuccessful = true;
+
+                foreach (var dependency in dependencies)
+                {
+                    if (dependency.Id == "AppSage.Core" || dependency.Id == "AppSage.Extension")
+                    {
+                        // Skip core dependencies
+                        continue;
+                    }
+
+                    if (processedDependencies.Contains(dependency.Id))
+                    {
+                        // Already processed this dependency
+                        continue;
+                    }
+
+                    processedDependencies.Add(dependency.Id);
+
+                    var dependencyPackageFile = FindDependencyPackage(dependency);
+                    if (string.IsNullOrEmpty(dependencyPackageFile))
+                    {
+                        _logger.LogWarning("Could not resolve dependency: {PackageId} {VersionRange}", 
+                            dependency.Id, dependency.VersionRange);
+                        allSuccessful = false;
+                        continue;
+                    }
+
+                    // Extract dependency lib files to the same install folder
+                    if (ExtractDependencyLibFiles(dependencyPackageFile, installFolder, dependency.Id))
+                    {
+                        _logger.LogInformation("Installed dependency: {PackageId}", dependency.Id);
+                        
+                        // Recursively process dependencies of this dependency
+                        InstallDependenciesRecursively(dependencyPackageFile, installFolder, processedDependencies);
+                    }
+                    else
+                    {
+                        _logger.LogWarning("Failed to extract dependency: {PackageId}", dependency.Id);
+                        allSuccessful = false;
+                    }
+                }
+
+                return allSuccessful;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Error installing dependencies: {Error}", ex.Message);
+                return false;
+            }
+        }
+
+        private bool ExtractDependencyLibFiles(string packageFile, string installFolder, string packageId)
+        {
+            try
+            {
+                using var packageReader = new PackageArchiveReader(packageFile);
+                
+                // Get all files and filter lib files
+                var allFiles = packageReader.GetFiles();
+                var libFiles = allFiles.Where(f => f.StartsWith("lib/", StringComparison.OrdinalIgnoreCase));
+                
+                var bestTfm = SelectBestTargetFramework(libFiles);
+                
+                if (bestTfm != null)
+                {
+                    var libPattern = $"lib/{bestTfm}/";
+                    var selectedLibFiles = libFiles.Where(f => f.StartsWith(libPattern, StringComparison.OrdinalIgnoreCase));
+                    
+                    foreach (var file in selectedLibFiles)
+                    {
+                        // Extract directly to install folder root, removing lib/tfm/ prefix
+                        var relativePath = file.Substring(libPattern.Length);
+                        var destinationPath = Path.Combine(installFolder, relativePath);
+                        
+                        // Skip if file already exists (avoid overwriting main extension files)
+                        if (!File.Exists(destinationPath))
+                        {
+                            ExtractFile(packageReader, file, destinationPath);
+                        }
+                    }
+                    
+                    return true;
+                }
+                else
+                {
+                    _logger.LogWarning("No compatible lib files found for dependency: {PackageId}", packageId);
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Error extracting dependency lib files: {PackageId}", ex, packageId);
+                return false;
             }
         }
 
@@ -217,11 +495,11 @@ namespace AppSage.Extension
                 using var packageReader = new PackageArchiveReader(packageFile);
                 var nuspecReader = packageReader.NuspecReader;
                 
-                // Get dependency groups for the target framework
+                // Get dependency groups for the host framework
                 var dependencyGroups = nuspecReader.GetDependencyGroups();
                 var applicableGroup = NuGetFrameworkUtility.GetNearest(
                     dependencyGroups,
-                    _targetFramework,
+                    _hostFramework,
                     group => group.TargetFramework);
 
                 if (applicableGroup != null)
@@ -230,7 +508,7 @@ namespace AppSage.Extension
                 }
 
                 _logger.LogInformation("Found {Count} dependencies for target framework {Framework}", 
-                    dependencies.Count, _targetFramework.GetShortFolderName());
+                    dependencies.Count, _hostFramework.GetShortFolderName());
             }
             catch (Exception ex)
             {
@@ -240,70 +518,30 @@ namespace AppSage.Extension
             return dependencies;
         }
 
-        private void InstallDependency(PackageDependency dependency)
+        private string FindDependencyPackage(PackageDependency dependency)
         {
-            try
+            // Try to find in local packages first
+            var localPackage = FindLocalDependencyPackage(dependency);
+            if (!string.IsNullOrEmpty(localPackage))
             {
-                _logger.LogInformation("Installing dependency: {PackageId} {VersionRange}", 
-                    dependency.Id, dependency.VersionRange);
-
-                // Check if dependency is already installed
-                var dependencyInstallPath = Path.Combine(_workspace.ExtensionInstallFolder, dependency.Id);
-                if (Directory.Exists(dependencyInstallPath))
-                {
-                    // Check if any installed version satisfies the requirement
-                    var installedVersions = Directory.GetDirectories(dependencyInstallPath)
-                        .Select(d => Path.GetFileName(d))
-                        .Where(v => NuGetVersion.TryParse(v, out _))
-                        .Select(v => NuGetVersion.Parse(v))
-                        .ToList();
-
-                    if (installedVersions.Any(v => dependency.VersionRange.Satisfies(v)))
-                    {
-                        _logger.LogInformation("Dependency {PackageId} is already satisfied", dependency.Id);
-                        return;
-                    }
-                }
-
-                // Try to find in local packages first
-                var localPackage = FindLocalDependencyPackage(dependency);
-                if (!string.IsNullOrEmpty(localPackage))
-                {
-                    var version = ExtractVersionFromPackageFile(localPackage);
-                    var installFolder = Path.Combine(_workspace.ExtensionInstallFolder, dependency.Id, version.ToString());
-                    
-                    if (!Directory.Exists(installFolder))
-                    {
-                        Directory.CreateDirectory(installFolder);
-                        ExtractPackage(localPackage, installFolder);
-                        _logger.LogInformation("Installed local dependency: {PackageId} {Version}", dependency.Id, version);
-                    }
-                    return;
-                }
-
-                // Try to find in global NuGet cache
-                var globalPackage = FindInGlobalCache(dependency);
-                if (!string.IsNullOrEmpty(globalPackage))
-                {
-                    var version = ExtractVersionFromPackageFile(globalPackage);
-                    var installFolder = Path.Combine(_workspace.ExtensionInstallFolder, dependency.Id, version.ToString());
-                    
-                    if (!Directory.Exists(installFolder))
-                    {
-                        Directory.CreateDirectory(installFolder);
-                        ExtractPackage(globalPackage, installFolder);
-                        _logger.LogInformation("Installed global cache dependency: {PackageId} {Version}", dependency.Id, version);
-                    }
-                    return;
-                }
-
-                _logger.LogWarning("Could not resolve dependency: {PackageId} {VersionRange}", 
-                    dependency.Id, dependency.VersionRange);
+                return localPackage;
             }
-            catch (Exception ex)
+
+            // Try to find in global NuGet cache
+            var globalPackage = FindInGlobalCache(dependency);
+            if (!string.IsNullOrEmpty(globalPackage))
             {
-                _logger.LogError("Error installing dependency: {PackageId}", ex, dependency.Id);
+                return globalPackage;
             }
+
+            // Try to download from online sources
+            var onlinePackage = DownloadFromOnlineSources(dependency);
+            if (!string.IsNullOrEmpty(onlinePackage))
+            {
+                return onlinePackage;
+            }
+
+            return string.Empty;
         }
 
         private string FindLocalDependencyPackage(PackageDependency dependency)
@@ -374,6 +612,30 @@ namespace AppSage.Extension
             catch (Exception ex)
             {
                 _logger.LogError("Error finding package in global cache: {PackageId}", ex, dependency.Id);
+                return string.Empty;
+            }
+        }
+
+        private string DownloadFromOnlineSources(PackageDependency dependency)
+        {
+            try
+            {
+                // This is a simplified implementation
+                // In a production system, you would use NuGet's DownloadResource to download packages
+                _logger.LogWarning("Online package download not fully implemented for: {PackageId}", dependency.Id);
+                
+                // For now, we'll just log the attempt
+                // Future implementation would:
+                // 1. Create SourceRepository instances from _packageSources
+                // 2. Use FindPackageByIdResource to search for the package
+                // 3. Use DownloadResource to download the package
+                // 4. Cache it locally for future use
+                
+                return string.Empty;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Error downloading package from online sources: {PackageId}", ex, dependency.Id);
                 return string.Empty;
             }
         }
