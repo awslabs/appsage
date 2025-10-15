@@ -22,11 +22,28 @@
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     
-    <!-- Extension-specific settings -->
-    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <PrivateAssets>none</PrivateAssets>
-    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+
   </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="AppSage\Manifest\AppSageManifest.json">
+      <PackagePath>lib/$(TargetFramework)/AppSageManifest.json</PackagePath>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <Pack>true</Pack>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- AppSage Extension Package -->
+
+    <!-- Prefer framework-specific manifest -->
+    <Content Include="AppSage\Manifest\AppSageManifest.$(TargetFramework).json" Condition="Exists('AppSage\Manifest\manifest.$(TargetFramework).json')" Pack="true" PackagePath="lib/$(TargetFramework)/AppSageManifest.json" CopyToOutputDirectory="Always" />
+    <!-- Fallback to default manifest if the framework-specific one is not present -->
+    <Content Include="AppSage\Manifest\AppSageManifest.json" Condition="!Exists('AppSage\Manifest\manifest.$(TargetFramework).json')" Pack="true" PackagePath="lib/$(TargetFramework)/AppSageManifest.json" CopyToOutputDirectory="Always" />
+
+    <None Include="README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
   
   <!-- Host Dependencies (resolved by host application) -->
   <ItemGroup>
@@ -35,10 +52,10 @@
   </ItemGroup>
 
   <ItemGroup>
-
+    <Content Include="AppSage\**\*" Pack="true" PackagePath="lib\$(TargetFramework)\AppSage">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
-
-
 
 
 

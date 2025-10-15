@@ -7,7 +7,7 @@ namespace AppSage.Extension
         Task UnloadExtensionAsync(string extensionId);
         IExtension? GetExtension(string extensionId);
         IEnumerable<IExtension> GetExtensions();
-        Task<bool> InstallExtensionAsync(string packagePath);
+        Task<bool> InstallExtensionAsync(string packageId);
         Task<bool> UninstallExtensionAsync(string extensionId);
     }
 }

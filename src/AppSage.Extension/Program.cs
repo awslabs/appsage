@@ -23,20 +23,6 @@ namespace AppSage.Extension
 
             try
             {
-                // Parse command line arguments
-                if (args.Length < 1)
-                {
-                    logger.LogError("Usage: AppSage.Extension <workspace-path> [extension-directory-or-dll]");
-                    logger.LogError("  workspace-path: Path to the AppSage workspace");
-                    logger.LogError("  extension-directory-or-dll: Path to extensions directory or specific DLL (optional, defaults to workspace/Extensions)");
-                    logger.LogError("");
-                    logger.LogError("Examples:");
-                    logger.LogError("  AppSage.Extension C:\\MyWorkspace");
-                    logger.LogError("  AppSage.Extension C:\\MyWorkspace C:\\MyWorkspace\\Extensions");
-                    logger.LogError("  AppSage.Extension C:\\MyWorkspace C:\\MyExtensions\\AppSage.Providers.DotNet.dll");
-                    return -1;
-                }
-
                 string workspacePath = args[0];
                 string extensionPath = args.Length > 1 ? args[1] : Path.Combine(workspacePath, "Extensions");
 
@@ -46,23 +32,21 @@ namespace AppSage.Extension
                     logger.LogError("Workspace directory not found: {WorkspacePath}", workspacePath);
                     return -1;
                 }
-
-                logger.LogInformation("=== AppSage Extension Manager ===");
                 logger.LogInformation("Workspace: {WorkspacePath}", workspacePath);
-                logger.LogInformation("Extension Path: {ExtensionPath}", extensionPath);
-                logger.LogInformation("");
+
 
                 // Setup services and extension system
                 var services = SetupServices(logger, workspacePath, extensionPath);
                 var serviceProvider = services.BuildServiceProvider();
 
                 // Get the extension manager
-                var extensionManager = serviceProvider.GetRequiredService<IExtensionManager>();
+                var extensionManager = serviceProvider.GetRequiredService<IExtensionManagerV2>();
+
+                extensionManager.InstallExtension("AppSage.Providers.HelloWorld");
 
                 // Load and execute extensions
-                await LoadAndExecuteExtensions(extensionManager, serviceProvider, logger, extensionPath);
+                //await LoadAndExecuteExtensions(extensionManager, serviceProvider, logger, extensionPath);
 
-                logger.LogInformation("=== Extension execution completed successfully ===");
                 return 0;
             }
             catch (Exception ex)
@@ -132,14 +116,16 @@ namespace AppSage.Extension
                     provider.GetRequiredService<IAppSageLogger>(),
                     packageCacheDirectory));
 
-            services.AddSingleton<IExtensionManager>(provider =>
-                new ExtensionManager(
-                    provider.GetRequiredService<IAppSageLogger>(),
-                    provider.GetRequiredService<IExtensionDependencyResolver>(),
-                    provider.GetRequiredService<IAppSageConfiguration>(),
-                    provider.GetRequiredService<IAppSageWorkspace>(),
-                    provider,
-                    extensionDirectory));
+            //services.AddSingleton<IExtensionManager>(provider =>
+            //    new ExtensionManager(
+            //        provider.GetRequiredService<IAppSageLogger>(),
+            //        provider.GetRequiredService<IExtensionDependencyResolver>(),
+            //        provider.GetRequiredService<IAppSageConfiguration>(),
+            //        provider.GetRequiredService<IAppSageWorkspace>(),
+            //        provider,
+            //        extensionDirectory));
+
+            services.AddSingleton<IExtensionManagerV2, ExtensionManagerV2>();
 
             return services;
         }

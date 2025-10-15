@@ -21,6 +21,8 @@
 
         //Extensions related folders
         protected const string EXTENSION_ROOT_FOLDER_NAME = "Extensions";
+        protected const string EXTENSION_PACKAGE_FOLDER_NAME = "Packages";
+        protected const string EXTENSION_INSTALL_FOLDER_NAME = "Installed";
 
         //Hidden cache folder
         protected const string CACHE_ROOT_FOLDER_NAME = ".Cache";
@@ -40,6 +42,8 @@
         string LogsFolder => Path.Combine(RootFolder, LOGS_ROOT_FOLDER_NAME);
 
         string ExtensionFolder => Path.Combine(RootFolder, EXTENSION_ROOT_FOLDER_NAME);
+        string ExtensionPackagesFolder => Path.Combine(ExtensionFolder, EXTENSION_PACKAGE_FOLDER_NAME);
+        string ExtensionInstallFolder => Path.Combine(ExtensionFolder, EXTENSION_INSTALL_FOLDER_NAME);
 
         string DocsFolder => Path.Combine(RootFolder, DOCS_ROOT_FOLDER_NAME);
 

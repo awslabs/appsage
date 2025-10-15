@@ -209,7 +209,7 @@ namespace AppSage.Extension
             return _loadedExtensions.Values.Select(i => i.Extension);
         }
 
-        public Task<bool> InstallExtensionAsync(string packagePath)
+        public Task<bool> InstallExtensionAsync(string packageId)
         {
             // Implementation for installing extension packages
             throw new NotImplementedException("Extension installation not yet implemented");

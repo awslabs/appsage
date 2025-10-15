@@ -1,0 +1,9 @@
+{
+  "ExtensionId": "AppSage.Providers.HelloWorld",
+  "Version": "1.0.0",
+  "DisplayName": "AppSage Hello World",
+  "Description": "Sample Hello World Extension",
+  "Author": "AppSage Team",
+  "EntryAssembly": "AppSage.Providers.HelloWorld.dll",
+  "HostVersion": "1.0.0"
+}

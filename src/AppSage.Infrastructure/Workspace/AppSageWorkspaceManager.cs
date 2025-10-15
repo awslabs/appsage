@@ -88,8 +88,14 @@ namespace AppSage.Infrastructure.Workspace
                 logger.LogInformation("{MessagePrefix} [{LogsFolder}]. This is where all logs will be saved.", messagePrefix, ws.LogsFolder);
                 Directory.CreateDirectory(ws.LogsFolder);
 
-                logger.LogInformation("{MessagePrefix} [{ExtensionFolder}]. This is where all extensions/plugins should be placed. One folder for each extension.", messagePrefix, ws.ExtensionFolder);
                 Directory.CreateDirectory(ws.ExtensionFolder);
+
+                logger.LogInformation("{MessagePrefix} [{ExtensionPackagesFolder}]. This is where all extensions/plugins Nuget packages (.nupkg, .snupkg)  should be placed.", messagePrefix, ws.ExtensionPackagesFolder);
+                Directory.CreateDirectory(ws.ExtensionPackagesFolder);
+
+                logger.LogInformation("{MessagePrefix} [{ExtensionInstallFolder}]. This is where all extensions/plugins once installed are kept. One folder for each extension.", messagePrefix, ws.ExtensionInstallFolder);
+                Directory.CreateDirectory(ws.ExtensionInstallFolder);
+
 
                 logger.LogInformation("{MessagePrefix} [{DocsFolder}]. This is where documents will be kept.", messagePrefix, ws.DocsFolder);
                 Directory.CreateDirectory(ws.DocsFolder);

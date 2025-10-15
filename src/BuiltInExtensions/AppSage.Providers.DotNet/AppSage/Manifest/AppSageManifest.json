@@ -5,7 +5,6 @@
   "Description": "Comprehensive .NET code analysis and metrics extension providing basic code analysis, dependency analysis, and AI-powered insights",
   "Author": "AppSage Team",
   "EntryAssembly": "AppSage.Providers.DotNet.dll",
-  "TargetFramework": "net8.0",
   "HostVersion": "1.0.0",
   "Dependencies": {
     "Bundled": [
