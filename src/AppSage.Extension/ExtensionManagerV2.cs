@@ -394,9 +394,10 @@ namespace AppSage.Extension
 
                 foreach (var dependency in dependencies)
                 {
-                    if (dependency.Id == "AppSage.Core" || dependency.Id == "AppSage.Extension")
+                    // Skip dependencies that are provided by the host runtime or AppSage core
+                    if (ShouldSkipDependency(dependency.Id))
                     {
-                        // Skip core dependencies
+                        _logger.LogDebug("Skipping host-provided dependency: {PackageId}", dependency.Id);
                         continue;
                     }
 
@@ -438,6 +439,181 @@ namespace AppSage.Extension
             {
                 _logger.LogError("Error installing dependencies: {Error}", ex.Message);
                 return false;
+            }
+        }
+
+        private bool ShouldSkipDependency(string packageId)
+        {
+            // Skip AppSage core dependencies
+            if (packageId.Equals("AppSage.Core", StringComparison.OrdinalIgnoreCase) ||
+                packageId.Equals("AppSage.Extension", StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+
+            // Try to find the dependency package to analyze it properly
+            var dependencyPackageFile = FindLocalDependencyPackage(packageId);
+            if (string.IsNullOrEmpty(dependencyPackageFile))
+            {
+                dependencyPackageFile = FindInGlobalCache(packageId);
+            }
+
+            if (!string.IsNullOrEmpty(dependencyPackageFile))
+            {
+                return ShouldSkipDependencyByNuspecAnalysis(dependencyPackageFile, packageId);
+            }
+
+            // Fallback to runtime check if package not found locally
+            return IsAssemblyAlreadyLoaded(packageId) || IsLikelyFrameworkPackage(packageId);
+        }
+
+        private bool ShouldSkipDependencyByNuspecAnalysis(string packageFile, string packageId)
+        {
+            try
+            {
+                using var packageReader = new PackageArchiveReader(packageFile);
+                var nuspecReader = packageReader.NuspecReader;
+
+                // 1. Check Package Types - Framework packages often have specific types
+                var packageTypes = nuspecReader.GetPackageTypes();
+                foreach (var packageType in packageTypes)
+                {
+                    // Skip framework packages and metapackages
+                    if (packageType.Name.Equals("DotnetPlatform", StringComparison.OrdinalIgnoreCase) ||
+                        packageType.Name.Equals("Template", StringComparison.OrdinalIgnoreCase) ||
+                        packageType.Name.Equals("MSBuildSdk", StringComparison.OrdinalIgnoreCase))
+                    {
+                        _logger.LogDebug("Skipping {PackageId} - Package type: {PackageType}", packageId, packageType.Name);
+                        return true;
+                    }
+                }
+
+                // 2. Check Framework Assembly References - This is the key mechanism!
+                var frameworkAssemblies = nuspecReader.GetFrameworkReferenceGroups();
+                if (frameworkAssemblies.Any())
+                {
+                    _logger.LogDebug("Skipping {PackageId} - Has framework assembly references", packageId);
+                    return true;
+                }
+
+                // 3. Check if package has no lib content (likely a metapackage)
+                var libFiles = packageReader.GetFiles().Where(f => f.StartsWith("lib/", StringComparison.OrdinalIgnoreCase));
+                if (!libFiles.Any())
+                {
+                    // Check if it has dependencies but no lib files - likely a metapackage
+                    var dependencyGroups = nuspecReader.GetDependencyGroups();
+                    if (dependencyGroups.Any(g => g.Packages.Any()))
+                    {
+                        _logger.LogDebug("Skipping {PackageId} - Metapackage (no lib files, only dependencies)", packageId);
+                        return true;
+                    }
+                }
+
+                // 4. Check package ID patterns (still some heuristics but more targeted)
+                if (IsKnownFrameworkPackagePattern(packageId))
+                {
+                    _logger.LogDebug("Skipping {PackageId} - Known framework package pattern", packageId);
+                    return true;
+                }
+
+                // 5. Check if already loaded in current AppDomain
+                if (IsAssemblyAlreadyLoaded(packageId))
+                {
+                    _logger.LogDebug("Skipping {PackageId} - Already loaded in AppDomain", packageId);
+                    return true;
+                }
+
+                return false;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogDebug("Error analyzing package {PackageId}: {Error}. Using fallback logic.", packageId, ex.Message);
+                return IsLikelyFrameworkPackage(packageId);
+            }
+        }
+
+        private bool IsKnownFrameworkPackagePattern(string packageId)
+        {
+            // More targeted framework package detection
+            var frameworkPatterns = new[]
+            {
+                // Core .NET packages
+                "Microsoft.NETCore.",
+                "Microsoft.AspNetCore.App",
+                "Microsoft.WindowsDesktop.App",
+                "NETStandard.Library",
+                
+                // Runtime packages that have no separate assemblies
+                "runtime.", // e.g., runtime.win-x64.Microsoft.NETCore.App
+                "Microsoft.NETCore.Platforms",
+                "Microsoft.NETCore.Targets"
+            };
+
+            return frameworkPatterns.Any(pattern => packageId.StartsWith(pattern, StringComparison.OrdinalIgnoreCase));
+        }
+
+        private bool IsLikelyFrameworkPackage(string packageId)
+        {
+            // Refined heuristics for when we can't analyze the nuspec
+            
+            // System.* packages that are likely part of the runtime
+            if (packageId.StartsWith("System.", StringComparison.OrdinalIgnoreCase))
+            {
+                // Allow specific System packages that are typically distributed separately
+                var separateSystemPackages = new[]
+                {
+                    "System.CommandLine",
+                    "System.Drawing.Common",
+                    "System.Data.SQLite",
+                    "System.Data.SqlClient", 
+                    "System.ServiceModel",
+                    "System.DirectoryServices",
+                    "System.Management",
+                    "System.Windows.Extensions",
+                    "System.Security.Cryptography.ProtectedData"
+                };
+
+                return !separateSystemPackages.Any(allowed => packageId.StartsWith(allowed, StringComparison.OrdinalIgnoreCase));
+            }
+
+            // Microsoft.Extensions.* packages - check if commonly host-provided
+            if (packageId.StartsWith("Microsoft.Extensions.", StringComparison.OrdinalIgnoreCase))
+            {
+                var commonlyHostProvided = new[]
+                {
+                    "Microsoft.Extensions.Logging.Abstractions",
+                    "Microsoft.Extensions.DependencyInjection.Abstractions",
+                    "Microsoft.Extensions.Configuration.Abstractions", 
+                    "Microsoft.Extensions.Options",
+                    "Microsoft.Extensions.Primitives",
+                    "Microsoft.Extensions.Hosting.Abstractions"
+                };
+
+                return commonlyHostProvided.Any(common => packageId.StartsWith(common, StringComparison.OrdinalIgnoreCase));
+            }
+
+            return false;
+        }
+
+        private bool IsAssemblyAlreadyLoaded(string packageId)
+        {
+            try
+            {
+                // Check if an assembly with this name (or similar) is already loaded
+                var loadedAssemblies = AppDomain.CurrentDomain.GetAssemblies();
+                
+                return loadedAssemblies.Any(assembly => 
+                {
+                    var assemblyName = assembly.GetName().Name;
+                    return assemblyName != null && 
+                           (assemblyName.Equals(packageId, StringComparison.OrdinalIgnoreCase) ||
+                            assemblyName.StartsWith(packageId, StringComparison.OrdinalIgnoreCase));
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogDebug("Error checking if assembly is loaded for {PackageId}: {Error}", packageId, ex.Message);
+                return false; // If we can't check, err on the side of including it
             }
         }
 
@@ -566,6 +742,88 @@ namespace AppSage.Extension
             }
 
             return string.Empty;
+        }
+
+        // Overload for package ID only (used in ShouldSkipDependency analysis)
+        private string FindLocalDependencyPackage(string packageId)
+        {
+            try
+            {
+                var pattern = $"{packageId}.*.nupkg";
+                var matchingFiles = Directory.GetFiles(_workspace.ExtensionPackagesFolder, pattern);
+                
+                if (matchingFiles.Any())
+                {
+                    // Return the latest version found
+                    NuGetVersion latestVersion = null;
+                    string latestFile = string.Empty;
+
+                    foreach (var file in matchingFiles)
+                    {
+                        var version = ExtractVersionFromPackageFile(file);
+                        if (version != null && (latestVersion == null || version > latestVersion))
+                        {
+                            latestVersion = version;
+                            latestFile = file;
+                        }
+                    }
+
+                    return latestFile;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogDebug("Error finding local dependency package: {PackageId}", ex, packageId);
+            }
+
+            return string.Empty;
+        }
+
+        private string FindInGlobalCache(string packageId)
+        {
+            try
+            {
+                var globalPackagesFolder = SettingsUtility.GetGlobalPackagesFolder(_nugetSettings);
+                if (string.IsNullOrEmpty(globalPackagesFolder) || !Directory.Exists(globalPackagesFolder))
+                {
+                    return string.Empty;
+                }
+
+                var packageFolder = Path.Combine(globalPackagesFolder, packageId.ToLowerInvariant());
+                if (!Directory.Exists(packageFolder))
+                {
+                    return string.Empty;
+                }
+
+                // Find the latest version
+                var versionDirectories = Directory.GetDirectories(packageFolder);
+                NuGetVersion latestVersion = null;
+                string bestPackagePath = string.Empty;
+
+                foreach (var versionDir in versionDirectories)
+                {
+                    var versionString = Path.GetFileName(versionDir);
+                    if (NuGetVersion.TryParse(versionString, out var version))
+                    {
+                        if (latestVersion == null || version > latestVersion)
+                        {
+                            latestVersion = version;
+                            var nupkgPath = Path.Combine(versionDir, $"{packageId.ToLowerInvariant()}.{version}.nupkg");
+                            if (File.Exists(nupkgPath))
+                            {
+                                bestPackagePath = nupkgPath;
+                            }
+                        }
+                    }
+                }
+
+                return bestPackagePath;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogDebug("Error finding package in global cache: {PackageId}", ex, packageId);
+                return string.Empty;
+            }
         }
 
         private string FindInGlobalCache(PackageDependency dependency)
