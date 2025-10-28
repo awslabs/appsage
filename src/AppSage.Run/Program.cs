@@ -8,8 +8,11 @@ using AppSage.Run.CommandSet.Extension;
 using AppSage.Run.CommandSet.Init;
 using AppSage.Run.CommandSet.MCP;
 using AppSage.Run.CommandSet.Root;
+using AppSage.Run.CommandSet.Version;
 using DocumentFormat.OpenXml.Bibliography;
+using DocumentFormat.OpenXml.Wordprocessing;
 using Microsoft.Extensions.DependencyInjection;
+using NuGet.Versioning;
 using Serilog;
 using Serilog.Events;
 using Serilog.Formatting.Display;
@@ -17,6 +20,7 @@ using Serilog.Sinks.SpectreConsole;
 using Serilog.Sinks.SystemConsole.Themes;
 using System.CommandLine;
 using System.Globalization;
+using System.Reflection;
 namespace AppSage.Run
 {
 
@@ -33,6 +37,7 @@ namespace AppSage.Run
             var serviceProvider = services.BuildServiceProvider();
             var logger = serviceProvider.GetRequiredService<IAppSageLogger>();
 
+            LogBuildInformation(logger);
 
             try
             {
@@ -130,7 +135,7 @@ namespace AppSage.Run
 
             commands.Add(new ExtensionCommand(serviceCollection));
             commands.Add(new MCPServerCommand(serviceCollection));
-
+            commands.Add(new VersionCommnad(serviceCollection));
 
             return commands;
         }
@@ -225,6 +230,24 @@ namespace AppSage.Run
             LocalizationManager.InitializeAll();
 
             return services;
+        }
+        private static void LogBuildInformation(IAppSageLogger logger)
+        {
+            var meta = Assembly.GetExecutingAssembly().GetCustomAttributes<AssemblyMetadataAttribute>()
+           .FirstOrDefault(a => string.Equals(a.Key, "BuildTimestamp", StringComparison.Ordinal));
+            if (meta != null)
+            {
+                logger.LogInformation("AppSage Build Timestamp: {BuildTimestamp}", meta.Value);
+            }
+            else
+            {
+                logger.LogWarning("Build timestamp metadata not found.");
+            }
+
+            var assembly = Assembly.GetExecutingAssembly();
+            var version = assembly.GetName().Version;
+
+            logger.LogInformation("AppSage Version: {Version}", version?.ToString() ?? "Unknown");
         }
 
 

@@ -23,7 +23,7 @@ namespace AppSage.Run.CommandSet.Extension
 
             // Register metric providers
             services.AddTransient<IMetricProvider, RepositoryMetricProvider>();
-            services.AddTransient<IMetricProvider, GitMetricProvider>();
+            //services.AddTransient<IMetricProvider, GitMetricProvider>();
             services.AddTransient<IMetricProvider, DotNetBasicCodeAnalysisProvider>();
             services.AddTransient<IMetricProvider, DotNetDependencyAnalysisProvider>();
             //services.AddTransient<IMetricProvider, DotNetAIAnalysisProvider>();
