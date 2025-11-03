@@ -43,7 +43,7 @@ namespace AppSage.Providers.BasicRepositoryMetric
 
                     _logger.LogInformation("Processing repository: {ResourceName}", resourceName);
 
-                    metrics.Add(new ResourceMetricValue<string>
+                    metrics.Add(new MetricValue<string>
                      (
                          name: MetricName.Repository.REPOSITORY_NAME,
                          provider: this.FullQualifiedName,

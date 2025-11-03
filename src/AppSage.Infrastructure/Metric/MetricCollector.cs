@@ -91,7 +91,7 @@ namespace AppSage.Infrastructure.Metric
             toolFingerprint["UserName"] = Environment.UserName;
             toolFingerprint["MachineName"] = Environment.MachineName;
 
-            var fingerPrintMetric=new ResourceMetricValue<Dictionary<string, string>>(IMetricCollector.TOOL_RUN_INFO,_providerName,_providerName, toolFingerprint);
+            var fingerPrintMetric=new MetricValue<Dictionary<string, string>>(IMetricCollector.TOOL_RUN_INFO,_providerName,_providerName, toolFingerprint);
             ((IMetricCollector) this).Add(fingerPrintMetric);
 
         }

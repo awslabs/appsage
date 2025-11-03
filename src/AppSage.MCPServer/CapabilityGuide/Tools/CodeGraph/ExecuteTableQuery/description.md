@@ -8,6 +8,8 @@ It will return an excel file with the results of the analysis.
 
 It's critical that the method signature is exactly as specified above and that the class is called MyQuery.
 
+```DirectedGraph``` implements the interface ```IDirectedGraph```.
+
 Interface definitions are given below for reference:
 ```csharp
 using System.Collections.Generic;

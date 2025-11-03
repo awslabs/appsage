@@ -6,7 +6,7 @@ using AppSage.Core.Workspace;
 
 namespace AppSage.Providers.GitMetric
 {
-    public class GitMetricProvider : IMetricProvider,IMetricMetadataProvider
+    public class GitMetricProvider : IMetricProvider, IMetricMetadataProvider
     {
         // Limit parallel scans to the number of available cores or 4, whichever is smaller
         private int MAX_PARALLEL_SCANS = Math.Min(4, Environment.ProcessorCount);
@@ -19,8 +19,6 @@ namespace AppSage.Providers.GitMetric
             _workspace = workspace ?? throw new ArgumentNullException(nameof(workspace));
             _gitFolderProvider = new GitFolderProvider(_logger, _workspace);
         }
-
-        public string FullQualifiedName => GetType().FullName;
 
         public string Description => "Provide Git based repository statistics and information.";
 
@@ -37,7 +35,6 @@ namespace AppSage.Providers.GitMetric
                 metrics.Add(new MetricValue<int>
                  (
                      name: MetricName.Repository.Git.REPOSITORY_COUNT,
-                     provider: this.FullQualifiedName,
                      value: gitFolderList.Count()
                  ));
 
@@ -59,25 +56,26 @@ namespace AppSage.Providers.GitMetric
 
                             // Number of branches
                             int branchCount = repo.Branches.Count();
-                            metrics.Add(new ResourceMetricValue<int>
+                            metrics.Add(new MetricValue<int>
                             (
                                 name: MetricName.Repository.Git.BRANCH_COUNT,
-                                provider: this.FullQualifiedName,
-                                segment: repoName,
-                                resource: resource.Name,
                                 value: branchCount
-                            ));
+                            )
+                            {
+                                Resource = resource.Name,
+                            });
 
                             // Number of contributors
                             var contributors = repo.Commits.Select(c => c.Author.Name).Distinct();
-                            metrics.Add(new ResourceMetricValue<int>
+                            metrics.Add(new MetricValue<int>
                             (
                                 name: MetricName.Repository.Git.CONTRIBUTOR_COUNT,
-                                provider: this.FullQualifiedName,
-                                segment: repoName,
-                                resource: resource.Name,
-                                value: contributors.Count()
-                            ));
+                                value: contributors.Count())
+                            {
+                                Resource = resource.Name,
+                            }
+
+                            );
 
                             Dictionary<string, int> contributorCommits = new Dictionary<string, int>();
 

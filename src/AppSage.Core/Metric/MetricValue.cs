@@ -27,40 +27,27 @@ namespace AppSage.Core.Metric
 
         public string Segment { get; set; } = string.Empty;
 
-        public IDictionary<string, string> Dimensions { get; set; } = new Dictionary<string,string>();
+        public string Resource { get; set; }
 
-        public IEnumerable<string> Annotations { get; set; } = new List<string>();
+        public IDictionary<string, string> Dimensions { get; set; } = new Dictionary<string,string>();
 
         public T? Value { get; set; }
 
         public bool IsLargeMetric {get;set;}
 
         [JsonConstructor]
-        public MetricValue(string name) : this(name,provider:"",segment:"",default(T?))
+        public MetricValue(string name) : this(name,default(T?))
         {
         }
-        public MetricValue(string name,T? value) : this(name, provider: "", segment: "", value)
-        {
-        }
-        public MetricValue(string name, string provider) : this(name, provider, segment: "", default(T?))
-        {
-        }
-        public MetricValue(string name, string provider, T? value) : this(name, provider, segment: "", value)
-        {
-        }
-        public MetricValue(string name, string provider, string segment) : this(name, provider, segment, default(T?))
-        {
-        }
-
-
-
-        public MetricValue(string name, string provider,string segment, T? value)
+        public MetricValue(string name,T? value) 
         {
             Name = name ?? throw new ArgumentNullException(nameof(name));
-            Provider = provider ?? throw new ArgumentNullException(nameof(provider));
-            Segment = segment ?? throw new ArgumentNullException(nameof(segment));
             Value = value;
         }
+
+
+
+ 
 
 
         public List<string> Validate()

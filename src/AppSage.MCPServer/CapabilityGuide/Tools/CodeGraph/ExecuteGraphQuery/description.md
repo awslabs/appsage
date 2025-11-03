@@ -5,6 +5,7 @@ It will return Directed graph with the results of the analysis.
 ```codeToCompileAndRun``` must have a .NET C# public class ```public class MyQuery``` with a  public static method with the following signature:
 ```public static DirectedGraph Execute(IDirectedGraph graph)```. 
 
+```DirectedGraph``` implements the interface ```IDirectedGraph```.
 
 It's critical that the method signature is exactly as specified above and that the class is called MyQuery.
 

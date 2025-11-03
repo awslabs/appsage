@@ -79,6 +79,7 @@ namespace AppSage.MCPServer.Capabilty.Tools.CodeGraph
         {
             _logger.LogInformation("Loading graph data from the metric store.");
             var metrics = _metricReader.GetMetricSet();
+
             string providerName = "AppSage.Providers.DotNet.DependencyAnalysis.DotNetDependencyAnalysisProvider";
 
             var projectDependencies = metrics
