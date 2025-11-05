@@ -34,6 +34,8 @@ namespace AppSage.Providers.DotNet.BasicCodeAnalysis
             _config.NamespaceListFileToIdentifyDBRelatedClasses = configuration.Get<string>("AppSage.Providers.DotNet.BasicCodeAnalysis.DotNetBasicCodeAnalysisProvider:NamespaceListFileToIdentifyDBRelatedClasses");
         }
 
+        public string FullQualifiedName => GetType().FullName;
+
         public string Description => "Provides basic .NET code analysis";
 
         public void Run(IMetricCollector metrics)

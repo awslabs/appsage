@@ -3,13 +3,7 @@
 
     public interface IMetricProvider
     {
-        string FullQualifiedName
-        {
-            get
-            {
-                return this.GetType().FullName;
-            }
-        }
+        string FullQualifiedName { get; }
         string Description { get; }
         void Run(IMetricCollector collectorQueue);
     }

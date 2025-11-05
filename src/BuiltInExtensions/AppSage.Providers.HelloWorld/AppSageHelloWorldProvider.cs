@@ -5,6 +5,8 @@ namespace AppSage.Providers.HelloWorld
 {
     public class AppSageHelloWorldProvider : IMetricProvider
     {
+        public string FullQualifiedName => GetType().FullName;
+
         public string Description => "Output hello world as a metric";
 
         public void Run(IMetricCollector collectorQueue)

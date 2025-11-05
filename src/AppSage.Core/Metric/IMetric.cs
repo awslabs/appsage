@@ -59,5 +59,12 @@
         /// </examples>
         IDictionary<string, string> Dimensions { get;  }
 
+        /// <summary>
+        /// Notes,assumptions,fineprints related to this metric. 
+        /// </summary>
+        /// <example>
+        /// When number of lines of code (LoC) is calculated, you can mention how the lines are calculated. E.g. LoC is calculated ignoring blank lines. 
+        /// </example>
+        IEnumerable<string> Annotations { get;  }
     }
 }

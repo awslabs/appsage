@@ -48,6 +48,8 @@ namespace AppSage.Providers.DotNet.DependencyAnalysis
             _config.NamespacePrefixToExclude = configuration.Get<string[]>("AppSage.Providers.DotNet.DependenyAnalysis.DotNetDependencyAnalysisProvider:NamespacePrefixToExclude");
         }
 
+        public string FullQualifiedName => GetType().FullName;
+
         public string Description => "Provides advanced .NET code dependency analysis";
 
         public void Run(IMetricCollector collector)

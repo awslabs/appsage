@@ -15,13 +15,11 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.Build.Locator" Version="1.10.2" ExcludeAssets="runtime" />
-    <PackageReference Include="Microsoft.Build.Tasks.Core" Version="17.14.28" ExcludeAssets="runtime" />
-    <PackageReference Include="Microsoft.CodeAnalysis" Version="4.14.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.14.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.MSBuild" Version="4.14.0" />
-    <PackageReference Include="Microsoft.VisualStudio.Setup.Configuration.Interop" Version="3.14.2075" />
-    <PackageReference Include="Spectre.Console" Version="0.53.0" />
+    <PackageReference Include="Microsoft.Build.Locator" Version="1.7.8" />
+    <PackageReference Include="Microsoft.CodeAnalysis" Version="4.13.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.13.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.MSBuild" Version="4.13.0" />
+    <PackageReference Include="Spectre.Console" Version="0.52.0" />
  
   </ItemGroup>
 
@@ -65,7 +63,8 @@
   <Target Name="CopyNuGetDependencies" AfterTargets="Build">
     <ItemGroup>
       <!-- Dynamically get package versions and use current target framework -->
-      <FilesToCopy Include="$(NuGetPackageRoot)spectre.console\%(PackageReference.Version)\lib\$(TargetFramework)\*.dll" Condition="'%(PackageReference.Identity)' == 'Spectre.Console'" />
+      <FilesToCopy Include="$(NuGetPackageRoot)spectre.console\%(PackageReference.Version)\lib\$(TargetFramework)\*.dll"
+                   Condition="'%(PackageReference.Identity)' == 'Spectre.Console'" />
     </ItemGroup>
     <Copy SourceFiles="@(FilesToCopy)" DestinationFolder="$(OutputPath)" SkipUnchangedFiles="true" />
 

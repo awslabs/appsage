@@ -29,7 +29,25 @@ namespace AppSage.Extension
         /// </summary>
         string Description { get; }
 
-        Dictionary<string, string>? GetProviderDescriptions { get; } 
+        /// <summary>
+        /// Initialize the extension with required services
+        /// </summary>
+        Task InitializeAsync(IExtensionContext context);
+
+        /// <summary>
+        /// Start the extension
+        /// </summary>
+        Task StartAsync();
+
+        /// <summary>
+        /// Stop the extension gracefully
+        /// </summary>
+        Task StopAsync();
+
+        /// <summary>
+        /// Dispose resources used by the extension
+        /// </summary>
+        Task DisposeAsync();
     }
 
     /// <summary>

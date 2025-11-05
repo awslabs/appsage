@@ -1,8 +1,7 @@
 ﻿# DirectedGraph Dependency Analysis Documentation
 
-This document describes the structure of the merged DirectedGraph (X) created by the `AppSage.Providers.DotNet.DependencyAnalysis.DotNetDependencyAnalysisProvider`. 
-The graph represents dependencies across multiple levels
-3
+This document describes the structure of the merged DirectedGraph (X) created by the `DotNetDependencyAnalysisProvider`. The graph represents dependencies across multiple levels
+
 # Important Notes
 
 ## Node Id

@@ -22,7 +22,7 @@ using System.Linq;
 
 public static class MyQuery
 {
-    public static DirectedGraph Execute(IDirectedGraph sourceGraph)
+    public static DirectedGraph Execute(DirectedGraph sourceGraph)
     {
         var result = new DirectedGraph();
 

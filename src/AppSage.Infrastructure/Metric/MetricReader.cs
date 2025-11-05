@@ -49,13 +49,10 @@ namespace AppSage.Infrastructure.Metric
             var fileSet = dataDir.GetFiles("*.json", System.IO.SearchOption.AllDirectories);
 
             List<IMetric> result = new List<IMetric>();
-            int counter = 0;
             foreach (var file in fileSet)
             {
                 if (file.Exists)
                 {
-                    Console.WriteLine("");
-                    Console.Write($"\rProgress: {++counter}/{fileSet.Length}                             "); // extra spaces clear old text
                     string json = System.IO.File.ReadAllText(file.FullName);
 
                     var metrics= AppSageSerializer.DeserializeFromFile<IEnumerable<IMetric>>(file.FullName);

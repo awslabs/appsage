@@ -32,7 +32,7 @@ namespace AppSage.MCPServer.SampleQuery
         /// for analyzing other interface implementations. It handles both direct and indirect assembly dependencies
         /// through project references and provides version conflict detection for better dependency management.
         /// </remarks>
-        public static IEnumerable<DataTable> Execute(IDirectedGraph graph)
+        public static IEnumerable<DataTable> Execute(DirectedGraph graph)
         {
             var results = new List<DataTable>();
 
