@@ -14,7 +14,7 @@
         /// There is no strict definition of what is large. It is up to the provider to decide.
         /// Each large metric is usually stored in a separate storage unit like one file per metric. 
         /// </summary>
-        bool IsLargeMetric { get; }
+        bool IsLargeMetric { get; set; }
 
         /// <summary>
         /// The name of the metric.
@@ -25,7 +25,7 @@
         /// Number of classes
         /// File Count
         /// </examples>
-        string Name { get; }
+        string Name { get; set; }
 
         ///<summary>
         ///The provider that generated the metric. 
@@ -57,6 +57,17 @@
         /// If the metric is Lines of code, the dimensions can be: (Key: Language, Value: C#)
         /// If the metric is File Name, the dimensions can be: (Key: FileType, Value: ".txt"), (Key:FileSize, Value:50MB)
         /// </examples>
+
+
+        /// <summary>
+        /// If a specific resource is associated with this metric, specify it here.
+        /// <examples>
+        /// If the metric is CPU utilization, the resource can be: Server1, Server2, etc.
+        /// If the metric is Lines of code, the resource can be the location of the file or project.
+        /// If the metric is File Count, the resource can be the directory path.
+        /// </examples>
+        /// </summary>
+        string Resource { get; set; }
         IDictionary<string, string> Dimensions { get;  }
 
         /// <summary>
@@ -67,6 +78,6 @@
         /// </example>
         IEnumerable<string> Annotations { get;  }
 
-        string Resource { get; set; }
+
     }
 }
