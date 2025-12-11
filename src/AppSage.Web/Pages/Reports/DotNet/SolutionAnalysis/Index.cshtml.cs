@@ -43,7 +43,7 @@ namespace AppSage.Web.Pages.Reports.DotNet.SolutionAnalysis
             if(Enum.TryParse(dataExportName, out DataExportName exportType))
             {
                 var metrics = GetAllMetrics();
-                var allTables = metrics.Where(m => m is IResourceMetricValue<DataTable>).Select(m => m as IResourceMetricValue<DataTable>);
+                var allTables = metrics.Where(m => m is IMetricValue<DataTable>).Select(m => m as IMetricValue<DataTable>);
 
                 IEnumerable<DataTable> metricSet = null;
 
@@ -122,9 +122,9 @@ namespace AppSage.Web.Pages.Reports.DotNet.SolutionAnalysis
         protected override void LoadData()
         {
             var metrics = GetFilteredMetrics();
-            // FilterPossibleValue metrics that have a Resource property (implementing IResourceMetricValue interface)
+            // FilterPossibleValue metrics that have a Resource property (implementing IMetricValue interface)
             var resourceMetrics = metrics.Where(m => m.GetType().GetInterfaces()
-                .Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IResourceMetricValue<>)))
+                .Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IMetricValue<>)))
                 .ToList();
             var projectGroups = resourceMetrics.GroupBy(m => GetResourceFromMetric(m)).ToList();
 
@@ -149,36 +149,36 @@ namespace AppSage.Web.Pages.Reports.DotNet.SolutionAnalysis
                     switch (metric.Name)
                     {
                         case MetricName.DotNet.Project.LANGUAGE:
-                            if (metric is IResourceMetricValue<string> stringMetric)
+                            if (metric is IMetricValue<string> stringMetric)
                                 projectMetrics.Language = stringMetric.Value ?? string.Empty;
                             break;
                         case MetricName.DotNet.Project.TYPE:
-                            if (metric is IResourceMetricValue<string> typeMetric)
+                            if (metric is IMetricValue<string> typeMetric)
                                 projectMetrics.ProjectType = typeMetric.Value ?? string.Empty;
                             break;
                         case MetricName.DotNet.Project.DOTNET_VERSION:
-                            if (metric is IResourceMetricValue<string> versionMetric)
+                            if (metric is IMetricValue<string> versionMetric)
                                 projectMetrics.DotNetVersion = versionMetric.Value ?? string.Empty;
                             break;
                         case MetricName.DotNet.Project.DOCUMENT_COUNT_TOTAL:
-                            if (metric is IResourceMetricValue<int> docMetric)
+                            if (metric is IMetricValue<int> docMetric)
                                 projectMetrics.DocumentCount = docMetric.Value;
                             break;
                         case MetricName.DotNet.Project.CLASS_COUNT:
-                            if (metric is IResourceMetricValue<int> classMetric)
+                            if (metric is IMetricValue<int> classMetric)
                                 projectMetrics.ClassCount = classMetric.Value;
                             break;
                         case MetricName.DotNet.Project.METHOD_COUNT:
-                            if (metric is IResourceMetricValue<int> methodMetric)
+                            if (metric is IMetricValue<int> methodMetric)
                                 projectMetrics.MethodCount = methodMetric.Value;
                             break;
                         case MetricName.DotNet.Project.DATA_CLASS_COUNT:
-                            if (metric is IResourceMetricValue<int> dataClassMetric)
+                            if (metric is IMetricValue<int> dataClassMetric)
                                 projectMetrics.DataClassCount = dataClassMetric.Value;
                             break;
                         case MetricName.DotNet.Project.NUGET_PACKAGES:
                             {
-                                if (metric is IResourceMetricValue<DataTable> packageMetric)
+                                if (metric is IMetricValue<DataTable> packageMetric)
                                 {
                                     projectMetrics.NugetPackages = packageMetric.Value;
                                     foreach(DataRow row in packageMetric.Value.Rows)
@@ -322,7 +322,7 @@ namespace AppSage.Web.Pages.Reports.DotNet.SolutionAnalysis
 
         private string GetResourceFromMetric(IMetric metric)
         {
-            // Use reflection to get the Resource property from any IResourceMetricValue<T>
+            // Use reflection to get the Resource property from any IMetricValue<T>
             var resourceProperty = metric.GetType().GetProperty("Resource");
             return resourceProperty?.GetValue(metric)?.ToString() ?? string.Empty;
         }

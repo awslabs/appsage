@@ -41,13 +41,13 @@ namespace AppSage.Web.Pages.Reports.DotNet.PurposeAnalysis
             string providerName = "AppSage.Providers.DotNet.DotNetAIAnalysisProvider";
 
             var allMetrics = GetAllMetrics();
-            var result = allMetrics.Where(x => x.Provider == providerName && x is IResourceMetricValue<string>).ToList();
+            var result = allMetrics.Where(x => x.Provider == providerName && x is IMetricValue<string>).ToList();
             return result;
         }
 
         protected override void LoadData()
         {
-            var metrics = GetFilteredMetrics().Select(x => x as IResourceMetricValue<string>).Where(x => x != null).ToList();
+            var metrics = GetFilteredMetrics().Select(x => x as IMetricValue<string>).Where(x => x != null).ToList();
 
             // Build tree structure from metrics
             RootNode = BuildTreeFromMetrics(metrics!);
@@ -66,7 +66,7 @@ namespace AppSage.Web.Pages.Reports.DotNet.PurposeAnalysis
             return count;
         }
 
-        private TreeNode BuildTreeFromMetrics(List<IResourceMetricValue<string>> metrics)
+        private TreeNode BuildTreeFromMetrics(List<IMetricValue<string>> metrics)
         {
             var root = new TreeNode
             {

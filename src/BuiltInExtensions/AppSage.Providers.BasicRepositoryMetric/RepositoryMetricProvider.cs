@@ -43,7 +43,7 @@ namespace AppSage.Providers.BasicRepositoryMetric
 
                     _logger.LogInformation("Processing repository: {ResourceName}", resourceName);
 
-                    metrics.Add(new ResourceMetricValue<string>
+                    metrics.Add(new MetricValue<string>
                      (
                          name: MetricName.Repository.REPOSITORY_NAME,
                          provider: this.FullQualifiedName,
@@ -121,7 +121,7 @@ namespace AppSage.Providers.BasicRepositoryMetric
                         }
                     }
 
-                    metrics.Add(new ResourceMetricValue<int>
+                    metrics.Add(new MetricValue<int>
                     (
                      name: MetricName.Repository.FILE_COUNT,
                      provider: this.FullQualifiedName,
@@ -130,7 +130,7 @@ namespace AppSage.Providers.BasicRepositoryMetric
                      value: fileCountLineCountByExtension.Sum(c => c.Value.FileCount)
                     ));
 
-                    metrics.Add(new ResourceMetricValue<int>
+                    metrics.Add(new MetricValue<int>
                     (
                     name: MetricName.Repository.LINES_OF_CODE_COUNT,
                     provider: this.FullQualifiedName,
@@ -156,7 +156,7 @@ namespace AppSage.Providers.BasicRepositoryMetric
                         row[MetricName.Repository.LINES_OF_CODE_COUNT] = fileType.Value.LineCount;
                         fileTypeSummary.Rows.Add(row);
                     }
-                    IResourceMetricValue<DataTable> repoSummary = new ResourceMetricValue<DataTable>
+                    IMetricValue<DataTable> repoSummary = new MetricValue<DataTable>
                     (
                         name: MetricName.Repository.FILE_TYPES_BY_EXTENSION,
                         provider: this.FullQualifiedName,

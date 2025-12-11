@@ -106,7 +106,7 @@ namespace AppSage.Providers.GitMetric
                                 // Last commit date
                                 var lastCommit = commits.First();
 
-                                metrics.Add(new ResourceMetricValue<DateTimeOffset>
+                                metrics.Add(new MetricValue<DateTimeOffset>
                                 (
                                       name: MetricName.Repository.Git.LAST_COMMIT_DATE,
                                       provider: this.FullQualifiedName,
@@ -118,7 +118,7 @@ namespace AppSage.Providers.GitMetric
                                 // First commit date (oldest commit)
                                 var firstCommit = commits.Last();
 
-                                metrics.Add(new ResourceMetricValue<DateTimeOffset>
+                                metrics.Add(new MetricValue<DateTimeOffset>
                                 (
                                 name: MetricName.Repository.Git.FIRST_COMMIT_DATE,
                                 provider: this.FullQualifiedName,
@@ -129,7 +129,7 @@ namespace AppSage.Providers.GitMetric
 
                                 // Total number of commits
 
-                                metrics.Add(new ResourceMetricValue<int>
+                                metrics.Add(new MetricValue<int>
                                 (
                                     name: MetricName.Repository.Git.TOTAL_COMMIT_COUNT,
                                     provider: this.FullQualifiedName,
@@ -157,7 +157,7 @@ namespace AppSage.Providers.GitMetric
                                 string shortName = new DirectoryInfo(resource.Name).Name;
                                 commitData.YAxis.Add(new Series<int>(label: shortName, data: commitsByMonth.Select(x => x.Count).ToList()));
 
-                                metrics.Add(new ResourceMetricValue<XYSeries<string, int>>
+                                metrics.Add(new MetricValue<XYSeries<string, int>>
                                 (
                                     name: MetricName.Repository.Git.COMMIT_COUNT_PER_MONTH,
                                     provider: this.FullQualifiedName,

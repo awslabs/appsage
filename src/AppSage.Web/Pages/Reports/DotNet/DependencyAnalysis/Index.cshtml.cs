@@ -31,8 +31,8 @@ namespace AppSage.Web.Pages.Reports.DotNet.DependencyAnalysis
             
             // Load project-level dependency graphs
             var projectDependencies = metrics
-                .Where(x => x.Name == MetricName.DotNet.Project.CODE_DEPENDENCY_GRAPH && x is IResourceMetricValue<DirectedGraph>)
-                .Cast<IResourceMetricValue<DirectedGraph>>()
+                .Where(x => x.Name == MetricName.DotNet.Project.CODE_DEPENDENCY_GRAPH && x is IMetricValue<DirectedGraph>)
+                .Cast<IMetricValue<DirectedGraph>>()
                 .ToList();
 
             // Load merged dependency graphs
@@ -57,7 +57,7 @@ namespace AppSage.Web.Pages.Reports.DotNet.DependencyAnalysis
             Dashboard.AllRelationTypes = allRelationTypes.OrderBy(x => x).ToList();
         }
 
-        private List<GraphData> ConvertToGraphData(List<IResourceMetricValue<DirectedGraph>> projectDependencies)
+        private List<GraphData> ConvertToGraphData(List<IMetricValue<DirectedGraph>> projectDependencies)
         {
             var graphDataList = new List<GraphData>();
             

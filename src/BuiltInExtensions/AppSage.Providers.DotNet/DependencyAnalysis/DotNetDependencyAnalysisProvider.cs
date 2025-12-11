@@ -121,7 +121,7 @@ namespace AppSage.Providers.DotNet.DependencyAnalysis
                                     string repoName = _workspace.GetRepositoryName(project.FilePath);
                                     string segmentIdentifier = $"/{repoName}/{project.AssemblyName}";
                                     string resourceName = _workspace.GetResourceName(project.FilePath);
-                                    var metricValue = new ResourceMetricValue<DirectedGraph>(
+                                    var metricValue = new MetricValue<DirectedGraph>(
                                         name: MetricName.DotNet.Project.CODE_DEPENDENCY_GRAPH,
                                            segment: segmentIdentifier,
                                            resource: resourceName,

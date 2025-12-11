@@ -40,8 +40,8 @@ namespace AppSage.Web.Pages.Reports.DotNet.GraphAnalysis
 
                         // Load project-level dependency graphs
                         var projectDependencies = metrics
-                            .Where(x => x.Name == MetricName.DotNet.Project.CODE_DEPENDENCY_GRAPH && x is IResourceMetricValue<DirectedGraph>)
-                            .Cast<IResourceMetricValue<DirectedGraph>>()
+                            .Where(x => x.Name == MetricName.DotNet.Project.CODE_DEPENDENCY_GRAPH && x is IMetricValue<DirectedGraph>)
+                            .Cast<IMetricValue<DirectedGraph>>()
                             .Select(m => m.Value)
                             .Where(graph => graph != null)
                             .Cast<DirectedGraph>() // Cast to non-nullable type after null check

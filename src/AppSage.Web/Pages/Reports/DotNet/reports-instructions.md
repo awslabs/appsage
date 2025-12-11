@@ -237,8 +237,8 @@ protected override IEnumerable<DataTable> ExportData(string dataExportName)
     if(Enum.TryParse(dataExportName, out DataExportName exportType))
     {
         var metrics = GetAllMetrics();
-        var allTables = metrics.Where(m => m is IResourceMetricValue<DataTable>)
-                              .Select(m => m as IResourceMetricValue<DataTable>);
+        var allTables = metrics.Where(m => m is IMetricValue<DataTable>)
+                              .Select(m => m as IMetricValue<DataTable>);
         
         switch (exportType)
         {

@@ -41,7 +41,7 @@ namespace AppSage.Web.Pages.Reports.Repository.RepositoryAnalysis
 
             if (metrics.Where(metrics => metrics.Name == Providers.GitMetric.MetricName.Repository.Git.FIRST_COMMIT_DATE).Any())
             {
-                model.FirstCommitDate.Value = metrics.Where(metrics => metrics.Name == Providers.GitMetric.MetricName.Repository.Git.FIRST_COMMIT_DATE).Select(x => (IResourceMetricValue<DateTimeOffset>)x).Min(x => x.Value).ToString("yyyy-MMM-dd");
+                model.FirstCommitDate.Value = metrics.Where(metrics => metrics.Name == Providers.GitMetric.MetricName.Repository.Git.FIRST_COMMIT_DATE).Select(x => (IMetricValue<DateTimeOffset>)x).Min(x => x.Value).ToString("yyyy-MMM-dd");
                 model.FirstCommitDate.Annotations.Add($"First commit date is estimated using git commit data");
             }
             else
@@ -50,7 +50,7 @@ namespace AppSage.Web.Pages.Reports.Repository.RepositoryAnalysis
             }
             if (metrics.Where(metrics => metrics.Name == Providers.GitMetric.MetricName.Repository.Git.LAST_COMMIT_DATE).Any())
             {
-                model.LastCommitDate.Value = metrics.Where(metrics => metrics.Name == Providers.GitMetric.MetricName.Repository.Git.LAST_COMMIT_DATE).Select(x => (IResourceMetricValue<DateTimeOffset>)x).Max(x => x.Value).ToString("yyyy-MMM-dd");
+                model.LastCommitDate.Value = metrics.Where(metrics => metrics.Name == Providers.GitMetric.MetricName.Repository.Git.LAST_COMMIT_DATE).Select(x => (IMetricValue<DateTimeOffset>)x).Max(x => x.Value).ToString("yyyy-MMM-dd");
                 model.LastCommitDate.Annotations.Add($"Last commit date is estimated using git commit data");
             }
             else
@@ -86,7 +86,7 @@ namespace AppSage.Web.Pages.Reports.Repository.RepositoryAnalysis
         {
             // Process the commit activity data
             var allCommitActivity = metrics.Where(metrics => metrics.Name == Providers.GitMetric.MetricName.Repository.Git.COMMIT_COUNT_PER_MONTH)
-                .Select(x => x as IResourceMetricValue<XYSeries<string, int>>)
+                .Select(x => x as IMetricValue<XYSeries<string, int>>)
                 .Where(x => x != null)
                 .Select(x => x!.Value)
                 .ToList();
@@ -167,7 +167,7 @@ namespace AppSage.Web.Pages.Reports.Repository.RepositoryAnalysis
         private void PopulateContributors(IEnumerable<IMetric> metrics, ref IndexViewModel model)
         {
             var contributors = metrics.Where(metrics => metrics.Name == Providers.GitMetric.MetricName.Repository.Git.CONTRIBUTOR_COMMIT_COUNT)
-            .Select(x => x as IResourceMetricValue<Dictionary<string, int>>)
+            .Select(x => x as IMetricValue<Dictionary<string, int>>)
             .Where(x => x != null)
             .Select(x => x!.Value)
             .ToList();
@@ -196,7 +196,7 @@ namespace AppSage.Web.Pages.Reports.Repository.RepositoryAnalysis
         private void PopulateTechnologyDistribution(IEnumerable<IMetric> metrics, ref IndexViewModel model)
         {
             var techInfo = metrics.Where(metrics => metrics.Name == Providers.BasicRepositoryMetric.MetricName.Repository.FILE_TYPES_BY_EXTENSION)
-            .Select(x => x as IResourceMetricValue<DataTable>)
+            .Select(x => x as IMetricValue<DataTable>)
             .Where(x => x != null)
             .Select(x => x!.Value)
             .ToList();

@@ -83,8 +83,8 @@ namespace AppSage.MCPServer.Capabilty.Tools.CodeGraph
 
             var projectDependencies = metrics
                 .Where(x => x.Provider == providerName)
-                .Where(x => x is IResourceMetricValue<DirectedGraph>)
-                .Cast<IResourceMetricValue<DirectedGraph>>().Select(r => r.Value);
+                .Where(x => x is IMetricValue<DirectedGraph>)
+                .Cast<IMetricValue<DirectedGraph>>().Select(r => r.Value);
 
             _graph= DirectedGraph.MergeGraph(projectDependencies);
             _logger.LogInformation("Loading completed.");

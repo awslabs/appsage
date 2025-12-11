@@ -166,7 +166,7 @@ namespace AppSage.Providers.DotNet.AIAnalysis
 
                     if (isWorthCollectingAsMetric)
                     {
-                        metrics.Add(new ResourceMetricValue<string>
+                        metrics.Add(new MetricValue<string>
                         (
                             name: MetricName.DotNet.Project.Document.AISummary,
                             segment: project.SegmentIdentifier,
@@ -181,7 +181,7 @@ namespace AppSage.Providers.DotNet.AIAnalysis
             // Create overarching summary of all projects
             string overarchingSummary = CreateOverarchingSummary(projectList.ToList());
 
-            metrics.Add(new ResourceMetricValue<string>
+            metrics.Add(new MetricValue<string>
             (
                 name: MetricName.DotNet.AISummary,
                 segment: ConstString.UNDEFINED,
@@ -198,7 +198,7 @@ namespace AppSage.Providers.DotNet.AIAnalysis
             // Create a comprehensive project summary from all the segmented summaries
             string consolidatedProjectSummary = CreateConsolidatedProjectSummary(project);
 
-            metrics.Add(new ResourceMetricValue<string>
+            metrics.Add(new MetricValue<string>
             (
                 name: MetricName.DotNet.Project.AISummary,
                 segment: project.SegmentIdentifier,
@@ -210,7 +210,7 @@ namespace AppSage.Providers.DotNet.AIAnalysis
             // Add individual summary aspects as separate metrics if they have content
             if (!string.IsNullOrEmpty(project.Summary.OverallSummary))
             {
-                metrics.Add(new ResourceMetricValue<string>
+                metrics.Add(new MetricValue<string>
                 (
                     name: $"{MetricName.DotNet.Project.AISummary}.Overall",
                     segment: project.SegmentIdentifier,
@@ -222,7 +222,7 @@ namespace AppSage.Providers.DotNet.AIAnalysis
 
             if (!string.IsNullOrEmpty(project.Summary.ArchitectureSummary))
             {
-                metrics.Add(new ResourceMetricValue<string>
+                metrics.Add(new MetricValue<string>
                 (
                     name: $"{MetricName.DotNet.Project.AISummary}.Architecture",
                     segment: project.SegmentIdentifier,
@@ -234,7 +234,7 @@ namespace AppSage.Providers.DotNet.AIAnalysis
 
             if (!string.IsNullOrEmpty(project.Summary.ChallengesSummary))
             {
-                metrics.Add(new ResourceMetricValue<string>
+                metrics.Add(new MetricValue<string>
                 (
                     name: $"{MetricName.DotNet.Project.AISummary}.ModernizationRisks",
                     segment: project.SegmentIdentifier,

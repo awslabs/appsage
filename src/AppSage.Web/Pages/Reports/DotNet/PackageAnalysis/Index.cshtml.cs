@@ -24,7 +24,7 @@ namespace AppSage.Web.Pages.Reports.DotNet.PackageAnalysis
         protected override void LoadData()
         {
             var metrics = GetFilteredMetrics();
-            // FilterPossibleValue metrics that have a Resource property (implementing IResourceMetricValue interface)
+            // FilterPossibleValue metrics that have a Resource property (implementing IMetricValue interface)
 
             Dashboard.ReferenceApproximationMetricTableName = MetricName.DotNet.Project.PROJECT_LIBRARY_IMPACT_APPROXIMATION;
 

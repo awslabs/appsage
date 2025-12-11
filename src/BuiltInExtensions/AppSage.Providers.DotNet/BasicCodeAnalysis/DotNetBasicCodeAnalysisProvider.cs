@@ -114,7 +114,7 @@ namespace AppSage.Providers.DotNet.BasicCodeAnalysis
             string resourceName = _workspace.GetResourceName(p.FilePath);
 
 
-            metrics.Add(new ResourceMetricValue<string>
+            metrics.Add(new MetricValue<string>
             (
                 name: MetricName.DotNet.Project.LANGUAGE,
                 segment: segmentIdentifier,
@@ -122,7 +122,7 @@ namespace AppSage.Providers.DotNet.BasicCodeAnalysis
                 provider: FullQualifiedName,
                 value: p.Language
             ));
-            metrics.Add(new ResourceMetricValue<string>
+            metrics.Add(new MetricValue<string>
             (
                 name: MetricName.DotNet.Project.TYPE,
                 segment: segmentIdentifier,
@@ -131,7 +131,7 @@ namespace AppSage.Providers.DotNet.BasicCodeAnalysis
                 value: _projectAnalyzer.GetProjectType(p)
             ));
 
-            metrics.Add(new ResourceMetricValue<string>
+            metrics.Add(new MetricValue<string>
             (
                 name: MetricName.DotNet.Project.DOTNET_VERSION,
                 segment: segmentIdentifier,
@@ -140,7 +140,7 @@ namespace AppSage.Providers.DotNet.BasicCodeAnalysis
                 value: _projectAnalyzer.ParseDotNetVersion(p.FilePath)
             ));
 
-            metrics.Add(new ResourceMetricValue<int>
+            metrics.Add(new MetricValue<int>
             (
                 name: MetricName.DotNet.Project.DOCUMENT_COUNT_TOTAL,
                 segment: segmentIdentifier,
@@ -149,7 +149,7 @@ namespace AppSage.Providers.DotNet.BasicCodeAnalysis
                 value: p.Documents.Count()
 
             ));
-            metrics.Add(new ResourceMetricValue<int>
+            metrics.Add(new MetricValue<int>
             (
                 name: MetricName.DotNet.Project.DOCUMENT_COUNT_PUREDOTNET,
                 segment: segmentIdentifier,
@@ -157,7 +157,7 @@ namespace AppSage.Providers.DotNet.BasicCodeAnalysis
                 provider: FullQualifiedName,
                 value: p.Documents.Count(d => d.SourceCodeKind == SourceCodeKind.Regular)
             ));
-            metrics.Add(new ResourceMetricValue<int>
+            metrics.Add(new MetricValue<int>
             (
                 name: MetricName.DotNet.Project.DOCUMENT_COUNT_SCRIPTS,
                 segment: segmentIdentifier,
@@ -181,7 +181,7 @@ namespace AppSage.Providers.DotNet.BasicCodeAnalysis
             }
 
 
-            metrics.Add(new ResourceMetricValue<DataTable>
+            metrics.Add(new MetricValue<DataTable>
             (
                 name: MetricName.DotNet.Project.NUGET_PACKAGES,
                 segment: segmentIdentifier,
@@ -194,7 +194,7 @@ namespace AppSage.Providers.DotNet.BasicCodeAnalysis
             var aggregateSummary = _projectAnalyzer.GetDocumentSummary(p.Documents);
 
 
-            metrics.Add(new ResourceMetricValue<int>
+            metrics.Add(new MetricValue<int>
             (
                 name: MetricName.DotNet.Project.CLASS_COUNT,
                 segment: segmentIdentifier,
@@ -202,7 +202,7 @@ namespace AppSage.Providers.DotNet.BasicCodeAnalysis
                 provider: FullQualifiedName,
                 value: aggregateSummary.NameTypeCount
             ));
-            metrics.Add(new ResourceMetricValue<int>
+            metrics.Add(new MetricValue<int>
            (
                name: MetricName.DotNet.Project.METHOD_COUNT,
                segment: segmentIdentifier,
@@ -210,7 +210,7 @@ namespace AppSage.Providers.DotNet.BasicCodeAnalysis
                provider: FullQualifiedName,
                value: aggregateSummary.MethodCount
            ));
-            metrics.Add(new ResourceMetricValue<int>
+            metrics.Add(new MetricValue<int>
            (
                name: MetricName.DotNet.Project.DATA_CLASS_COUNT,
                segment: segmentIdentifier,
@@ -219,7 +219,7 @@ namespace AppSage.Providers.DotNet.BasicCodeAnalysis
                value: aggregateSummary.DataOnlyNameTypeCount
            ));
 
-            metrics.Add(new ResourceMetricValue<int>
+            metrics.Add(new MetricValue<int>
             (
                name: MetricName.DotNet.Project.LINES_OF_CODE,
                segment: segmentIdentifier,
@@ -268,7 +268,7 @@ namespace AppSage.Providers.DotNet.BasicCodeAnalysis
                 }
             }
 
-            metrics.Add(new ResourceMetricValue<DataTable>
+            metrics.Add(new MetricValue<DataTable>
             (
             name: MetricName.DotNet.Project.CLASS_STATISTICS,
             segment: segmentIdentifier,
@@ -277,7 +277,7 @@ namespace AppSage.Providers.DotNet.BasicCodeAnalysis
             value: classStats
             ));
 
-            metrics.Add(new ResourceMetricValue<DataTable>
+            metrics.Add(new MetricValue<DataTable>
             (
             name: MetricName.DotNet.Project.METHOD_STATISTICS,
             segment: segmentIdentifier,
@@ -297,7 +297,7 @@ namespace AppSage.Providers.DotNet.BasicCodeAnalysis
             });
 
 
-            metrics.Add(new ResourceMetricValue<DataTable>
+            metrics.Add(new MetricValue<DataTable>
             (
                 name: MetricName.DotNet.Project.PROJECT_REFERENCE_USAGE_APROXIMATION,
                 segment: segmentIdentifier,
@@ -397,7 +397,7 @@ namespace AppSage.Providers.DotNet.BasicCodeAnalysis
             string segmentIdentifier = $"/{repoName}/{p.AssemblyName}";
             string resourceName = _workspace.GetResourceName(p.FilePath);
 
-            IResourceMetricValue<DataTable> metric1 = new ResourceMetricValue<DataTable>
+            IMetricValue<DataTable> metric1 = new MetricValue<DataTable>
             (
                 name: MetricName.DotNet.Project.PROJECT_LIBRARY_IMPACT_APPROXIMATION_EXPANDED,
                 segment: segmentIdentifier,
@@ -434,7 +434,7 @@ namespace AppSage.Providers.DotNet.BasicCodeAnalysis
                     projectInfo.ProjectTotalMethods,
                     compactReferenceNames);
 
-            IResourceMetricValue<DataTable> metric2 = new ResourceMetricValue<DataTable>
+            IMetricValue<DataTable> metric2 = new MetricValue<DataTable>
            (
                name: MetricName.DotNet.Project.PROJECT_LIBRARY_IMPACT_APPROXIMATION,
                segment: segmentIdentifier,
@@ -499,3 +499,5 @@ namespace AppSage.Providers.DotNet.BasicCodeAnalysis
 
     }
 }
+
+
