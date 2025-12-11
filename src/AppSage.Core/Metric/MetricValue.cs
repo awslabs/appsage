@@ -29,9 +29,6 @@ namespace AppSage.Core.Metric
 
         public string Resource { get; set; } = string.Empty;
 
-        public IDictionary<string, string> Dimensions { get; set; } = new Dictionary<string,string>();
-
-        public IEnumerable<string> Annotations { get; set; } = new List<string>();
 
         public T? Value { get; set; }
 
