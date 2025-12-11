@@ -27,6 +27,8 @@ namespace AppSage.Core.Metric
 
         public string Segment { get; set; } = string.Empty;
 
+        public string Resource { get; set; } = string.Empty;
+
         public IDictionary<string, string> Dimensions { get; set; } = new Dictionary<string,string>();
 
         public IEnumerable<string> Annotations { get; set; } = new List<string>();
@@ -36,29 +38,32 @@ namespace AppSage.Core.Metric
         public bool IsLargeMetric {get;set;}
 
         [JsonConstructor]
-        public MetricValue(string name) : this(name,provider:"",segment:"",default(T?))
+        public MetricValue(string name) : this(name, provider:"", segment:"", resource:"", default(T?))
         {
         }
-        public MetricValue(string name,T? value) : this(name, provider: "", segment: "", value)
+        public MetricValue(string name, T? value) : this(name, provider: "", segment: "", resource:"", value)
         {
         }
-        public MetricValue(string name, string provider) : this(name, provider, segment: "", default(T?))
+        public MetricValue(string name, string provider) : this(name, provider, segment: "", resource:"", default(T?))
         {
         }
-        public MetricValue(string name, string provider, T? value) : this(name, provider, segment: "", value)
+        public MetricValue(string name, string provider, T? value) : this(name, provider, segment: "", resource:"", value)
         {
         }
-        public MetricValue(string name, string provider, string segment) : this(name, provider, segment, default(T?))
+        public MetricValue(string name, string provider, string segment) : this(name, provider, segment, resource:"", default(T?))
+        {
+        }
+        public MetricValue(string name, string provider, string segment, T? value) : this(name, provider, segment, resource:"", value)
         {
         }
 
-
-
-        public MetricValue(string name, string provider,string segment, T? value)
+  
+        public MetricValue(string name, string provider, string segment, string resource, T? value)
         {
             Name = name ?? throw new ArgumentNullException(nameof(name));
             Provider = provider ?? throw new ArgumentNullException(nameof(provider));
             Segment = segment ?? throw new ArgumentNullException(nameof(segment));
+            Resource = resource ?? throw new ArgumentNullException(nameof(resource));
             Value = value;
         }
 

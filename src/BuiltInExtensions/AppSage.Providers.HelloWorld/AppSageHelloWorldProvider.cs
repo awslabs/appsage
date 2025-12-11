@@ -16,11 +16,11 @@ namespace AppSage.Providers.HelloWorld
                 value: "Hello, World!"
             );
 
-            var metric2= new ResourceMetricValue<int>(
+            var metric2= new MetricValue<int>(
                 name: "AppSage.HelloWorld.WorldGDP",
-                resource: "2015/worldbank",
                 value: 75720
             );
+            metric2.Resource= "2015/worldbank\\";
 
             DataTable gdpTable = new DataTable();
             gdpTable.Columns.Add("Year", typeof(int));

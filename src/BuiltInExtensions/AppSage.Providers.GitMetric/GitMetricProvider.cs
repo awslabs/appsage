@@ -59,7 +59,7 @@ namespace AppSage.Providers.GitMetric
 
                             // Number of branches
                             int branchCount = repo.Branches.Count();
-                            metrics.Add(new ResourceMetricValue<int>
+                            metrics.Add(new MetricValue<int>
                             (
                                 name: MetricName.Repository.Git.BRANCH_COUNT,
                                 provider: this.FullQualifiedName,
@@ -70,7 +70,7 @@ namespace AppSage.Providers.GitMetric
 
                             // Number of contributors
                             var contributors = repo.Commits.Select(c => c.Author.Name).Distinct();
-                            metrics.Add(new ResourceMetricValue<int>
+                            metrics.Add(new MetricValue<int>
                             (
                                 name: MetricName.Repository.Git.CONTRIBUTOR_COUNT,
                                 provider: this.FullQualifiedName,
@@ -89,7 +89,7 @@ namespace AppSage.Providers.GitMetric
                                 totalContributorCommits[contributor] = totalContributorCommits.ContainsKey(contributor) ? totalContributorCommits[contributor] + commitCount : commitCount;
                             }
 
-                            metrics.Add(new ResourceMetricValue<Dictionary<string, int>>
+                            metrics.Add(new MetricValue<Dictionary<string, int>>
                             (
                                 name: MetricName.Repository.Git.CONTRIBUTOR_COMMIT_COUNT,
                                 provider: this.FullQualifiedName,

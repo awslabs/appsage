@@ -66,5 +66,7 @@
         /// When number of lines of code (LoC) is calculated, you can mention how the lines are calculated. E.g. LoC is calculated ignoring blank lines. 
         /// </example>
         IEnumerable<string> Annotations { get;  }
+
+        string Resource { get; set; }
     }
 }
