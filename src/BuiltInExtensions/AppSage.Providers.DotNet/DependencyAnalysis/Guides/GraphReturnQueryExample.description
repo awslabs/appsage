@@ -1,0 +1,5 @@
+﻿This is an example of a query that returns the directed graph representing dependencies in a .NET project or solution.
+The graph was created by the `AppSage.Providers.DotNet.DependencyAnalysis.DotNetDependencyAnalysisProvider`. 
+The returned graph conforms to the `AppSage.Core.ComplexType.Graph.IDirectedGraph` structure.
+It takes a IDirectedGraph and returns a modified IDirectedGraph with additional analysis or filtering applied.
+You can use this to return a graph that highlights specific dependencies or relationships of interest.

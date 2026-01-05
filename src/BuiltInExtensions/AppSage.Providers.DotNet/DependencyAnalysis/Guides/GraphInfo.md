@@ -8,9 +8,12 @@ IDirectedGraph is of type `AppSage.Core.DataStructures.IDirectedGraph`.
 
 # Important Notes
 
-## Node Id
-Each node has a unique identifier (`Node.Id`). If it is a .NET language concept like (classes, interfaces, structs,methods, record etc),
-Node Id will be a fully qualified name (FQN) including the full namespace but excluding the assembly information. For the following code fragment:
+## INode.Id aka Node Id
+Each node has a unique identifier Node Id available as a property `INode.Id`. 
+If it is a .NET language concept like (classes, interfaces, structs,methods, record etc),
+Node Id will be a fully qualified name (FQN) including the full namespace but excluding the assembly information. 
+
+For example, for the following code fragment:
    ```csharp
    namespace MyCompany.Services
    {
@@ -22,9 +25,9 @@ The `Node.Id` for `UserService` will be `MyCompany.Services.UserService`
 The `Node.Id` for `GetName` method will be `MyCompany.Services.UserService.GetName`.
 The `Node.Id` for `Age` field will be `MyCompany.Services.UserService.Age`.
 
-You can distinguish between different node types using the `Node.Type` property.
 
-## Node Types
+## INode.Type gives the type of the node
+You can distinguish between different node types using the `INode.Type` property.
 
 ### Repository
 **Description**: Represents a source control repository containing one or more solutions/projects.
@@ -84,7 +87,7 @@ You can distinguish between different node types using the `Node.Type` property.
 
 
 
-## Edge Types
+## IEdge.Type gives the type of the edge or relationship
 
 ### Reside
 **Description**: Indicates containment/location relationship - where something physically resides.
@@ -198,7 +201,7 @@ You can distinguish between different node types using the `Node.Type` property.
 - Enum → Method (enum has method)
 - Delegate → Method (delegate has method)
 
-## Node Attributes
+## INode.Attributes gives additional metadata about nodes. What each key means:
 
 ### RepositoryName
 **Description**: Name of the repository containing the node.

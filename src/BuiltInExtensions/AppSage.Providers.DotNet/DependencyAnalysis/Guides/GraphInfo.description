@@ -1,0 +1,8 @@
+﻿This describes the structure of the merged AppSage.Core.ComplexType.Graph.IDirectedGraph created by the `AppSage.Providers.DotNet.DependencyAnalysis.DotNetDependencyAnalysisProvider`.
+
+This applies only to .NET based projects and solutions written in C# or Visual Basic.
+The graph represents dependencies across multiple levels. 
+
+It includdes defintions for
+Node Type, Node Id, Node Attributes
+Edge Type, Edge Id, Edge Attributes

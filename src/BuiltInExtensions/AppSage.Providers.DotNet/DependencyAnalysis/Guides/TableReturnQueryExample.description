@@ -1,0 +1,5 @@
+﻿This is an example of a query that returns a set of tables given informaiton related to .NET projects or solutions.
+The input graph was created by the `AppSage.Providers.DotNet.DependencyAnalysis.DotNetDependencyAnalysisProvider`. 
+The returned graph conforms to the `AppSage.Core.ComplexType.Graph.IDirectedGraph` structure.
+It takes a IDirectedGraph and returns a list of tables IEnumerable<DataTable>. 
+You can use this to return an excel file containing the tables returned. Each table will be a separate sheet in the excel file.

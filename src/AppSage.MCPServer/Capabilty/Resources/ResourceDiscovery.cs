@@ -21,7 +21,7 @@ private static readonly List<string> DocumentationFiles = new()
         return new ResourcesCapability
         {
             ListResourcesHandler = ListResources,
-    ReadResourceHandler = ReadResource
+            ReadResourceHandler = ReadResource
    };
     }
 

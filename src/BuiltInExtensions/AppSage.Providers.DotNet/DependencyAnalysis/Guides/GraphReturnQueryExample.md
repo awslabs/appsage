@@ -65,7 +65,7 @@ namespace AppSage.MCPServer.SampleQuery
             "Neo4j.Driver"
         };
 
-        public static DirectedGraph Execute(DirectedGraph sourceGraph)
+        public static IDirectedGraph Execute(IDirectedGraph sourceGraph)
         {
             var result = new DirectedGraph();
 
@@ -326,7 +326,7 @@ using System.Linq;
 
 public static class MyQuery
 {
-    public static DirectedGraph Execute(DirectedGraph sourceGraph)
+    public static IDirectedGraph Execute(IDirectedGraph sourceGraph)
     {
         var result = new DirectedGraph();
 
