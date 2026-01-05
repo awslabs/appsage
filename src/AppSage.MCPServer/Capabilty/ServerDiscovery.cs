@@ -12,10 +12,12 @@ namespace AppSage.MCPServer.CapabilityBuilder
         IAppSageLogger _logger;
 
         ToolDiscovery _toolDiscovery;
-        public ServerDiscovery(IAppSageLogger logger, ToolDiscovery toolDiscovery)
+        ResourceDiscovery _resourceDiscovery;
+        public ServerDiscovery(IAppSageLogger logger, ToolDiscovery toolDiscovery, ResourceDiscovery resourceDiscovery)
         {
             _logger = logger;
             _toolDiscovery = toolDiscovery;
+            _resourceDiscovery = resourceDiscovery;
         }
         public ServerCapabilities CreateServerCapabilities()
         {
@@ -25,7 +27,8 @@ namespace AppSage.MCPServer.CapabilityBuilder
 
             serverCapabilities.Tools= _toolDiscovery.CreateToolsCapability();
             //serverCapabilities.Prompts = PromptDiscovery.CreatePromptsCapability();
-            serverCapabilities.Resources = ResourceDiscovery.CreateResourcesCapability();
+            
+            serverCapabilities.Resources = _resourceDiscovery.CreateResourcesCapability();
  
             return serverCapabilities;
         }

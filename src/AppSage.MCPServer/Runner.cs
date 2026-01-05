@@ -5,6 +5,7 @@ using AppSage.Core.Workspace;
 using AppSage.Infrastructure.Metric;
 using AppSage.McpServer.Capability.Tools;
 using AppSage.MCPServer.CapabilityBuilder;
+using AppSage.MCPServer.Capabilty.Resources;
 using AppSage.MCPServer.Capabilty.Tools.CodeGraph;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -70,6 +71,7 @@ namespace AppSage.MCPServer
             services.AddSingleton<IMetricReader, MetricReader>();
             // Register the ServerCapabilities singleton
             services.AddSingleton<ToolDiscovery>();
+            services.AddSingleton<ResourceDiscovery>();
             services.AddSingleton<ServerDiscovery>();
             var assembly = Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly();
             var toolTypes = assembly

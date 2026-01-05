@@ -1,4 +1,7 @@
-﻿using AppSage.McpServer.Support;
+﻿using AppSage.Core.Configuration;
+using AppSage.Core.Logging;
+using AppSage.Core.Workspace;
+using AppSage.McpServer.Support;
 using AppSage.MCPServer.Support;
 using ModelContextProtocol;
 using ModelContextProtocol.Protocol;
@@ -7,94 +10,127 @@ using ModelContextProtocol.Server;
 namespace AppSage.MCPServer.Capabilty.Resources;
 
 [McpServerResourceType]
-[CapabilityRegistration("CodeGraph", @"Resources\CodeGraph")]
+[CapabilityRegistration("Documentation", @"Resources\Documentation")]
 public class ResourceDiscovery
 {
-private static readonly List<string> DocumentationFiles = new()
+    IAppSageLogger _logger;
+    IServiceProvider _services;
+    IAppSageConfiguration _config;
+    IAppSageWorkspace _workspace;
+    ResultBuilder _utility;
+    public ResourceDiscovery(IAppSageLogger logger, IServiceProvider services, IAppSageConfiguration config, IAppSageWorkspace workspace)
     {
-        @"C:\Dev\GitHub\appsage\src\BuiltInExtensions\AppSage.Providers.DotNet\DependencyAnalysis\Guides\GraphDescription.md",
-        @"C:\Dev\GitHub\appsage\src\BuiltInExtensions\AppSage.Providers.DotNet\DependencyAnalysis\Guides\GraphReturnQueryExample.md"
-    };
+        _services = services;
+        _logger = logger;
+        _config = config;
+        _workspace = workspace;
+        _utility = new ResultBuilder(_logger, _config, workspace);
 
-    public static ResourcesCapability CreateResourcesCapability()
+    }
+
+    private IList<FileInfo> GetDocumentationFiles()
+    {
+        string folder = @"C:\Dev\GitHub\appsage\src\BuiltInExtensions\AppSage.Providers.DotNet\DependencyAnalysis\Guides\";
+        var files= Directory.GetFiles(folder, "*.md", SearchOption.AllDirectories);
+
+        List<FileInfo> result = new List<FileInfo>();
+
+        foreach (var file in files)
+        {
+           result.Add(new FileInfo(file));
+        }
+
+        return result;
+    }
+
+    public ResourcesCapability CreateResourcesCapability()
     {
         return new ResourcesCapability
         {
             ListResourcesHandler = ListResources,
             ReadResourceHandler = ReadResource
-   };
+        };
     }
 
-    private static ValueTask<ListResourcesResult> ListResources(
-    RequestContext<ListResourcesRequestParams> context,
-    CancellationToken cancellationToken)
+
+
+    private ValueTask<ListResourcesResult> ListResources(
+        RequestContext<ListResourcesRequestParams> context,
+          CancellationToken cancellationToken)
     {
         var resources = new List<Resource>();
 
-      foreach (var filePath in DocumentationFiles)
-      {
-            if (File.Exists(filePath))
+        foreach (var file in GetDocumentationFiles())
+        {
+            if (file.Exists)
             {
-      var fileName = Path.GetFileName(filePath);
-                var fileInfo = new FileInfo(filePath);
-       
-    resources.Add(new Resource
-     {
-  Uri = $"resource://codegraph-docs/{fileName}",
-   Name = fileName,
-        Description = $"Documentation file: {fileName}",
-        MimeType = GetMimeType(Path.GetExtension(filePath)),
-        Size = fileInfo.Length
-       });
-     }
+                var fileName = Path.GetFileNameWithoutExtension(file.Name);
+                var descriptionFile=Path.Combine(file.DirectoryName,fileName, ".description");
+                
+                var descriptionText=$"Description for {fileName}";
+                if (File.Exists(descriptionFile))
+                {
+                    descriptionText=File.ReadAllText(descriptionFile);
+                }
+
+                resources.Add(new Resource
+                {
+                    Uri = $"resource://codegraph-docs/{fileName}",
+                    Name = fileName,
+                    Description = descriptionText,
+                    MimeType = GetMimeType(Path.GetExtension(file.FullName)),
+                    Size = file.Length
+                });
+            }
         }
 
         var result = new ListResourcesResult { Resources = resources.ToArray() };
         return ValueTask.FromResult(result);
     }
 
-  private static ValueTask<ReadResourceResult> ReadResource(
+    private ValueTask<ReadResourceResult> ReadResource(
         RequestContext<ReadResourceRequestParams> context,
         CancellationToken cancellationToken)
     {
         if (context.Params is null || string.IsNullOrWhiteSpace(context.Params.Uri))
-       throw new McpException("Missing resource uri.");
+            throw new McpException("Missing resource uri.");
 
         const string prefix = "resource://codegraph-docs/";
-    if (!context.Params.Uri.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
-      throw new McpException("Unknown resource scheme.");
+        if (!context.Params.Uri.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+            throw new McpException("Unknown resource scheme.");
 
-   var fileName = context.Params.Uri.Substring(prefix.Length);
-        var filePath = DocumentationFiles.FirstOrDefault(f => Path.GetFileName(f).Equals(fileName, StringComparison.OrdinalIgnoreCase));
+        var fileName = context.Params.Uri.Substring(prefix.Length);
+
+        var filePath =Path.Combine(@"C:\Dev\GitHub\appsage\src\BuiltInExtensions\AppSage.Providers.DotNet\DependencyAnalysis\Guides\", fileName + ".md");
 
         if (string.IsNullOrEmpty(filePath) || !File.Exists(filePath))
-  throw new McpException("Resource not found.");
+            throw new McpException("Resource not found.");
 
         var fileContent = File.ReadAllText(filePath);
-        
-        var contents = new ResourceContents[]
-{
-     new TextResourceContents
-            {
-  Uri = context.Params.Uri,
-        MimeType = GetMimeType(Path.GetExtension(filePath)),
-     Text = fileContent
-   }
-        };
 
-     var result = new ReadResourceResult { Contents = contents };
-    return ValueTask.FromResult(result);
+        var contents = new ResourceContents[]
+        {
+            new TextResourceContents
+{
+                Uri = context.Params.Uri,
+                MimeType = GetMimeType(Path.GetExtension(filePath)),
+ Text = fileContent
+            }
+      };
+
+        var result = new ReadResourceResult { Contents = contents };
+        return ValueTask.FromResult(result);
     }
 
-    private static string GetMimeType(string extension)
+    private string GetMimeType(string extension)
     {
         return extension.ToLowerInvariant() switch
         {
-   ".md" => "text/markdown",
-         ".txt" => "text/plain",
-  ".json" => "application/json",
-      ".xml" => "application/xml",
-_ => "text/plain"
+            ".md" => "text/markdown",
+            ".txt" => "text/plain",
+            ".json" => "application/json",
+            ".xml" => "application/xml",
+            _ => "text/plain"
         };
     }
 }
