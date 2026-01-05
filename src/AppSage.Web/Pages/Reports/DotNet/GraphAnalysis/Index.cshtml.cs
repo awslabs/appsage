@@ -13,7 +13,7 @@ namespace AppSage.Web.Pages.Reports.DotNet.GraphAnalysis
     {
         public IndexModel(IMetricReader metricReader) : base(metricReader) { }
         public IndexViewModel Dashboard { get; set; } = new IndexViewModel();
-        private static DirectedGraph _lazyGraph;
+        private static IDirectedGraph _lazyGraph;
         public override List<IMetric> GetMyMetrics()
         {
             //in this report we are using only those stats reported by AppSage.Providers.DotNet.DotNetDependencyAnalysisProvider
@@ -27,7 +27,7 @@ namespace AppSage.Web.Pages.Reports.DotNet.GraphAnalysis
         protected override void LoadData()
         {
 
-            DirectedGraph mergedGraph = null;
+     
             if (_lazyGraph == null)
             {
                 lock (this)
@@ -53,20 +53,17 @@ namespace AppSage.Web.Pages.Reports.DotNet.GraphAnalysis
                     }
                 }
             }
-    
-            mergedGraph= _lazyGraph;
 
-
-            PopulateFilters(mergedGraph);
-            PopulateNodeLegend(mergedGraph);
-            PopulateEdgeLegend(mergedGraph);
-            PopulateGraph(mergedGraph);
+            PopulateFilters(_lazyGraph);
+            PopulateNodeLegend(_lazyGraph);
+            PopulateEdgeLegend(_lazyGraph);
+            PopulateGraph(_lazyGraph);
         }
 
 
 
 
-        private DirectedGraph MyQuery(DirectedGraph sourceGraph) {
+        private IDirectedGraph MyQuery(IDirectedGraph sourceGraph) {
 
             return sourceGraph;
             var result = new DirectedGraph();
@@ -81,7 +78,7 @@ namespace AppSage.Web.Pages.Reports.DotNet.GraphAnalysis
         /// <summary>
         /// Populates the filters for nodes and edges based on the provided graph.
         /// </summary>
-        private void PopulateFilters(DirectedGraph graph)
+        private void PopulateFilters(IDirectedGraph graph)
         {
             // Node filters - only extract node types
             var nodeTypes = new HashSet<string>();
@@ -127,7 +124,7 @@ namespace AppSage.Web.Pages.Reports.DotNet.GraphAnalysis
         /// <summary>
         /// Populates the graph data structure for visualization with nodes and edges from the directed graph.
         /// </summary>
-        private void PopulateGraph(DirectedGraph directedGraph)
+        private void PopulateGraph(IDirectedGraph directedGraph)
         {
             var graphData = new GraphData
             {
@@ -190,7 +187,7 @@ namespace AppSage.Web.Pages.Reports.DotNet.GraphAnalysis
         /// <summary>
         /// Populates the node legend for visulization with unique node types and their visual properties.
         /// </summary>
-        private void PopulateNodeLegend(DirectedGraph graph)
+        private void PopulateNodeLegend(IDirectedGraph graph)
         {
             var nodeTypes = new HashSet<string>();
 
@@ -220,7 +217,7 @@ namespace AppSage.Web.Pages.Reports.DotNet.GraphAnalysis
         /// <summary>
         /// Populates the edge legend for visualization with unique edge types and their visual properties.
         /// </summary>
-        private void PopulateEdgeLegend(DirectedGraph graph)
+        private void PopulateEdgeLegend(IDirectedGraph graph)
         {
             var edgeTypes = new HashSet<string>();
 

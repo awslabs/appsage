@@ -4,7 +4,7 @@ namespace AppSage.MCPServer.SampleQuery
 {
     internal class SampleGraphFilter3
     {
-        public static DirectedGraph Execute(DirectedGraph sourceGraph)
+        public static IDirectedGraph Execute(DirectedGraph sourceGraph)
         {
             var result=DirectedGraph.MergeGraph(new List<DirectedGraph> { sourceGraph });
 
