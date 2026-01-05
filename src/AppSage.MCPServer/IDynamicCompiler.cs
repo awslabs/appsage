@@ -4,6 +4,6 @@ namespace AppSage.MCPServer
 {
     public interface IDynamicCompiler
     {
-        T CompileAndExecute<T>(string code, DirectedGraph sourceGraph);
+        T CompileAndExecute<T>(string code, IDirectedGraph sourceGraph);
     }
 }

@@ -1,6 +1,7 @@
 ﻿using AppSage.Core.Logging;
 using AppSage.McpServer.Capability.Tools;
 using AppSage.MCPServer.Capabilty;
+using AppSage.MCPServer.Capabilty.Resources;
 using ModelContextProtocol.Protocol;
 using System.Reflection;
 
@@ -24,7 +25,7 @@ namespace AppSage.MCPServer.CapabilityBuilder
 
             serverCapabilities.Tools= _toolDiscovery.CreateToolsCapability();
             //serverCapabilities.Prompts = PromptDiscovery.CreatePromptsCapability();
-           // serverCapabilities.Resources = ResourceDiscovery.CreateResourcesCapability();
+            serverCapabilities.Resources = ResourceDiscovery.CreateResourcesCapability();
  
             return serverCapabilities;
         }

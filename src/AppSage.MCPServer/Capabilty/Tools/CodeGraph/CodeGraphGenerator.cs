@@ -15,7 +15,7 @@ namespace AppSage.MCPServer.Capabilty.Tools.CodeGraph
     public class CodeGraphGenerator
     {
         static object _padlock = new object();
-        static DirectedGraph _graph = null;
+        static IDirectedGraph _graph = null;
 
         IAppSageLogger _logger;
         IAppSageWorkspace _workspace;

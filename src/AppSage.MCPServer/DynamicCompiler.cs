@@ -20,7 +20,7 @@ namespace AppSage.MCPServer
             _logger = logger;
         }
         
-        public T CompileAndExecute<T>(string code, DirectedGraph sourceGraph)
+        public T CompileAndExecute<T>(string code, IDirectedGraph sourceGraph)
         {
             try
             {
