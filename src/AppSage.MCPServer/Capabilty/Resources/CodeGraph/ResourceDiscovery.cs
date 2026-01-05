@@ -1,10 +1,17 @@
-﻿//using AppSage.McpServer.Support;
-//using AppSage.MCPServer.Support;
-//using ModelContextProtocol;
-//using ModelContextProtocol.Protocol;
-//using ModelContextProtocol.Server;
+﻿using AppSage.McpServer.Support;
+using AppSage.MCPServer.Capabilty;
+using AppSage.MCPServer.Support;
+using ModelContextProtocol;
+using ModelContextProtocol.Protocol;
+using ModelContextProtocol.Server;
 
-//namespace AppSage.McpServer.Capability.Resources;
+namespace AppSage.MCPServer.Capabilty.Resources.CodeGraph;
+
+[McpServerResourceType]
+[CapabilityRegistration("CodeGraph", @"Resources\CodeGraph")]
+public class NodeDocumentReader { 
+
+}
 
 //public static class ResourceDiscovery
 //{

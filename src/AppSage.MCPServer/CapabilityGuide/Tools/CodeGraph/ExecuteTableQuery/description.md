@@ -8,6 +8,11 @@ It will return an excel file with the results of the analysis.
 
 It's critical that the method signature is exactly as specified above and that the class is called MyQuery.
 
+`AppSage.Core.DataStructures.IDirectedGraph` is implemented as `AppSage.Core.DataStructures.DirectedGraph`. It can be constructed as follows:
+```csharp
+var graph = new DirectedGraph();
+```
+
 Interface definitions are given below for reference:
 ```csharp
 using System.Collections.Generic;

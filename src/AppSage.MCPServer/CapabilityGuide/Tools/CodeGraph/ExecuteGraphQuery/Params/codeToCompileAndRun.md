@@ -6,7 +6,7 @@ An example value for the parameter ```codeToCompileAndRun``` is given at the end
 
 It's critical that the method signature is exactly as specified above and that the class is called ```MyQuery```.
 
-Inside the method, you can use LINQ to query the graph and return ```DirectedGraph``` with the results of your analysis.
+Inside the method, you can use LINQ to query the graph and return ```IDirectedGraph``` with the results of your analysis.
 The code for the analysis must be written in C#, based on the what the user has requested.
 You must explicityly import any namespaces you use in the code with using statement.
 The ```codeToCompileAndRun``` must be self-contained C# content and must not depend on any external files or resources. It must be compilable.  
@@ -22,7 +22,7 @@ using System.Linq;
 
 public static class MyQuery
 {
-    public static DirectedGraph Execute(DirectedGraph sourceGraph)
+    public static IDirectedGraph Execute(IDirectedGraph sourceGraph)
     {
         var result = new DirectedGraph();
 

@@ -17,7 +17,9 @@ namespace AppSage.Infrastructure.Metric
         IAppSageLogger _logger;
         IAppSageConfiguration _config;
         IAppSageWorkspace _workspace;
-
+        private static List<IMetric> _allMetricCache = null;
+        private static List<IMetric> _filterMetricCache = null;
+       
         public MetricReader(IAppSageLogger logger, IAppSageConfiguration config, IAppSageWorkspace workspace)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -28,7 +30,18 @@ namespace AppSage.Infrastructure.Metric
         public IEnumerable<IMetric> GetMetricSet()
         {
             bool takeDataFromLastRun = _config.Get<bool>("AppSage.Infrastructure.Metric.MetricReader:TakeProviderOutputDataFromLatestRun");
+            int documentMaxParallelism=_config.Get<int>("AppSage.Infrastructure.Metric.MetricReader:DocumentMaxParallelism");
+            bool cacheMetricDataInMemory = _config.Get<bool>("AppSage.Infrastructure.Metric.MetricReader:CacheMetricDataInMemory");
             DirectoryInfo dataDir = null;
+
+            long before = GC.GetTotalMemory(forceFullCollection: false)/(1024*1024);
+
+            if (cacheMetricDataInMemory && _allMetricCache != null)
+            {
+                _logger.LogInformation("Returning cached metric data from memory. Total metrics count: {MetricCount}", _allMetricCache.Count);
+                return _allMetricCache;
+            }
+
 
             if (takeDataFromLastRun)
             {
@@ -49,16 +62,35 @@ namespace AppSage.Infrastructure.Metric
             var fileSet = dataDir.GetFiles("*.json", System.IO.SearchOption.AllDirectories);
 
             List<IMetric> result = new List<IMetric>();
-            foreach (var file in fileSet)
+            foreach (var file in fileSet.AsParallel().WithDegreeOfParallelism(documentMaxParallelism))
             {
                 if (file.Exists)
                 {
                     string json = System.IO.File.ReadAllText(file.FullName);
 
-                    var metrics= AppSageSerializer.DeserializeFromFile<IEnumerable<IMetric>>(file.FullName);
-                    result.AddRange(metrics);
+                    var metrics = AppSageSerializer.DeserializeFromFile<IEnumerable<IMetric>>(file.FullName);
+                    lock (result)
+                    {
+                        result.AddRange(metrics);
+                    }
                 }
             }
+
+            if(cacheMetricDataInMemory)
+            {
+                _allMetricCache = result;
+                _logger.LogInformation("Cached metric data in memory. Total metrics count: {MetricCount}", _allMetricCache.Count);
+                //Get the size of the object _allMetricCache in MB using the fastest way possible
+
+            }
+
+            long after = GC.GetTotalMemory(forceFullCollection: false)/(1024 * 1024) ;
+            long approxSize = after - before;
+
+            Console.WriteLine($"Before:  {before:N0} MB");
+            Console.WriteLine($"After:   {after:N0} MB");
+            Console.WriteLine($"Delta:   {approxSize:N0} MB (approx)");
+
             return result;
         }
     }

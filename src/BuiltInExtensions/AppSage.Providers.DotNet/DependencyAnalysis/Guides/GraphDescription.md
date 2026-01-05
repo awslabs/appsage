@@ -1,6 +1,10 @@
-﻿# DirectedGraph Dependency Analysis Documentation
+﻿# DotNet DirectedGraph Dependency Analysis Documentation
 
-This document describes the structure of the merged DirectedGraph (X) created by the `DotNetDependencyAnalysisProvider`. The graph represents dependencies across multiple levels
+This document describes the structure of the merged IDirectedGraph (X) created by the `AppSage.Providers.DotNet.DependencyAnalysis.DotNetDependencyAnalysisProvider`. 
+The graph represents dependencies across multiple levels. This applies only to .NET based projects and solutions written in C# or Visual Basic.
+
+IDirectedGraph is of type `AppSage.Core.DataStructures.IDirectedGraph`.
+
 
 # Important Notes
 
@@ -17,6 +21,7 @@ Node Id will be a fully qualified name (FQN) including the full namespace but ex
 The `Node.Id` for `UserService` will be `MyCompany.Services.UserService`
 The `Node.Id` for `GetName` method will be `MyCompany.Services.UserService.GetName`.
 The `Node.Id` for `Age` field will be `MyCompany.Services.UserService.Age`.
+
 You can distinguish between different node types using the `Node.Type` property.
 
 ## Node Types

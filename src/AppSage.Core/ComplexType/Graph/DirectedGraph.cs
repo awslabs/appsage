@@ -2,8 +2,9 @@
 
 namespace AppSage.Core.ComplexType.Graph
 {
-    public class DirectedGraph: IDirectedGraph
+    public class DirectedGraph : IDirectedGraph
     {
+        private const int _DEGREE_OF_PARALLELISM = 10;
         private object _padlock = new object();
 
         //ensure serialization of private property
@@ -55,7 +56,7 @@ namespace AppSage.Core.ComplexType.Graph
 
             lock (_padlock)
             {
-                return _edges.FirstOrDefault(e => e.Id==id);
+                return _edges.FirstOrDefault(e => e.Id == id);
             }
 
         }
@@ -63,17 +64,17 @@ namespace AppSage.Core.ComplexType.Graph
 
         public INode AddOrUpdateNode(string id)
         {
-            return AddOrUpdateNode(id, string.Empty,string.Empty,new Dictionary<string,string>());
+            return AddOrUpdateNode(id, string.Empty, string.Empty, new Dictionary<string, string>());
         }
         public INode AddOrUpdateNode(string id, string name)
         {
             return AddOrUpdateNode(id, name, string.Empty, new Dictionary<string, string>());
         }
-        public INode AddOrUpdateNode(string id, string name,string type)
+        public INode AddOrUpdateNode(string id, string name, string type)
         {
             return AddOrUpdateNode(id, name, type, new Dictionary<string, string>());
         }
-        public INode AddOrUpdateNode(string id, string name,string type,IReadOnlyDictionary<string,string> attributes)
+        public INode AddOrUpdateNode(string id, string name, string type, IReadOnlyDictionary<string, string> attributes)
         {
             INode node = null;
             lock (_padlock)
@@ -89,7 +90,7 @@ namespace AppSage.Core.ComplexType.Graph
                 }
                 else
                 {
-                    node = new Node(id, name,type,attributes);
+                    node = new Node(id, name, type, attributes);
                     _nodes.Add(node);
                 }
             }
@@ -119,7 +120,8 @@ namespace AppSage.Core.ComplexType.Graph
             return node;
         }
 
-        public IEdge AddOrUpdateEdge(string id, INode source, INode target) { 
+        public IEdge AddOrUpdateEdge(string id, INode source, INode target)
+        {
             return AddOrUpdateEdge(id, string.Empty, string.Empty, new Dictionary<string, string>(), source, target);
         }
         public IEdge AddOrUpdateEdge(INode source, INode target, string type)
@@ -128,16 +130,16 @@ namespace AppSage.Core.ComplexType.Graph
             string edgeName = GraphUtility.GetEdgeName(source, target, type);
             return AddOrUpdateEdge(edgeId, edgeName, type, source, target);
         }
-        
-        public IEdge AddOrUpdateEdge(string id,string name, INode source, INode target)
+
+        public IEdge AddOrUpdateEdge(string id, string name, INode source, INode target)
         {
             return AddOrUpdateEdge(id, name, string.Empty, new Dictionary<string, string>(), source, target);
         }
-        public IEdge AddOrUpdateEdge(string id, string name,string type, INode source, INode target)
+        public IEdge AddOrUpdateEdge(string id, string name, string type, INode source, INode target)
         {
             return AddOrUpdateEdge(id, name, type, new Dictionary<string, string>(), source, target);
         }
-        public IEdge AddOrUpdateEdge(string id,string name,string type,IReadOnlyDictionary<string,string> attributes,INode source, INode target)
+        public IEdge AddOrUpdateEdge(string id, string name, string type, IReadOnlyDictionary<string, string> attributes, INode source, INode target)
         {
             if (source == null) throw new ArgumentNullException(nameof(source));
             if (target == null) throw new ArgumentNullException(nameof(target));
@@ -147,7 +149,7 @@ namespace AppSage.Core.ComplexType.Graph
                 // Ensure nodes are in the graph
                 if (!this.ContainsNode(source)) { AddOrUpdateNode(source); }
                 if (!this.ContainsNode(target)) { AddOrUpdateNode(target); }
-                
+
                 // Ensure no duplicate edges
                 if (_edges.Any(e => e.Id == id))
                 {
@@ -161,7 +163,7 @@ namespace AppSage.Core.ComplexType.Graph
                 }
                 else
                 {
-                    var edge = new Edge(id, name,type, source, target,attributes);
+                    var edge = new Edge(id, name, type, source, target, attributes);
                     _edges.Add(edge);
                     return edge;
                 }
@@ -174,11 +176,11 @@ namespace AppSage.Core.ComplexType.Graph
             if (edge.Target == null) throw new ArgumentNullException(nameof(edge.Target));
             lock (_padlock)
             {
-                
+
                 // Ensure nodes are in the graph
                 if (!this.ContainsNode(edge.Source)) { AddOrUpdateNode(edge.Source); }
                 if (!this.ContainsNode(edge.Target)) { AddOrUpdateNode(edge.Target); }
-                
+
                 // Ensure no duplicate edges
                 if (_edges.Any(e => e.Id == edge.Id))
                 {
@@ -197,7 +199,7 @@ namespace AppSage.Core.ComplexType.Graph
                 }
             }
         }
-        
+
         public bool RemoveNode(INode node)
         {
             if (node == null) throw new ArgumentNullException(nameof(node));
@@ -223,27 +225,30 @@ namespace AppSage.Core.ComplexType.Graph
             }
         }
 
-        public static DirectedGraph MergeGraph(IEnumerable<DirectedGraph> graphs)
+        public static IDirectedGraph MergeGraph(IEnumerable<IDirectedGraph> graphs)
         {
             if (graphs == null) throw new ArgumentNullException(nameof(graphs));
 
 
             DirectedGraph mergedGraph = new DirectedGraph();
 
-            foreach (var graph in graphs)
+            graphs.AsParallel().WithDegreeOfParallelism(_DEGREE_OF_PARALLELISM).ForAll(graph =>
             {
-                if (graph == null) continue;
+                if (graph == null) return;
                 // Add nodes
-                foreach (var node in graph.Nodes)
+                graph.Nodes.AsParallel().WithDegreeOfParallelism(_DEGREE_OF_PARALLELISM).ForAll(node =>
                 {
                     mergedGraph.AddOrUpdateNode(node);
-                }
+                });
+
                 // Add edges
-                foreach (var edge in graph.Edges)
+                graph.Edges.AsParallel().WithDegreeOfParallelism(_DEGREE_OF_PARALLELISM).ForAll(edge =>
                 {
                     mergedGraph.AddOrUpdateEdge(edge);
-                }
-            }
+                });
+
+            });
+
             return mergedGraph;
         }
 
@@ -285,8 +290,8 @@ namespace AppSage.Core.ComplexType.Graph
                 return errors;
             }
         }
-        
-        
+
+
         /// <summary>
         /// Link the given source node to all nodes that match the target selection criteria.
         /// </summary>
@@ -294,14 +299,14 @@ namespace AppSage.Core.ComplexType.Graph
         /// <param name="targetSelectionCriteria">How the existing nodes are selected for create a link</param>
         /// <param name="edgeDefinition">How the edge between source and the targets are created</param>
         /// <returns>List of edges created or updated</returns>
-        private IEnumerable<IEdge> AddOrUpdateEdgeWithTargetSelection(INode source, NodeSelectionCriteria targetSelectionCriteria,EdgeDefinition edgeDefinition)
+        private IEnumerable<IEdge> AddOrUpdateEdgeWithTargetSelection(INode source, NodeSelectionCriteria targetSelectionCriteria, EdgeDefinition edgeDefinition)
         {
             lock (_padlock)
             {
                 var targets = _nodes.Where(target => targetSelectionCriteria(source, target)).Select(n => n);
-                foreach(var target in targets)
+                foreach (var target in targets)
                 {
-                    var (edgeId,edgeName, edgeType, edgeAttributes) = edgeDefinition(source, target);
+                    var (edgeId, edgeName, edgeType, edgeAttributes) = edgeDefinition(source, target);
                     yield return AddOrUpdateEdge(edgeId, edgeName, edgeType, edgeAttributes, source, target);
                 }
             }

@@ -248,6 +248,7 @@ namespace AppSage.Run
             var version = assembly.GetName().Version;
 
             logger.LogInformation("AppSage Version: {Version}", version?.ToString() ?? "Unknown");
+            logger.LogInformation("Appsage Location:{Location}", assembly.Location);
         }
 
 

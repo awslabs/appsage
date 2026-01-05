@@ -38,6 +38,7 @@
   <ItemGroup>
     <Folder Include="CapabilityGuide\Prompts\" />
     <Folder Include="CapabilityGuide\Resources\" />
+    <Folder Include="Capabilty\Tools\FilterMetric\" />
   </ItemGroup>
 
   <ItemGroup>

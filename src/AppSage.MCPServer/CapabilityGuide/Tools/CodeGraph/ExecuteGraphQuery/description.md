@@ -3,10 +3,15 @@ It will return Directed graph with the results of the analysis.
 ```codeToCompileAndRun``` will have a custom code you want to execute on the code graph data. 
 
 ```codeToCompileAndRun``` must have a .NET C# public class ```public class MyQuery``` with a  public static method with the following signature:
-```public static DirectedGraph Execute(IDirectedGraph graph)```. 
+```public static IDirectedGraph Execute(IDirectedGraph graph)```. 
 
 
 It's critical that the method signature is exactly as specified above and that the class is called MyQuery.
+
+`AppSage.Core.DataStructures.IDirectedGraph` is implemented as `AppSage.Core.DataStructures.DirectedGraph`. It can be constructed as follows:
+```csharp
+var graph = new DirectedGraph();
+```
 
 Interface definitions are given below for reference:
 ```csharp

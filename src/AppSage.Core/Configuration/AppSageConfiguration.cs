@@ -70,7 +70,7 @@ namespace AppSage.Core.Configuration
             {
                 return section.Get<T>();
             }
-            throw new KeyNotFoundException($"Configuration key '{key}' not found.");
+            throw new KeyNotFoundException($"Configuration key '{key}' not found in {_configFilePath}");
         }
 
         public void Set<T>(string key, T value)
