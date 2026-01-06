@@ -9,8 +9,7 @@ using ModelContextProtocol.Server;
 
 namespace AppSage.MCPServer.Capabilty.Resources;
 
-[McpServerResourceType]
-[CapabilityRegistration("Documentation", @"Resources\Documentation")]
+
 public class ResourceDiscovery
 {
     IAppSageLogger _logger;
