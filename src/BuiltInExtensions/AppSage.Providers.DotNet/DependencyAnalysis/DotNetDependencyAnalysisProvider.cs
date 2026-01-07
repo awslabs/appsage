@@ -13,7 +13,7 @@ using System.Data;
 using System.Reflection;
 namespace AppSage.Providers.DotNet.DependencyAnalysis
 {
-    public class DotNetDependencyAnalysisProvider : IMetricProvider
+    public class DotNetDependencyAnalysisProvider : IMetricProvider, IMetricDefinitionProvider
     {
         IAppSageLogger _logger;
         IAppSageWorkspace _workspace;
@@ -956,6 +956,11 @@ namespace AppSage.Providers.DotNet.DependencyAnalysis
 
             // If not explicitly included or excluded, consider non built-in by default
             return false;
+        }
+
+        public IEnumerable<IMetricDefinition> GetMetricDefinitions()
+        {
+            throw new NotImplementedException();
         }
     }
 }

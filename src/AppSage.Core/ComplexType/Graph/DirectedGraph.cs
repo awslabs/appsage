@@ -555,5 +555,53 @@ namespace AppSage.Core.ComplexType.Graph
             path.RemoveAt(path.Count - 1);
             visited.Remove(current);
         }
+
+        public bool RemoveNode(IEnumerable<INode> nodes)
+        {
+            if (nodes == null) throw new ArgumentNullException(nameof(nodes));
+            
+            bool anyRemoved = false;
+            lock (_padlock)
+            {
+                foreach (var node in nodes)
+                {
+                    if (node == null) continue; // Skip null nodes in the collection
+                    
+                    // First remove all edges connected to this node
+                    var edgesToRemove = _edges.Where(e => e.Source.Equals(node) || e.Target.Equals(node)).ToList();
+                    foreach (var edge in edgesToRemove)
+                    {
+                        _edges.Remove(edge);
+                    }
+                    
+                    // Remove the node itself
+                    if (_nodes.Remove(node))
+                    {
+                        anyRemoved = true;
+                    }
+                }
+            }
+            return anyRemoved;
+        }
+
+        public bool RemoveEdge(IEnumerable<IEdge> edges)
+        {
+            if (edges == null) throw new ArgumentNullException(nameof(edges));
+   
+            bool anyRemoved = false;
+lock (_padlock)
+            {
+  foreach (var edge in edges)
+           {
+      if (edge == null) continue; // Skip null edges in the collection
+     
+         if (_edges.Remove(edge))
+      {
+         anyRemoved = true;
+     }
+     }
+  }
+     return anyRemoved;
+   }
     }
 }

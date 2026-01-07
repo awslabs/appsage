@@ -145,12 +145,28 @@ namespace AppSage.Core.ComplexType.Graph
         bool RemoveNode(INode node);
 
         /// <summary>
+        /// Remove a set of nodes.
+        /// Input: set of node (INode)
+        /// Output: true if at least one is removed.
+        /// Example: graph.RemoveNode(nodes)
+        /// </summary>
+        bool RemoveNode(IEnumerable<INode> nodes);
+
+        /// <summary>
         /// Remove an edge.
         /// Input: edge (IEdge)
         /// Output: true if removed.
-        /// Example: graph.RemoveEdge(edge)
+        /// Example: graph.RemoveEdge(edges)
         /// </summary>
         bool RemoveEdge(IEdge edge);
+
+        /// <summary>
+        /// Remove a set of edges.
+        /// Input: set of edges (IEdge)
+        /// Output: true if at least one is removed.
+        /// Example: graph.RemoveEdge(edges)
+        /// </summary>
+        bool RemoveEdge(IEnumerable<IEdge> edges);
 
         /// <summary>
         /// Validate graph for errors.

@@ -58,13 +58,33 @@
     </Content>
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="DependencyAnalysis\Guides\GraphInfo.description">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="DependencyAnalysis\Guides\GraphInfo.md">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="DependencyAnalysis\Guides\GraphReturnQueryExample.description">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="DependencyAnalysis\Guides\GraphReturnQueryExample.md">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="DependencyAnalysis\Guides\TableReturnQueryExample.description">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="DependencyAnalysis\Guides\TableReturnQueryExample.md">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 
   <!-- Copy Bundled Dependencies -->
   <Target Name="CopyNuGetDependencies" AfterTargets="Build">
     <ItemGroup>
       <!-- Dynamically get package versions and use current target framework -->
-      <FilesToCopy Include="$(NuGetPackageRoot)spectre.console\%(PackageReference.Version)\lib\$(TargetFramework)\*.dll"
-                   Condition="'%(PackageReference.Identity)' == 'Spectre.Console'" />
+      <FilesToCopy Include="$(NuGetPackageRoot)spectre.console\%(PackageReference.Version)\lib\$(TargetFramework)\*.dll" Condition="'%(PackageReference.Identity)' == 'Spectre.Console'" />
     </ItemGroup>
     <Copy SourceFiles="@(FilesToCopy)" DestinationFolder="$(OutputPath)" SkipUnchangedFiles="true" />
 
