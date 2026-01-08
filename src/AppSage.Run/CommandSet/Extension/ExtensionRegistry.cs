@@ -27,7 +27,7 @@ namespace AppSage.Run.CommandSet.Extension
             //services.AddTransient<IMetricProvider, RepositoryMetricProvider>();
             //services.AddTransient<IMetricProvider, GitMetricProvider>();
             //services.AddTransient<IMetricProvider, DotNetBasicCodeAnalysisProvider>();
-            services.AddTransient<IMetricProvider, HelloWorldProvider>();
+            //services.AddTransient<IMetricProvider, HelloWorldProvider>();
             services.AddTransient<IMetricProvider, DotNetDependencyAnalysisProvider>();
             
             //services.AddTransient<IMetricProvider, DotNetAIAnalysisProvider>();

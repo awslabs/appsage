@@ -95,10 +95,46 @@ public class ToolDiscovery
 
             foreach (var p in method.GetParameters())
             {
-                var node = new JsonObject
+                var baseType = ArgBinder.MapTypeToJsonType(p.ParameterType);
+                var node = new JsonObject();
+
+                if (baseType == "array")
                 {
-                    ["type"] = ArgBinder.MapTypeToJsonType(p.ParameterType)
-                };
+                    // For array types, we need to specify both type and items
+                    node["type"] = "array";
+                    
+                    // Determine the element type for the array
+                    Type elementType = null;
+                    if (p.ParameterType.IsArray)
+                    {
+                        elementType = p.ParameterType.GetElementType();
+                    }
+                    else if (p.ParameterType.IsGenericType && typeof(System.Collections.IEnumerable).IsAssignableFrom(p.ParameterType))
+                    {
+                        elementType = p.ParameterType.GetGenericArguments().FirstOrDefault();
+                    }
+
+                    if (elementType != null)
+                    {
+                        var elementJsonType = ArgBinder.MapTypeToJsonType(elementType);
+                        node["items"] = new JsonObject
+                        {
+                            ["type"] = elementJsonType
+                        };
+                    }
+                    else
+                    {
+                        // Fallback to string items if we can't determine the element type
+                        node["items"] = new JsonObject
+                        {
+                            ["type"] = "string"
+                        };
+                    }
+                }
+                else
+                {
+                    node["type"] = baseType;
+                }
 
                 var paramDesc = parameterDescription[p.Name];
 
