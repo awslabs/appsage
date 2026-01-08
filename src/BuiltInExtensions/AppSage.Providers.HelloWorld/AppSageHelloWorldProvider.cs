@@ -18,13 +18,15 @@ namespace AppSage.Providers.HelloWorld
 
         public bool Initialize()
         {
+            // This is not the ideal place to copy documentation files, but for simplicity of this example, we do it here.
+            // Once the extension subsystem is developed further, consider moving this logic to exension installation or setup phase.
             string docFolder = _workspace.GetExtensionDocumentationFolder(FullQualifiedName);
             if (Directory.Exists(docFolder))
             {
                 Directory.Delete(docFolder, recursive: true);
             }
             Directory.CreateDirectory(docFolder);
-            string docDirectory = Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), "DependencyAnalysis", "Guides");
+            string docDirectory = Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), "AppSage.Providers.HelloWorld", "AppSage", "Docs");
             foreach (var file in Directory.GetFiles(docDirectory, "*.md").Select(f => new FileInfo(f)))
             {
                 string docName = Path.GetFileNameWithoutExtension(file.Name);

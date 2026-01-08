@@ -33,8 +33,7 @@ namespace AppSage.Run.CommandSet.Extension
             //services.AddTransient<IMetricProvider, DotNetAIAnalysisProvider>();
             //Add more providers as needed
 
-            // Register documentation providers
-            services.AddTransient<IDocumentationProvider, DotNetDependencyAnalysisProvider>();
+
             return services;
         }
     }

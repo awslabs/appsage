@@ -29,11 +29,6 @@ namespace AppSage.Extension
         /// </summary>
         string Description { get; }
 
-        /// <summary>
-        /// Install the extension with the provided context
-        /// </summary>
-        bool Install(IExtensionContext context);
-
     }
 
   

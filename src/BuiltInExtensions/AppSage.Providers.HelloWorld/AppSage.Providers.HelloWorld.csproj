@@ -27,20 +27,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="AppSage\Manifest\AppSageManifest.json">
-      <PackagePath>lib/$(TargetFramework)/AppSageManifest.json</PackagePath>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <Pack>true</Pack>
-    </Content>
-  </ItemGroup>
-
-  <ItemGroup>
     <!-- AppSage Extension Package -->
 
     <!-- Prefer framework-specific manifest -->
     <Content Include="AppSage\Manifest\AppSageManifest.$(TargetFramework).json" Condition="Exists('AppSage\Manifest\manifest.$(TargetFramework).json')" Pack="true" PackagePath="lib/$(TargetFramework)/AppSageManifest.json" CopyToOutputDirectory="Always" />
     <!-- Fallback to default manifest if the framework-specific one is not present -->
-    <Content Include="AppSage\Manifest\AppSageManifest.json" Condition="!Exists('AppSage\Manifest\manifest.$(TargetFramework).json')" Pack="true" PackagePath="lib/$(TargetFramework)/AppSageManifest.json" CopyToOutputDirectory="Always" />
 
     <None Include="README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
@@ -52,19 +43,26 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="AppSage\**\*" Pack="true" PackagePath="lib\$(TargetFramework)\AppSage">
+    <Content Include="AppSage.Providers.HelloWorld\AppSage\**\*" Pack="true" PackagePath="lib\$(TargetFramework)\AppSage">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Guides\HelloWorldComplexMetrics.description">
+    <Content Remove="AppSage.Providers.HelloWorld\AppSage\Docs\HelloWorldComplexMetrics.description" />
+    <Content Remove="AppSage.Providers.HelloWorld\AppSage\Docs\HelloWorldComplexMetrics.md" />
+    <Content Remove="AppSage.Providers.HelloWorld\AppSage\Docs\HelloWorldSimpleMetrics.md" />
+    <Content Remove="AppSage.Providers.HelloWorld\AppSage\Manifest\AppSageManifest.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="AppSage.Providers.HelloWorld\AppSage\Docs\HelloWorldComplexMetrics.description">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Guides\HelloWorldComplexMetrics.md">
+    <None Update="AppSage.Providers.HelloWorld\AppSage\Docs\HelloWorldComplexMetrics.md">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Guides\HelloWorldSimpleMetrics.md">
+    <None Update="AppSage.Providers.HelloWorld\AppSage\Docs\HelloWorldSimpleMetrics.md">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

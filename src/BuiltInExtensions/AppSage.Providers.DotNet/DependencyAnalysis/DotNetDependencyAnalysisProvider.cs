@@ -14,7 +14,7 @@ using System.Data;
 using System.Reflection;
 namespace AppSage.Providers.DotNet.DependencyAnalysis
 {
-    public class DotNetDependencyAnalysisProvider : IMetricProvider, IDocumentationProvider
+    public class DotNetDependencyAnalysisProvider : IMetricProvider
     {
         IAppSageLogger _logger;
         IAppSageWorkspace _workspace;
@@ -62,7 +62,7 @@ namespace AppSage.Providers.DotNet.DependencyAnalysis
                 Directory.Delete(_config.DocumentationFolder, recursive: true);
             }
             Directory.CreateDirectory(_config.DocumentationFolder);
-            string docDirectory = Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), "DependencyAnalysis", "Guides");
+            string docDirectory = Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), "AppSage.Providers.DotNet", "AppSage","Docs");
             foreach (var file in Directory.GetFiles(docDirectory, "*.md").Select(f => new FileInfo(f)))
             {
                 string docName = Path.GetFileNameWithoutExtension(file.Name);

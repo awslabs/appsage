@@ -72,7 +72,8 @@ namespace AppSage.Run
                     if (workspaceRoot==null)
                     {
                         logger.LogError("Failed to resolve the workspace root folder. Ensure that the specified folder is a valid AppSage workspace or contains an AppSage workspace.");
-                        logger.LogError("If you want to initalize an AppSage workspace in a given empty folder you may use the command {InitCommand}", initSubCommand.Name);
+                        logger.LogError("If you want to initalize an AppSage workspace in a given empty folder you may use the command appsage {InitCommand}.", initSubCommand.Name);
+
                         return -1;
                     }
                     else
@@ -248,7 +249,7 @@ namespace AppSage.Run
             var version = assembly.GetName().Version;
 
             logger.LogInformation("AppSage Version: {Version}", version?.ToString() ?? "Unknown");
-            logger.LogInformation("Appsage Location:{Location}", assembly.Location);
+            logger.LogInformation("Appsage Location:{Location}",  assembly.Location);
         }
 
 

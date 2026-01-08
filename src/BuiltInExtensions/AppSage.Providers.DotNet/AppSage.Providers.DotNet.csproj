@@ -47,34 +47,45 @@
     <!-- Prefer framework-specific manifest -->
     <Content Include="AppSage\Manifest\AppSageManifest.$(TargetFramework).json" Condition="Exists('AppSage\Manifest\manifest.$(TargetFramework).json')" Pack="true" PackagePath="lib/$(TargetFramework)/AppSageManifest.json" CopyToOutputDirectory="Always" />
     <!-- Fallback to default manifest if the framework-specific one is not present -->
-    <Content Include="AppSage\Manifest\AppSageManifest.json" Condition="!Exists('AppSage\Manifest\manifest.$(TargetFramework).json')" Pack="true" PackagePath="lib/$(TargetFramework)/AppSageManifest.json" CopyToOutputDirectory="Always" />
     
     <None Include="README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="AppSage\**\*" Pack="true" PackagePath="lib\$(TargetFramework)\AppSage">
+    <Content Include="AppSage.Providers.DotNet\AppSage\**\*" Pack="true" PackagePath="lib\$(TargetFramework)\AppSage">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="DependencyAnalysis\Guides\DotNet.Project.CodeDependencyGraph.description">
+    <Content Remove="AppSage.Providers.DotNet\AppSage\Configuration\appsettings.Development.json" />
+    <Content Remove="AppSage.Providers.DotNet\AppSage\Configuration\appsettings.Production.json" />
+    <Content Remove="AppSage.Providers.DotNet\AppSage\Docs\DotNet.Project.CodeDependencyGraph.description" />
+    <Content Remove="AppSage.Providers.DotNet\AppSage\Docs\DotNet.Project.CodeDependencyGraph.md" />
+    <Content Remove="AppSage.Providers.DotNet\AppSage\Docs\GraphReturnQueryExample.description" />
+    <Content Remove="AppSage.Providers.DotNet\AppSage\Docs\GraphReturnQueryExample.md" />
+    <Content Remove="AppSage.Providers.DotNet\AppSage\Docs\TableReturnQueryExample.description" />
+    <Content Remove="AppSage.Providers.DotNet\AppSage\Docs\TableReturnQueryExample.md" />
+    <Content Remove="AppSage.Providers.DotNet\AppSage\Manifest\AppSageManifest.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="AppSage.Providers.DotNet\AppSage\Docs\DotNet.Project.CodeDependencyGraph.description">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="DependencyAnalysis\Guides\DotNet.Project.CodeDependencyGraph.md">
+    <None Update="AppSage.Providers.DotNet\AppSage\Docs\DotNet.Project.CodeDependencyGraph.md">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="DependencyAnalysis\Guides\GraphReturnQueryExample.description">
+    <None Update="AppSage.Providers.DotNet\AppSage\Docs\GraphReturnQueryExample.description">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="DependencyAnalysis\Guides\GraphReturnQueryExample.md">
+    <None Update="AppSage.Providers.DotNet\AppSage\Docs\GraphReturnQueryExample.md">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="DependencyAnalysis\Guides\TableReturnQueryExample.description">
+    <None Update="AppSage.Providers.DotNet\AppSage\Docs\TableReturnQueryExample.description">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="DependencyAnalysis\Guides\TableReturnQueryExample.md">
+    <None Update="AppSage.Providers.DotNet\AppSage\Docs\TableReturnQueryExample.md">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
