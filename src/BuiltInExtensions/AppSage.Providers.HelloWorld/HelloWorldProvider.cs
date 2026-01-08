@@ -4,14 +4,14 @@ using System.Data;
 
 namespace AppSage.Providers.HelloWorld
 {
-    public class AppSageHelloWorldProvider : IMetricProvider
+    public class HelloWorldProvider : IMetricProvider
     {
         public string FullQualifiedName => GetType().FullName;
 
         public string Description => "Output hello world as a metric";
 
         IAppSageWorkspace _workspace;
-        public AppSageHelloWorldProvider(IAppSageWorkspace workspace)
+        public HelloWorldProvider(IAppSageWorkspace workspace)
         {
             _workspace = workspace;
         }

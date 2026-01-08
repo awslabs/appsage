@@ -27,18 +27,7 @@ public class ResourceDiscovery
 
     }
 
-    private IList<FileInfo> GetExtensionDocumentationFiles()
-    {
-        List<FileInfo> result = new List<FileInfo>();
-        var extensionList=Directory.GetDirectories(_workspace.ExtensionInstallFolder,"*",SearchOption.TopDirectoryOnly);
-        foreach(var extension in extensionList.Select(e=>new DirectoryInfo(e)))
-        {
-            var extensionDocFolder=_workspace.GetExtensionDocumentationFolder(extension.Name);
-            var files = Directory.GetFiles(extensionDocFolder, "*.md", SearchOption.TopDirectoryOnly).Select(f=>new FileInfo(f));
-            result.AddRange(files);
-        }
-        return result;
-    }
+
 
     public ResourcesCapability CreateResourcesCapability()
     {
@@ -57,31 +46,41 @@ public class ResourceDiscovery
     {
         var resources = new List<Resource>();
 
-        foreach (var file in GetExtensionDocumentationFiles())
+        var extensionList = Directory.GetDirectories(_workspace.ExtensionInstallFolder, "*", SearchOption.TopDirectoryOnly);
+        foreach (var extension in extensionList.Select(e => new DirectoryInfo(e)))
         {
-            if (file.Exists)
+            var extensionDocFolder = _workspace.GetExtensionDocumentationFolder(extension.Name);
+            var files = Directory.GetFiles(extensionDocFolder, "*.md", SearchOption.TopDirectoryOnly).Select(f => new FileInfo(f));
+
+            foreach (var file in files)
             {
-                var fileName = Path.GetFileNameWithoutExtension(file.Name);
-                var descriptionFile=Path.Combine(file.DirectoryName,fileName, ".description");
-                
-                var descriptionText=$"Description for {fileName}";
-                if (File.Exists(descriptionFile))
+                if (file.Exists)
                 {
-                    descriptionText=File.ReadAllText(descriptionFile);
+                    var fileName = Path.GetFileNameWithoutExtension(file.Name);
+                    var descriptionFile = Path.Combine(file.DirectoryName, fileName, ".description");
+
+                    var descriptionText = $"Description for {fileName}";
+                    if (File.Exists(descriptionFile))
+                    {
+                        descriptionText = File.ReadAllText(descriptionFile);
+                    }
+
+                    resources.Add(new Resource
+                    {
+                        Uri = $"resource://appsage/extension/{extension.Name}/{fileName}",
+                        Name = fileName,
+                        Description = descriptionText,
+                        MimeType = GetMimeType(Path.GetExtension(file.FullName)),
+                        Size = file.Length
+                    });
                 }
-
-                var extensionId=Path.GetDirectoryName(file.DirectoryName);
-
-                resources.Add(new Resource
-                {
-                    Uri = $"resource://appsage/extension/{extensionId}/{fileName}",
-                    Name = fileName,
-                    Description = descriptionText,
-                    MimeType = GetMimeType(Path.GetExtension(file.FullName)),
-                    Size = file.Length
-                });
             }
         }
+
+
+
+
+
 
         var result = new ListResourcesResult { Resources = resources.ToArray() };
         return ValueTask.FromResult(result);
@@ -100,7 +99,7 @@ public class ResourceDiscovery
 
         var fileName = context.Params.Uri.Substring(prefix.Length);
 
-        var filePath =Path.Combine(@"C:\Dev\GitHub\appsage\src\BuiltInExtensions\AppSage.Providers.DotNet\DependencyAnalysis\Guides\", fileName + ".md");
+        var filePath = Path.Combine(@"C:\Dev\GitHub\appsage\src\BuiltInExtensions\AppSage.Providers.DotNet\DependencyAnalysis\Guides\", fileName + ".md");
 
         if (string.IsNullOrEmpty(filePath) || !File.Exists(filePath))
             throw new McpException("Resource not found.");

@@ -45,8 +45,8 @@ namespace AppSage.Run
                 //args=new string[] {"init"};
                 //args = new string[] { "init", "-ws", @"C:\\Temp\\MyAppSageWorkspace" };
                 //args = new string[] { "init" };
-                args = new string[] { "extension","run","-ws", "C:\\Dev\\MyAppSageWorkspace" };
-                //args= new string[] { "mcpserver", "run", "-ws", "C:\\Dev\\MyAppSageWorkspace" };
+                //args = new string[] { "extension","run","-ws", "C:\\Dev\\MyAppSageWorkspace" };
+                args= new string[] { "mcpserver", "run", "-ws", "C:\\Dev\\MyAppSageWorkspace" };
 
                 RootCommand rootCommand = new RootCommand
                 {
