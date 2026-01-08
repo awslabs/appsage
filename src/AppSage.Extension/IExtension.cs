@@ -30,35 +30,11 @@ namespace AppSage.Extension
         string Description { get; }
 
         /// <summary>
-        /// Initialize the extension with required services
+        /// Install the extension with the provided context
         /// </summary>
-        Task InitializeAsync(IExtensionContext context);
+        bool Install(IExtensionContext context);
 
-        /// <summary>
-        /// Start the extension
-        /// </summary>
-        Task StartAsync();
-
-        /// <summary>
-        /// Stop the extension gracefully
-        /// </summary>
-        Task StopAsync();
-
-        /// <summary>
-        /// Dispose resources used by the extension
-        /// </summary>
-        Task DisposeAsync();
     }
 
-    /// <summary>
-    /// Context provided to extensions during initialization
-    /// </summary>
-    public interface IExtensionContext
-    {
-        IAppSageLogger Logger { get; }
-        IAppSageConfiguration Configuration { get; }
-        IAppSageWorkspace Workspace { get; }
-        IServiceProvider ServiceProvider { get; }
-        ExtensionManifest? Manifest { get; }
-    }
+  
 }

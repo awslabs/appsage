@@ -9,6 +9,8 @@ using Microsoft.Extensions.DependencyInjection;
 using AppSage.Infrastructure.AWS;
 using AppSage.Providers.BasicRepositoryMetric;
 using AppSage.Providers.GitMetric;
+using AppSage.Core.Documentation;
+using AppSage.Providers.HelloWorld;
 namespace AppSage.Run.CommandSet.Extension
 {
     public static class ExtensionRegistry
@@ -25,11 +27,14 @@ namespace AppSage.Run.CommandSet.Extension
             //services.AddTransient<IMetricProvider, RepositoryMetricProvider>();
             //services.AddTransient<IMetricProvider, GitMetricProvider>();
             //services.AddTransient<IMetricProvider, DotNetBasicCodeAnalysisProvider>();
+            services.AddTransient<IMetricProvider, AppSageHelloWorldProvider>();
             services.AddTransient<IMetricProvider, DotNetDependencyAnalysisProvider>();
-            //services.AddTransient<IMetricProvider, DotNetAIAnalysisProvider>();
-
             
-            // Add more providers as needed
+            //services.AddTransient<IMetricProvider, DotNetAIAnalysisProvider>();
+            //Add more providers as needed
+
+            // Register documentation providers
+            services.AddTransient<IDocumentationProvider, DotNetDependencyAnalysisProvider>();
             return services;
         }
     }

@@ -36,6 +36,11 @@ namespace AppSage.Providers.DotNet.AIAnalysis
 
         }
 
+        public bool Initialize()
+        {
+            return true;
+        }
+
         public void Run(IMetricCollector metrics)
         {
             try

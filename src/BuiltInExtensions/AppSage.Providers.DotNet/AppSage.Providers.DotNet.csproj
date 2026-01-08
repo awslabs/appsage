@@ -59,10 +59,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="DependencyAnalysis\Guides\GraphInfo.description">
+    <None Update="DependencyAnalysis\Guides\DotNet.Project.CodeDependencyGraph.description">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="DependencyAnalysis\Guides\GraphInfo.md">
+    <None Update="DependencyAnalysis\Guides\DotNet.Project.CodeDependencyGraph.md">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="DependencyAnalysis\Guides\GraphReturnQueryExample.description">

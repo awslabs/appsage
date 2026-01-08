@@ -57,6 +57,18 @@
     </Content>
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Guides\HelloWorldComplexMetrics.description">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Guides\HelloWorldComplexMetrics.md">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Guides\HelloWorldSimpleMetrics.md">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 
 
 </Project>

@@ -26,6 +26,11 @@ namespace AppSage.Providers.GitMetric
 
         public IEnumerable<MetricMetadata> MetricInfo => MetricName.GetMetricMetaData();
 
+        public bool Initialize()
+        {
+            return true;
+        }
+
         public void Run(IMetricCollector metrics)
         {
 

@@ -27,18 +27,16 @@ public class ResourceDiscovery
 
     }
 
-    private IList<FileInfo> GetDocumentationFiles()
+    private IList<FileInfo> GetExtensionDocumentationFiles()
     {
-        string folder = @"C:\Dev\GitHub\appsage\src\BuiltInExtensions\AppSage.Providers.DotNet\DependencyAnalysis\Guides\";
-        var files= Directory.GetFiles(folder, "*.md", SearchOption.AllDirectories);
-
         List<FileInfo> result = new List<FileInfo>();
-
-        foreach (var file in files)
+        var extensionList=Directory.GetDirectories(_workspace.ExtensionInstallFolder,"*",SearchOption.TopDirectoryOnly);
+        foreach(var extension in extensionList.Select(e=>new DirectoryInfo(e)))
         {
-           result.Add(new FileInfo(file));
+            var extensionDocFolder=_workspace.GetExtensionDocumentationFolder(extension.Name);
+            var files = Directory.GetFiles(extensionDocFolder, "*.md", SearchOption.TopDirectoryOnly).Select(f=>new FileInfo(f));
+            result.AddRange(files);
         }
-
         return result;
     }
 
@@ -59,7 +57,7 @@ public class ResourceDiscovery
     {
         var resources = new List<Resource>();
 
-        foreach (var file in GetDocumentationFiles())
+        foreach (var file in GetExtensionDocumentationFiles())
         {
             if (file.Exists)
             {
@@ -72,9 +70,11 @@ public class ResourceDiscovery
                     descriptionText=File.ReadAllText(descriptionFile);
                 }
 
+                var extensionId=Path.GetDirectoryName(file.DirectoryName);
+
                 resources.Add(new Resource
                 {
-                    Uri = $"resource://codegraph-docs/{fileName}",
+                    Uri = $"resource://appsage/extension/{extensionId}/{fileName}",
                     Name = fileName,
                     Description = descriptionText,
                     MimeType = GetMimeType(Path.GetExtension(file.FullName)),
@@ -94,7 +94,7 @@ public class ResourceDiscovery
         if (context.Params is null || string.IsNullOrWhiteSpace(context.Params.Uri))
             throw new McpException("Missing resource uri.");
 
-        const string prefix = "resource://codegraph-docs/";
+        const string prefix = "resource://appsage/extension/";
         if (!context.Params.Uri.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
             throw new McpException("Unknown resource scheme.");
 
@@ -113,7 +113,7 @@ public class ResourceDiscovery
 {
                 Uri = context.Params.Uri,
                 MimeType = GetMimeType(Path.GetExtension(filePath)),
- Text = fileContent
+                Text = fileContent
             }
       };
 

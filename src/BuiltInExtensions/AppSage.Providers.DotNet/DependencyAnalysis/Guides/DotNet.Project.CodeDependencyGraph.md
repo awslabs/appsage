@@ -1,10 +1,12 @@
-﻿# DotNet DirectedGraph Dependency Analysis Documentation
+﻿# Who created this?
+This describes the metric DotNet.Project.CodeDependencyGraph created by the `AppSage.Providers.DotNet.DependencyAnalysis.DotNetDependencyAnalysisProvider`.
 
-This document describes the structure of the merged IDirectedGraph (X) created by the `AppSage.Providers.DotNet.DependencyAnalysis.DotNetDependencyAnalysisProvider`. 
+# DotNet DirectedGraph Dependency Analysis Documentation
+
+This document describes the structure of the merged IDirectedGraph (X).
 The graph represents dependencies across multiple levels. This applies only to .NET based projects and solutions written in C# or Visual Basic.
 
 IDirectedGraph is of type `AppSage.Core.DataStructures.IDirectedGraph`.
-
 
 # Important Notes
 

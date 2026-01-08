@@ -1,5 +1,6 @@
 ﻿using AppSage.Core.ComplexType.Graph;
 using AppSage.Core.Configuration;
+using AppSage.Core.Documentation;
 using AppSage.Core.Logging;
 using AppSage.Core.Metric;
 using AppSage.Core.Resource;
@@ -13,7 +14,7 @@ using System.Data;
 using System.Reflection;
 namespace AppSage.Providers.DotNet.DependencyAnalysis
 {
-    public class DotNetDependencyAnalysisProvider : IMetricProvider, IMetricDefinitionProvider
+    public class DotNetDependencyAnalysisProvider : IMetricProvider, IDocumentationProvider
     {
         IAppSageLogger _logger;
         IAppSageWorkspace _workspace;
@@ -27,6 +28,7 @@ namespace AppSage.Providers.DotNet.DependencyAnalysis
             int ProjectMaxParallelism,
             int DocumentMaxParallelism,
             string MSBuildPath,
+            string DocumentationFolder,
             int LargeMetricDependencyGraphNodeThreshold,
             int LargeMetricDependencyGraphEdgeThreshold,
             string[] NamespacePrefixToInclude,
@@ -46,12 +48,33 @@ namespace AppSage.Providers.DotNet.DependencyAnalysis
             _config.SolutionMaxParallelism = configuration.Get<int>("AppSage.Providers.DotNet.DependenyAnalysis.DotNetDependencyAnalysisProvider:SolutionMaxParallelism");
             _config.NamespacePrefixToInclude = configuration.Get<string[]>("AppSage.Providers.DotNet.DependenyAnalysis.DotNetDependencyAnalysisProvider:NamespacePrefixToInclude");
             _config.NamespacePrefixToExclude = configuration.Get<string[]>("AppSage.Providers.DotNet.DependenyAnalysis.DotNetDependencyAnalysisProvider:NamespacePrefixToExclude");
+            _config.DocumentationFolder = _workspace.GetExtensionDocumentationFolder(FullQualifiedName);
         }
 
         public string FullQualifiedName => GetType().FullName;
 
         public string Description => "Provides advanced .NET code dependency analysis";
 
+        public bool Initialize()
+        {
+            if (Directory.Exists(_config.DocumentationFolder))
+            {
+                Directory.Delete(_config.DocumentationFolder, recursive: true);
+            }
+            Directory.CreateDirectory(_config.DocumentationFolder);
+            string docDirectory = Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), "DependencyAnalysis", "Guides");
+            foreach (var file in Directory.GetFiles(docDirectory, "*.md").Select(f => new FileInfo(f)))
+            {
+                string docName = Path.GetFileNameWithoutExtension(file.Name);
+                var descriptionFileInfo = new FileInfo(Path.Combine(file.Directory.FullName, docName + ".description"));
+                file.CopyTo(Path.Combine(_config.DocumentationFolder, file.Name), overwrite: true);
+                if (descriptionFileInfo.Exists)
+                {
+                    descriptionFileInfo.CopyTo(Path.Combine(_config.DocumentationFolder, descriptionFileInfo.Name), overwrite: true);
+                }
+            }
+            return true;
+        }
         public void Run(IMetricCollector collector)
         {
             try
@@ -63,7 +86,7 @@ namespace AppSage.Providers.DotNet.DependencyAnalysis
                 }
                 System.Data.DataTable dt = new System.Data.DataTable();
                 dt.Columns.Add("Test", typeof(string));
-           
+
                 dt.AcceptChanges();
 
                 var projectSolutionMapping = GetProjectSolutionMapping();
@@ -352,7 +375,7 @@ namespace AppSage.Providers.DotNet.DependencyAnalysis
         {
             try
             {
-                var projectNode= graph.GetNode(_utility.GetNodeIdProject(project));
+                var projectNode = graph.GetNode(_utility.GetNodeIdProject(project));
                 foreach (var syntaxTree in compilation.SyntaxTrees)
                 {
                     var semanticModel = compilation.GetSemanticModel(syntaxTree);
@@ -377,7 +400,7 @@ namespace AppSage.Providers.DotNet.DependencyAnalysis
                             var typeFullName = currentTypeSymbol.ToDisplayString();
                             var typeName = currentTypeSymbol.Name;
 
-                
+
                             var currentTypeNode = graph.AddOrUpdateNode(typeFullName, typeName, GetNodeTypeFromSymbol(currentTypeSymbol));
 
                             var ls = typeDecl.GetLocation().GetLineSpan();
@@ -613,9 +636,9 @@ namespace AppSage.Providers.DotNet.DependencyAnalysis
                             graph.AddOrUpdateEdge(typeNode, targetMethodNode, ConstString.Dependency.DependencyType.INVOKE);
                             graph.AddOrUpdateEdge(targetTypeNode, targetMethodNode, ConstString.Dependency.DependencyType.HAS);
 
-                            var allReturnTypesUsed= ExtractAllTypeSymbols(methodSymbol.ReturnType) 
+                            var allReturnTypesUsed = ExtractAllTypeSymbols(methodSymbol.ReturnType)
                                 .Where(t => !IsBuiltInType(t) && !SymbolEqualityComparer.Default.Equals(t, containingType));
-                            foreach(var ts in allReturnTypesUsed)
+                            foreach (var ts in allReturnTypesUsed)
                             {
                                 var returnTypeFullName = ts.ToDisplayString();
                                 var returnTypeName = ts.Name;
@@ -643,8 +666,8 @@ namespace AppSage.Providers.DotNet.DependencyAnalysis
                     }
                     else
                     {
-                        var nodeType=GetNodeTypeFromSymbol(symbolInfo.Symbol);
-                        var blackHoleNode=graph.AddOrUpdateNode(nodeType, nodeType, ConstString.Dependency.NodeType.AMBIGUOUS);
+                        var nodeType = GetNodeTypeFromSymbol(symbolInfo.Symbol);
+                        var blackHoleNode = graph.AddOrUpdateNode(nodeType, nodeType, ConstString.Dependency.NodeType.AMBIGUOUS);
                         graph.AddOrUpdateEdge(typeNode, blackHoleNode, ConstString.Dependency.DependencyType.INVOKE);
 
                     }
@@ -685,7 +708,8 @@ namespace AppSage.Providers.DotNet.DependencyAnalysis
                             var targetTypeNode = graph.AddOrUpdateNode(targetTypeFullName, targetTypeName, GetNodeTypeFromSymbol(containingType));
                             var edge = graph.AddOrUpdateEdge(typeNode, targetTypeNode, ConstString.Dependency.DependencyType.ACCESS);
                         }
-                    }else if (symbolInfo.Symbol is IEventSymbol eventSymbol)
+                    }
+                    else if (symbolInfo.Symbol is IEventSymbol eventSymbol)
                     {
                         var containingType = eventSymbol.ContainingType;
                         if (containingType != null &&
@@ -787,7 +811,7 @@ namespace AppSage.Providers.DotNet.DependencyAnalysis
                     // For alias symbols, analyze the target type
                     return GetNodeTypeFromSymbol(aliasSymbol.Target);
 
-           
+
 
                 case INamedTypeSymbol namedType:
                     // Handle generic types by checking if they have type arguments
@@ -935,7 +959,7 @@ namespace AppSage.Providers.DotNet.DependencyAnalysis
                 return true; // Built-in .NET types like int, string, etc.
             }
 
-            if( typeSymbol is IArrayTypeSymbol arrayType)
+            if (typeSymbol is IArrayTypeSymbol arrayType)
             {
                 return false;
             }
@@ -958,9 +982,34 @@ namespace AppSage.Providers.DotNet.DependencyAnalysis
             return false;
         }
 
-        public IEnumerable<IMetricDefinition> GetMetricDefinitions()
+        public IEnumerable<IDocument> GetDocuments()
         {
-            throw new NotImplementedException();
+
+            //Get the relative path of the execution assembly
+            string assemblyPath = System.Reflection.Assembly.GetExecutingAssembly().Location;
+            string docDirectory = Path.Combine(Path.GetDirectoryName(assemblyPath)!, "DepedencyAnalysis", "Guides");
+            foreach (string file in Directory.GetFiles(docDirectory, "*.md"))
+            {
+                var fileInfo = new FileInfo(file);
+
+                string docName = Path.GetFileNameWithoutExtension(fileInfo.Name);
+                var descriptionFileInfo = new FileInfo(Path.Combine(fileInfo.Directory.FullName, docName + ".description"));
+                string shortDescription = $"Documentation for {docName}";
+                if (descriptionFileInfo.Exists)
+                {
+                    shortDescription = File.ReadAllText(descriptionFileInfo.FullName);
+                }
+
+                yield return new Core.Documentation.Document
+                {
+                    Provider = this.FullQualifiedName,
+                    Name = docName,
+                    ShortDescription = shortDescription,
+                    Content = File.ReadAllText(fileInfo.FullName)
+                };
+            }
+
+
         }
     }
 }

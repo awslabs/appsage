@@ -23,6 +23,7 @@
         protected const string EXTENSION_ROOT_FOLDER_NAME = "Extensions";
         protected const string EXTENSION_PACKAGE_FOLDER_NAME = "Packages";
         protected const string EXTENSION_INSTALL_FOLDER_NAME = "Installed";
+        protected const string EXTENSION_DOCUMENTATION_FOLDER_NAME = "Docs";
 
         //Hidden cache folder
         protected const string CACHE_ROOT_FOLDER_NAME = ".Cache";
@@ -30,6 +31,7 @@
         //Hidden AppSage config folder
         protected const string APPSAGE_CONFIG_ROOT_FOLDER_NAME = ".AppSageConfig";
         protected const string APPSAGE_CONFIG_FILENAME = "AppSageConfig.json";
+
 
         string RootFolder { get; }
 
@@ -44,6 +46,16 @@
         string ExtensionFolder => Path.Combine(RootFolder, EXTENSION_ROOT_FOLDER_NAME);
         string ExtensionPackagesFolder => Path.Combine(ExtensionFolder, EXTENSION_PACKAGE_FOLDER_NAME);
         string ExtensionInstallFolder => Path.Combine(ExtensionFolder, EXTENSION_INSTALL_FOLDER_NAME);
+
+        /// <summary>
+        /// Get the documentation folder for a specific extension
+        /// </summary>
+        /// <param name="extensionId">Full qualified extension name</param>
+        /// <returns></returns>
+        string GetExtensionDocumentationFolder(string extensionId)
+        {
+            return Path.Combine(ExtensionInstallFolder, extensionId, EXTENSION_DOCUMENTATION_FOLDER_NAME);
+        }
 
         string DocsFolder => Path.Combine(RootFolder, DOCS_ROOT_FOLDER_NAME);
 

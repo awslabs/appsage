@@ -12,7 +12,7 @@ namespace AppSage.Run.CommandSet.Extension
         private readonly IAppSageWorkspace _workspace;
         private readonly IAppSageLogger _logger;
         private readonly IMetricProvider[] _providers;
-        public Runner(IAppSageLogger logger, IMetricProvider[] providers,IAppSageWorkspace workspace,  IAppSageConfiguration config)
+        public Runner(IAppSageLogger logger, IMetricProvider[] providers, IAppSageWorkspace workspace, IAppSageConfiguration config)
         {
             _logger = logger;
             _providers = providers;
@@ -27,13 +27,29 @@ namespace AppSage.Run.CommandSet.Extension
                 string providerType = provider.GetType().FullName;
                 string providerVersion = provider.GetType().Assembly.GetName().Version.ToString();
 
-                _logger.LogInformation("Running the provider: {ProviderType}, version:{ProviderVersion}", providerType, providerVersion);
-
+                _logger.LogInformation("Initializing the provider: {ProviderType}, version:{ProviderVersion}", providerType, providerVersion);
                 try
                 {
-                    using (MetricCollector collector = new MetricCollector(provider.FullQualifiedName,providerVersion, _logger, _workspace, _configure))
+                    bool isInitialized = provider.Initialize();
+                    if (!isInitialized)
+                    {
+                        _logger.LogWarning("Provider {FullQualifiedName} failed to initialize. Skipping execution.", provider.FullQualifiedName);
+                        continue;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError("Error initializing provider {FullQualifiedName}: {ErrorMessage}", provider.FullQualifiedName, ex.Message, ex);
+                    continue;
+                }
+
+                _logger.LogInformation("Running the provider: {ProviderType}, version:{ProviderVersion}", providerType, providerVersion);
+                try
+                {
+                    using (MetricCollector collector = new MetricCollector(provider.FullQualifiedName, providerVersion, _logger, _workspace, _configure))
                     {
                         provider.Run(collector);
+
                         _logger.LogInformation("Finished running the provider: {ProviderType}. Collected Metrics {TotalCollectedMetricCount}", provider.GetType().FullName, collector.TotalCollectedMetricCount);
                     }
                 }
@@ -48,7 +64,7 @@ namespace AppSage.Run.CommandSet.Extension
             string appSageType = System.Reflection.Assembly.GetExecutingAssembly().GetName().Name;
             string appSageRunnerVersion = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
 
-            using (MetricCollector collector = new MetricCollector(appSageType,appSageRunnerVersion, _logger, _workspace, _configure))
+            using (MetricCollector collector = new MetricCollector(appSageType, appSageRunnerVersion, _logger, _workspace, _configure))
             {
                 _logger.LogInformation("AppSage Fingerprint");
             }

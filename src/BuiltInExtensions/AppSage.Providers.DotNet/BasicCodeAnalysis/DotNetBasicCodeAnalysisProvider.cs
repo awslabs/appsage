@@ -38,6 +38,10 @@ namespace AppSage.Providers.DotNet.BasicCodeAnalysis
 
         public string Description => "Provides basic .NET code analysis";
 
+        public bool Initialize()
+        {
+            return true;
+        }
         public void Run(IMetricCollector metrics)
         {
             try

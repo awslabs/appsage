@@ -177,6 +177,11 @@ namespace AppSage.Providers.BasicRepositoryMetric
                 metrics.CompleteAdding();
             }
         }
+
+        public bool Initialize()
+        {
+            return true;
+        }
     }
 }
 
