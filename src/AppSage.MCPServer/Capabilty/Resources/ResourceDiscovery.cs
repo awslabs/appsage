@@ -87,8 +87,8 @@ public class ResourceDiscovery
     }
 
     private ValueTask<ReadResourceResult> ReadResource(
-        RequestContext<ReadResourceRequestParams> context,
-        CancellationToken cancellationToken)
+      RequestContext<ReadResourceRequestParams> context,
+   CancellationToken cancellationToken)
     {
         if (context.Params is null || string.IsNullOrWhiteSpace(context.Params.Uri))
             throw new McpException("Missing resource uri.");
@@ -97,24 +97,34 @@ public class ResourceDiscovery
         if (!context.Params.Uri.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
             throw new McpException("Unknown resource scheme.");
 
-        var fileName = context.Params.Uri.Substring(prefix.Length);
+        // Parse the URI to extract extension name and file name
+        var resourcePath = context.Params.Uri.Substring(prefix.Length);
+        var pathParts = resourcePath.Split('/');
 
-        var filePath = Path.Combine(@"C:\Dev\GitHub\appsage\src\BuiltInExtensions\AppSage.Providers.DotNet\DependencyAnalysis\Guides\", fileName + ".md");
+        if (pathParts.Length != 2)
+            throw new McpException("Invalid resource URI format. Expected: resource://appsage/extension/{extensionName}/{fileName}");
+
+        var extensionName = pathParts[0];
+        var fileName = pathParts[1];
+
+        // Use the same logic as ListResources to locate the file
+        var extensionDocFolder = _workspace.GetExtensionDocumentationFolder(extensionName);
+        var filePath = Path.Combine(extensionDocFolder, fileName + ".md");
 
         if (string.IsNullOrEmpty(filePath) || !File.Exists(filePath))
             throw new McpException("Resource not found.");
-
+        _logger.LogInformation("Reading the documentation {doc}", filePath);
         var fileContent = File.ReadAllText(filePath);
 
         var contents = new ResourceContents[]
         {
-            new TextResourceContents
-{
-                Uri = context.Params.Uri,
+        new TextResourceContents
+            {
+          Uri = context.Params.Uri,
                 MimeType = GetMimeType(Path.GetExtension(filePath)),
-                Text = fileContent
-            }
-      };
+     Text = fileContent
+     }
+        };
 
         var result = new ReadResourceResult { Contents = contents };
         return ValueTask.FromResult(result);
