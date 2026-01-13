@@ -8,10 +8,6 @@ using System.CommandLine;
 
 namespace AppSage.Run.CommandSet.MCP
 {
-    public record MCPServerRunOptions
-    {
-        public int Port { get; set; } = 55555;
-    }
     public sealed class MCPServerRunCommand : ISubCommand<MCPServerRunOptions>
     {
         IServiceCollection _services;

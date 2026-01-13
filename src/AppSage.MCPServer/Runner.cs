@@ -24,7 +24,7 @@ namespace AppSage.MCPServer
 
         }
 
-        public async Task Run(WebApplicationBuilder builder) {
+        public async Task Run(WebApplicationBuilder builder, MCPServerRunOptions options=null) {
             var serviceCollection = builder.Services.BuildServiceProvider();
             var logger = serviceCollection.GetService<IAppSageLogger>();
             var config = serviceCollection.GetService<IAppSageConfiguration>();
@@ -32,7 +32,14 @@ namespace AppSage.MCPServer
 
             logger.LogInformation("Starting AppSage MCP Server for the AppSage workspace[{WorkspaceFolder}]", workspace.RootFolder);
 
-            string listeningUrl = config.Get<string>("AppSage.MCPServer.Runner:ListeningUrl");
+            int port= config.Get<int>("AppSage.MCPServer.Runner:ListeningPort");
+            if(options != null && options.Port >0)
+            {
+                port = options.Port;
+            }
+
+            string listeningUrl = $"http://localhost:{port}";
+            builder.WebHost.UseUrls();
             builder.WebHost.UseUrls(listeningUrl);
 
             var serverCapabilities = serviceCollection.GetService<ServerDiscovery>().CreateServerCapabilities();

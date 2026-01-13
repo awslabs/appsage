@@ -43,7 +43,7 @@ namespace AppSage.Run
             {
 
                 //args=new string[] {"init"};
-                //args = new string[] { "init", "-ws", @"C:\\Temp\\MyAppSageWorkspace" };
+                //args = new string[] { "init", "-ws", @"C:\\Dev\\MyAppSageWorkspace" };
                 //args = new string[] { "init" };
                 //args = new string[] { "extension","run","-ws", "C:\\Dev\\MyAppSageWorkspace" };
                 args= new string[] { "mcpserver", "run", "-ws", "C:\\Dev\\MyAppSageWorkspace" };
@@ -97,7 +97,10 @@ namespace AppSage.Run
                             rootCommand.Add(cmd.Build());
                         }
 
-                        logger.LogInformation("Using workspace root folder: {WorkspaceRoot}", workspaceRoot);
+                        logger.LogInformation("---------- Workspace Info ---------");
+                        logger.LogInformation("Using AppSage workspace root folder: {WorkspaceRoot}", workspaceRoot);
+                        logger.LogInformation("-----------------------------------");
+
                         var aliases = new List<string>() { argWorkspaceFolder.Name };
                         aliases.AddRange(argWorkspaceFolder.Aliases);
                         var newArgs = ForceOptionValue(args, workspaceRoot.FullName, aliases.ToArray());
@@ -236,6 +239,7 @@ namespace AppSage.Run
         {
             var meta = Assembly.GetExecutingAssembly().GetCustomAttributes<AssemblyMetadataAttribute>()
            .FirstOrDefault(a => string.Equals(a.Key, "BuildTimestamp", StringComparison.Ordinal));
+            logger.LogInformation("---------- Version Info ----------");
             if (meta != null)
             {
                 logger.LogInformation("AppSage Build Timestamp: {BuildTimestamp}", meta.Value);
@@ -250,6 +254,7 @@ namespace AppSage.Run
 
             logger.LogInformation("AppSage Version: {Version}", version?.ToString() ?? "Unknown");
             logger.LogInformation("Appsage Location:{Location}",  assembly.Location);
+             
         }
 
 

@@ -9,13 +9,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppSage.Infrastructure", "A
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppSage.Core", "AppSage.Core\AppSage.Core.csproj", "{5BDD23CE-7BF2-4A33-B218-FAA1AFF26D1A}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Templates", "Templates", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppSage.Test", "AppSage.Test\AppSage.Test.csproj", "{454BAF20-A09F-4B76-917E-399A2679475A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppSage.Web", "AppSage.Web\AppSage.Web.csproj", "{42ED2A3C-9AB5-4F9F-AB8C-B1C2210A1F73}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8EC462FD-D22E-90A8-E5CE-7E832BA40C5D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppSage.MCPServer", "AppSage.MCPServer\AppSage.MCPServer.csproj", "{4821E7EA-28E6-4AE4-8D0A-01A853A1AB40}"
 EndProject
