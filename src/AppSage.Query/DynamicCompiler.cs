@@ -3,16 +3,15 @@ using AppSage.Core.Logging;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using ModelContextProtocol;
 using System.ComponentModel;
 using System.Data;
 using System.Reflection;
 using System.Runtime.Loader;
 using System.Text;
 
-namespace AppSage.MCPServer
+namespace AppSage.Query
 {
-    internal class DynamicCompiler:IDynamicCompiler
+    public class DynamicCompiler:IDynamicCompiler
     {
         IAppSageLogger _logger;
         public DynamicCompiler(IAppSageLogger logger)
@@ -115,7 +114,7 @@ namespace AppSage.MCPServer
                         error.AppendLine(diagnostic.ToString());
                         _logger.LogError("  {Diagnostic}", diagnostic);
                     }
-                    throw new McpException(error.ToString());
+                    throw new Exception(error.ToString());
                 }
 
                 // Load and execute the compiled assembly

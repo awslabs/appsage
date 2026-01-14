@@ -7,6 +7,7 @@ using ModelContextProtocol.Server;
 using Newtonsoft.Json;
 using System.ComponentModel;
 using System.Data;
+using AppSage.Query;
 
 namespace AppSage.MCPServer.Capabilty.Tools.CodeGraph
 {

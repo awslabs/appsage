@@ -13,6 +13,7 @@ using Microsoft.Extensions.DependencyInjection;
 using ModelContextProtocol.Protocol;
 using ModelContextProtocol.Server;
 using System.Reflection;
+using AppSage.Query;
 
 namespace AppSage.MCPServer
 {

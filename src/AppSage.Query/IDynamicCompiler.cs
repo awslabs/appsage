@@ -1,6 +1,6 @@
 ﻿using AppSage.Core.ComplexType.Graph;
 
-namespace AppSage.MCPServer
+namespace AppSage.Query
 {
     public interface IDynamicCompiler
     {
