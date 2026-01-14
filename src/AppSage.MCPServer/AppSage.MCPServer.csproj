@@ -27,15 +27,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Configuration\appsettings.Development.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Configuration\appsettings.Production.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
-  <ItemGroup>
     <Folder Include="CapabilityGuide\Prompts\" />
     <Folder Include="CapabilityGuide\Resources\" />
     <Folder Include="Capabilty\Tools\FilterMetric\" />

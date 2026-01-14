@@ -62,7 +62,7 @@ namespace AppSage.Providers.DotNet.DependencyAnalysis
                 Directory.Delete(_config.DocumentationFolder, recursive: true);
             }
             Directory.CreateDirectory(_config.DocumentationFolder);
-            string docDirectory = Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), "AppSage.Providers.DotNet", "AppSage","Docs");
+            string docDirectory = Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location),"Extensions", "AppSage.Providers.DotNet", "Docs");
             foreach (var file in Directory.GetFiles(docDirectory, "*.md").Select(f => new FileInfo(f)))
             {
                 string docName = Path.GetFileNameWithoutExtension(file.Name);
