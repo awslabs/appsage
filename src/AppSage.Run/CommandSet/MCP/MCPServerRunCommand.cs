@@ -17,15 +17,26 @@ namespace AppSage.Run.CommandSet.MCP
         }
 
         public string Name => "run";
-        public string Description => "Run the set of AppSage providers";
+        public string Description => "Run the mcp server on local host";
 
         public Command Build()
         {
             var cmd = new Command(this.Name, this.Description);
             var argWorkspaceFolder = AppSageRootCommand.GetWorkspaceArgument();
             cmd.Add(argWorkspaceFolder);
+
+
+            var port = new Option<int>(name: "--port", aliases: new string[] { "-p" });
+            port.Description = $"""
+                Port to start the MCP server on localhost. Default is {MCPServerRunOptions.DefaultPort}.
+                """;
+            cmd.Add(port);
+
+
+
             cmd.SetAction(pr =>
             {
+               
                 MCPServerRunOptions options = new MCPServerRunOptions();
                 return this.Execute(options);
             });
@@ -40,10 +51,8 @@ namespace AppSage.Run.CommandSet.MCP
                 builder.Services.Add(svc);
             }
             Runner mcpServerRunner = new Runner(builder.Services);
-            mcpServerRunner.Run(builder).GetAwaiter().GetResult();
+            mcpServerRunner.Run(builder,opt).GetAwaiter().GetResult();
             return 0;
         }
-
-
     }
 }

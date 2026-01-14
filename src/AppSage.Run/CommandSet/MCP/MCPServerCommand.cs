@@ -20,7 +20,7 @@ namespace AppSage.Run.CommandSet.MCP
         }
 
         public string Name => "mcpserver";
-        public string Description => "Perform  related tasks";
+        public string Description => "AppSage support querying it's data using MCP (Model Context Protocol). THis perform MCP server  related tasks such as starting it.";
 
         public Command Build()
         {

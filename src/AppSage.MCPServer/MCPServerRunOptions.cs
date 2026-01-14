@@ -8,6 +8,7 @@ namespace AppSage.MCPServer
 {
     public record MCPServerRunOptions
     {
-        public int Port { get; set; } = 44000;
+        public const int DefaultPort = 44000;
+        public int Port { get; set; } = DefaultPort;
     }
 }

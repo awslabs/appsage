@@ -17,7 +17,7 @@ namespace AppSage.Run.CommandSet.Init
         }
 
         public string Name => "init";
-        public string Description => "Create an initialize an AppSage workspace folder";
+        public string Description => "Create an initialize an AppSage workspace folder. You need to provide an empty folder to initialize.";
 
         public Command Build()
         {

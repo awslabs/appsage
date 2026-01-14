@@ -23,12 +23,10 @@ namespace AppSage.Run.CommandSet.Template
 
             ServiceProvider provider = services.BuildServiceProvider();
        
-            
-
         }
 
         public string Name => "list";
-        public string Description => "List the availble extensions";
+        public string Description => "List the available templates";
 
         public Command Build()
         {
