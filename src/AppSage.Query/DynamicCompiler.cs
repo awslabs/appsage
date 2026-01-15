@@ -1,5 +1,7 @@
 ﻿using AppSage.Core.ComplexType.Graph;
+using AppSage.Core.Configuration;
 using AppSage.Core.Logging;
+using AppSage.Core.Workspace;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -14,9 +16,13 @@ namespace AppSage.Query
     public class DynamicCompiler:IDynamicCompiler
     {
         IAppSageLogger _logger;
-        public DynamicCompiler(IAppSageLogger logger)
+        IAppSageConfiguration _config;
+        IAppSageWorkspace _workspace;
+        public DynamicCompiler(IAppSageLogger logger,IAppSageConfiguration configuration,IAppSageWorkspace workspace)
         {
             _logger = logger;
+            _config = configuration;
+            _workspace = workspace;
         }
         
         public T CompileAndExecute<T>(string code, IDirectedGraph sourceGraph)
@@ -136,6 +142,25 @@ namespace AppSage.Query
 
                 var executionResult = method.Invoke(null, new object[] { sourceGraph });
 
+                var saveQueryAsTemplate=_config.Get<bool>("AppSage.Query.DynamicCompiler:SaveQueryAsTemplateGroup");
+                if (saveQueryAsTemplate) { 
+                    var templateGroupName = _config.Get<string>("AppSage.Query.DynamicCompiler:TemplateGroupNameForSaving");
+                    var templateFolderPath = Path.Combine(_workspace.TemplateFolder, templateGroupName);
+                    if (!Directory.Exists(templateFolderPath))
+                    {
+                        Directory.CreateDirectory(templateFolderPath);
+                    }
+                    string templateName=Guid.NewGuid().ToString("N")+".cs";
+                    string filieName = Path.Combine(templateFolderPath, templateName);
+                    File.WriteAllText(filieName, code);
+
+                    string metaData = Path.Combine(templateFolderPath, templateName + ".metadata");
+                    var content=new List<string>();
+                    content.Add(typeof(T).Name);
+                    content.Add(ExtractExecuteMethodComment(syntaxTree));
+                    File.AppendAllLines(metaData, content.ToArray());
+                }
+
                 context.Unload();
 
                 return (T)executionResult;
@@ -148,6 +173,80 @@ namespace AppSage.Query
             }
         }
 
+
+        /// <summary>
+        /// Extracts the comment body above the Execute method from the syntax tree
+        /// </summary>
+        /// <param name="syntaxTree">The syntax tree to analyze</param>
+        /// <returns>The comment text above the Execute method, or null if not found</returns>
+        private string ExtractExecuteMethodComment(SyntaxTree syntaxTree)
+        {
+            var commentBuilder = new StringBuilder();
+            try
+            {
+                var root = syntaxTree.GetRoot();
+
+                // Find the Execute method
+                var executeMethod = root.DescendantNodes()
+                    .OfType<MethodDeclarationSyntax>()
+                    .FirstOrDefault(m => m.Identifier.ValueText == "Execute");
+
+                if (executeMethod == null)
+                    return null;
+
+                // Get the leading trivia (comments, whitespace, etc.) before the method
+                var leadingTrivia = executeMethod.GetLeadingTrivia();
+
+                // Extract comment text from trivia
+
+
+                foreach (var trivia in leadingTrivia)
+                {
+                    switch (trivia.Kind())
+                    {
+                        case SyntaxKind.SingleLineCommentTrivia:
+                            // Remove the "//" prefix and trim
+                            var singleLineText = trivia.ToString().Substring(2).Trim();
+                            commentBuilder.AppendLine(singleLineText);
+                            break;
+
+                        case SyntaxKind.MultiLineCommentTrivia:
+                            // Remove the "/*" and "*/" and clean up
+                            var multiLineText = trivia.ToString();
+                            if (multiLineText.StartsWith("/*") && multiLineText.EndsWith("*/"))
+                            {
+                                multiLineText = multiLineText.Substring(2, multiLineText.Length - 4);
+                                // Clean up each line
+                                var lines = multiLineText.Split('\n');
+                                foreach (var line in lines)
+                                {
+                                    var cleanLine = line.Trim().TrimStart('*').Trim();
+                                    if (!string.IsNullOrEmpty(cleanLine))
+                                        commentBuilder.AppendLine(cleanLine);
+                                }
+                            }
+                            break;
+
+                        case SyntaxKind.SingleLineDocumentationCommentTrivia:
+                        case SyntaxKind.MultiLineDocumentationCommentTrivia:
+                            // Handle XML documentation comments
+                            var docComment = trivia.GetStructure() as DocumentationCommentTriviaSyntax;
+                            if (docComment != null)
+                            {
+                                var xmlText = docComment.ToString();
+                                commentBuilder.AppendLine(xmlText);
+                            }
+                            break;
+                    }
+                }
+            }catch(Exception ex)
+            {
+                _logger.LogError("Error extracting Execute method comment: {ErrorMessage}", ex.Message);
+            }
+
+            var result = commentBuilder.ToString().Trim();
+            return result;
+        }
 
         /// <summary>
         /// Adds the specified using statements to the syntax tree if they don't already exist

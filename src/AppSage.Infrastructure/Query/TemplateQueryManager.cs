@@ -35,12 +35,21 @@ namespace AppSage.Infrastructure.Query
                 var templateFiles = Directory.GetFiles(groupDir.FullName, "*.cs", SearchOption.TopDirectoryOnly);
                 foreach(var templateFile in templateFiles)
                 {
-                    var templateId = templateFile.Replace(groupDir.FullName + Path.DirectorySeparatorChar, String.Empty);
+
+                    var templateId = templateFile.Replace(_workspace.TemplateFolder + Path.DirectorySeparatorChar, String.Empty);
+                    var metadataFile = templateFile + ".metadata";
+                    var description = String.Empty;
+                    if (File.Exists(metadataFile))
+                    {
+
+                        description = File.ReadAllText(metadataFile);
+                    }
+
                     var templateInfo = new TemplateInfo
                     {
                         TemplateType = TemplateType.Single,
                         TemplateId = templateId,
-                        Description = $"Template for {templateId} in group {groupDir.Name}"
+                        Description = description
                     };
                     results.Add(templateInfo);
                 }

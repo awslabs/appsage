@@ -28,7 +28,7 @@ namespace AppSage.MCPServer.CapabilityBuilder
             serverCapabilities.Tools= _toolDiscovery.CreateToolsCapability();
             //serverCapabilities.Prompts = PromptDiscovery.CreatePromptsCapability();
             
-            //serverCapabilities.Resources = _resourceDiscovery.CreateResourcesCapability();
+            serverCapabilities.Resources = _resourceDiscovery.CreateResourcesCapability();
  
             return serverCapabilities;
         }

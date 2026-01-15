@@ -27,7 +27,11 @@ namespace AppSage.Run.CommandSet.Template
 
         public Command Build()
         {
+           
+
             var cmd = new Command(this.Name, this.Description);
+            var argWorkspaceFolder = AppSageRootCommand.GetWorkspaceArgument();
+            cmd.Add(argWorkspaceFolder);
             cmd.SetAction(pr =>
             {
                 return this.Execute();
@@ -52,8 +56,19 @@ namespace AppSage.Run.CommandSet.Template
             table.AddColumn("[bold]Description[/]");
             table.ShowRowSeparators = true;
 
-            
-        
+            var groups = templateManager.GetTemplates().Where(t=>t.TemplateType==TemplateType.Group);
+
+            foreach (var template in groups)
+            {
+                table.AddRow(new Markup(template.TemplateId), new Markup(template.Description));
+            }
+
+            var single = templateManager.GetTemplates().Where(t => t.TemplateType == TemplateType.Single);
+
+            foreach (var template in single)
+            {
+                table.AddRow(new Markup(template.TemplateId), new Markup(template.Description));
+            }
 
             // Render to ANSI and log via Serilog:
             var ansi = SpectreRender.ToAnsi(table);

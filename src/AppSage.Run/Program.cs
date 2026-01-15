@@ -8,6 +8,7 @@ using AppSage.Run.CommandSet.Extension;
 using AppSage.Run.CommandSet.Init;
 using AppSage.Run.CommandSet.MCP;
 using AppSage.Run.CommandSet.Root;
+using AppSage.Run.CommandSet.Template;
 using AppSage.Run.CommandSet.Version;
 using DocumentFormat.OpenXml.Bibliography;
 using DocumentFormat.OpenXml.Wordprocessing;
@@ -45,7 +46,8 @@ namespace AppSage.Run
                 //args = new string[] { "init", "-ws", @"C:\\Dev\\MyAppSageWorkspace1" };
                 //args = new string[] { "init" };
                 //args = new string[] { "extension","run","-ws", "C:\\Dev\\MyAppSageWorkspace" };
-                args= new string[] { "mcpserver", "run", "-ws", "C:\\Dev\\MyAppSageWorkspace" };
+                //args= new string[] { "mcpserver", "run", "-ws", "C:\\Dev\\MyAppSageWorkspace" };
+                args = new string[] { "template", "list", "-ws", "C:\\Dev\\MyAppSageWorkspace" };
 
                 RootCommand rootCommand = new RootCommand
                 {
@@ -139,6 +141,7 @@ namespace AppSage.Run
             commands.Add(new ExtensionCommand(serviceCollection));
             commands.Add(new MCPServerCommand(serviceCollection));
             commands.Add(new VersionCommnad(serviceCollection));
+            commands.Add(new TemplateCommand(serviceCollection));
 
             return commands;
         }
