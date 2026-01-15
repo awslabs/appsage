@@ -79,11 +79,17 @@ namespace AppSage.Infrastructure.Workspace
                 logger.LogInformation("{MessagePrefix} [{RepositoryFolder}]. This is where you put all your code repositories. You have to keep seperate folders for each repository.", messagePrefix, ws.RepositoryFolder);
                 Directory.CreateDirectory(ws.RepositoryFolder);
 
+                logger.LogInformation("{MessagePrefix} [{TemplateFolder}]. This is where all templates are kept. These templates can be used to generate analysis in bulk.", messagePrefix, ws.TemplateFolder);
+                Directory.CreateDirectory(ws.TemplateFolder);
+
                 logger.LogInformation("{MessagePrefix} [{ProviderOutputFolder}]. This is where all tooling output after code scan will be saved.", messagePrefix, ws.ProviderOutputFolder);
                 Directory.CreateDirectory(ws.ProviderOutputFolder);
 
                 logger.LogInformation("{MessagePrefix} [{MCPServerOutputFolder}]. If a query to AppSage MCP server generates a file/files, this is where those files will be saved.", messagePrefix, ws.MCPServerOutputFolder);
                 Directory.CreateDirectory(ws.MCPServerOutputFolder);
+
+                logger.LogInformation("{MessagePrefix} [{TemplateBasedAnalysisOutputFolder}]. This is where all template based analysis output will be saved.", messagePrefix, ws.TemplateBasedAnalysisOutputFolder);
+                Directory.CreateDirectory(ws.TemplateBasedAnalysisOutputFolder);
 
                 logger.LogInformation("{MessagePrefix} [{LogsFolder}]. This is where all logs will be saved.", messagePrefix, ws.LogsFolder);
                 Directory.CreateDirectory(ws.LogsFolder);

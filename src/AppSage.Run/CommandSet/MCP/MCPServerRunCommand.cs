@@ -36,8 +36,12 @@ namespace AppSage.Run.CommandSet.MCP
 
             cmd.SetAction(pr =>
             {
+                var workspaceFolder = pr.GetValue(argWorkspaceFolder);
+                var portValue = pr.GetValue(port);
                
                 MCPServerRunOptions options = new MCPServerRunOptions();
+                options.Port = portValue;
+               
                 return this.Execute(options);
             });
             return cmd;

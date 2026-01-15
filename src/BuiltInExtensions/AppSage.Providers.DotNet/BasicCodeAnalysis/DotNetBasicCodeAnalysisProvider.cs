@@ -46,11 +46,8 @@ namespace AppSage.Providers.DotNet.BasicCodeAnalysis
         {
             try
             {
-
-                if (!MSBuildLocator.IsRegistered)
-                {
-                    MSBuildLocator.RegisterMSBuildPath(_config.MSBuildPath);
-                }
+                // Initialize MSBuild with auto-discovery or configured path
+                MSBuildManager.InitializeMSBuild(_config.MSBuildPath, _logger);
 
                 //Register MSBuild instance
                 //MSBuildLocator.RegisterDefaults();

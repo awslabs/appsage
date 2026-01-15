@@ -1,28 +1,25 @@
 ﻿using AppSage.Core.Configuration;
 using AppSage.Core.Logging;
 using AppSage.Core.Metric;
+using AppSage.Core.Query;
 using AppSage.Core.Workspace;
 using AppSage.Run.CommandSet.Root;
 using AppSage.Run.Utilities;
-using Microsoft.Build.Framework;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using Spectre.Console;
 using System.CommandLine;
+using AppSage.Infrastructure.Query;
 
 namespace AppSage.Run.CommandSet.Template
 {
     public sealed class TemplateListCommand : ISubCommandWithNoOptions
     {
  
-        private readonly IAppSageLogger _logger;
-        private IServiceCollection _services; 
+        IServiceCollection _serviceCollection;
         public TemplateListCommand(IServiceCollection services)
         {
-            _services = services;
-
-            ServiceProvider provider = services.BuildServiceProvider();
-       
+            _serviceCollection = services;
         }
 
         public string Name => "list";
@@ -31,8 +28,6 @@ namespace AppSage.Run.CommandSet.Template
         public Command Build()
         {
             var cmd = new Command(this.Name, this.Description);
-            var argWorkspaceFolder = AppSageRootCommand.GetWorkspaceArgument();
-            cmd.Add(argWorkspaceFolder);
             cmd.SetAction(pr =>
             {
                 return this.Execute();
@@ -41,6 +36,13 @@ namespace AppSage.Run.CommandSet.Template
         }
         public int Execute()
         {
+            _serviceCollection.AddTransient<ITemplateQueryManager, TemplateQueryManager>();
+            var provider= _serviceCollection.BuildServiceProvider();
+            var logger= provider.GetRequiredService<IAppSageLogger>();
+       
+
+            var templateManager=provider.GetRequiredService<ITemplateQueryManager>();
+
 
             var table = new Table();
             table.Border(TableBorder.Square);
@@ -50,11 +52,12 @@ namespace AppSage.Run.CommandSet.Template
             table.AddColumn("[bold]Description[/]");
             table.ShowRowSeparators = true;
 
+            
         
 
             // Render to ANSI and log via Serilog:
             var ansi = SpectreRender.ToAnsi(table);
-            _logger.LogInformation("\n{Table}", ansi);
+            logger.LogInformation("\n{Table}", ansi);
 
             return 0;
         }

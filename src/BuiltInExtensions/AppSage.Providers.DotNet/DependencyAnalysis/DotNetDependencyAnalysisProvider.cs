@@ -79,11 +79,9 @@ namespace AppSage.Providers.DotNet.DependencyAnalysis
         {
             try
             {
-                if (!MSBuildLocator.IsRegistered)
-                {
-                    var msBuildPath = _config.MSBuildPath;
-                    MSBuildLocator.RegisterMSBuildPath(msBuildPath);
-                }
+                // Initialize MSBuild with auto-discovery or configured path
+                MSBuildManager.InitializeMSBuild(_config.MSBuildPath, _logger);
+
                 System.Data.DataTable dt = new System.Data.DataTable();
                 dt.Columns.Add("Test", typeof(string));
 

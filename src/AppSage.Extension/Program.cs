@@ -34,13 +34,13 @@ namespace AppSage.Extension
 
                 // Setup services and extension system
                 var services = SetupServices(logger, workspacePath, extensionPath);
-                var serviceProvider = services.BuildServiceProvider();
+                //var serviceProvider = services.BuildServiceProvider();
 
-                // Get the extension manager
-                var extensionManager = serviceProvider.GetRequiredService<IExtensionManager>();
+                //// Get the extension manager
+                //var extensionManager = serviceProvider.GetRequiredService<IExtensionManager>();
 
-                //extensionManager.InstallExtension("AppSage.Providers.HelloWorld",true);
-                extensionManager.InstallExtension("AppSage.Providers.DotNet");
+                ////extensionManager.InstallExtension("AppSage.Providers.HelloWorld",true);
+                //extensionManager.InstallExtension("AppSage.Providers.DotNet");
 
                 return 0;
             }

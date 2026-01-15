@@ -8,9 +8,7 @@ namespace AppSage.Core.Query
 {
     public interface ITemplateQueryManager
     {
-        public IEnumerable<string> GetTemplateGroups();
+        public IEnumerable<TemplateInfo> GetTemplates();
 
-
-        public IEnumerable<string> GetTemplateNames();
     }
 }

@@ -13,18 +13,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="NuGet.Common" Version="6.14.0" />
-    <PackageReference Include="NuGet.Configuration" Version="6.14.0" />
-    <PackageReference Include="NuGet.Frameworks" Version="6.14.0" />
-    <PackageReference Include="NuGet.Packaging" Version="6.14.0" />
-    <PackageReference Include="NuGet.Protocol" Version="6.14.0" />
-    <PackageReference Include="NuGet.Resolver" Version="6.14.0" />
-    <PackageReference Include="NuGet.Versioning" Version="6.14.0" />
     <PackageReference Include="Serilog" Version="4.3.0" />
-    <PackageReference Include="Serilog.Sinks.Console" Version="4.1.0" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
-    <PackageReference Include="System.Text.Json" Version="9.0.9" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="Serilog.Sinks.Console" Version="6.1.1" />
+    <PackageReference Include="System.Text.Json" Version="10.0.2" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
   </ItemGroup>
 
 </Project>
