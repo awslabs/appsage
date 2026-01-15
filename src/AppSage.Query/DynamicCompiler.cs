@@ -13,23 +13,20 @@ using System.Text;
 
 namespace AppSage.Query
 {
-    public class DynamicCompiler:IDynamicCompiler
+    public class DynamicCompiler : IDynamicCompiler
     {
         IAppSageLogger _logger;
         IAppSageConfiguration _config;
         IAppSageWorkspace _workspace;
-        public DynamicCompiler(IAppSageLogger logger,IAppSageConfiguration configuration,IAppSageWorkspace workspace)
+        public DynamicCompiler(IAppSageLogger logger, IAppSageConfiguration configuration, IAppSageWorkspace workspace)
         {
             _logger = logger;
             _config = configuration;
             _workspace = workspace;
         }
-        
-        public T CompileAndExecute<T>(string code, IDirectedGraph sourceGraph)
-        {
-          return (T)CompileAndExecute(code, sourceGraph);
-        }
-        public object? CompileAndExecute(string code, IDirectedGraph sourceGraph)
+
+
+        public (object? ExecutionResult, string ExecuteMethodComment) CompileAndExecute(string code, IDirectedGraph sourceGraph)
         {
             try
             {
@@ -145,37 +142,13 @@ namespace AppSage.Query
                 }
 
                 var executionResult = method.Invoke(null, new object[] { sourceGraph });
+                var executeMethodComment = ExtractExecuteMethodComment(syntaxTree);
 
-                var saveQueryAsTemplate = _config.Get<bool>("AppSage.Query.DynamicCompiler:SaveQueryAsTemplateGroup");
-                if (saveQueryAsTemplate)
-                {
-                    var templateGroupName = _config.Get<string>("AppSage.Query.DynamicCompiler:TemplateGroupNameForSaving");
-                    var templateFolderPath = Path.Combine(_workspace.TemplateFolder, templateGroupName);
-                    if (!Directory.Exists(templateFolderPath))
-                    {
-                        Directory.CreateDirectory(templateFolderPath);
-                    }
-                    string templateName = Guid.NewGuid().ToString("N") + ".cs";
-                    string filieName = Path.Combine(templateFolderPath, templateName);
-                    File.WriteAllText(filieName, code);
-
-                    string metaData = Path.Combine(templateFolderPath, templateName + ".metadata");
-                    var content = new List<string>();
-                    if (executionResult != null)
-                    {
-                        content.Add($"ReturnType:{executionResult.GetType().FullName}");
-                    }
-                    else
-                    {
-                        content.Add("ReturnType:Void");
-                    }
-                    content.Add(ExtractExecuteMethodComment(syntaxTree));
-                    File.AppendAllLines(metaData, content.ToArray());
-                }
+ 
 
                 context.Unload();
 
-                return executionResult;
+                return (executionResult,executeMethodComment);
             }
             catch (Exception ex)
             {
@@ -250,7 +223,8 @@ namespace AppSage.Query
                             break;
                     }
                 }
-            }catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 _logger.LogError("Error extracting Execute method comment: {ErrorMessage}", ex.Message);
             }
@@ -306,6 +280,10 @@ namespace AppSage.Query
             return syntaxTree.WithRootAndOptions(newRoot, syntaxTree.Options);
         }
 
-       
+        public (T ExecutionResult, string ExecuteMethodComment) CompileAndExecute<T>(string code, IDirectedGraph sourceGraph)
+        {
+            var result= CompileAndExecute(code, sourceGraph);
+            return ((T)result.ExecutionResult, result.ExecuteMethodComment);
+        }
     }
 }

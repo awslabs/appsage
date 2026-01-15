@@ -1,13 +1,15 @@
 ﻿using AppSage.Core.ComplexType.Graph;
+using AppSage.Core.Configuration;
 using AppSage.Core.Logging;
 using AppSage.Core.Metric;
 using AppSage.Core.Workspace;
+using AppSage.Query;
 using DocumentFormat.OpenXml.Wordprocessing;
+using Microsoft.CodeAnalysis;
 using ModelContextProtocol.Server;
 using Newtonsoft.Json;
 using System.ComponentModel;
 using System.Data;
-using AppSage.Query;
 
 namespace AppSage.MCPServer.Capabilty.Tools.CodeGraph
 {
@@ -23,12 +25,15 @@ namespace AppSage.MCPServer.Capabilty.Tools.CodeGraph
         IAppSageWorkspace _workspace;
         IMetricReader _metricReader;
         IDynamicCompiler _compiler;
-        public CodeGraphGenerator(IAppSageLogger logger, IDynamicCompiler compiler, IAppSageWorkspace workspace, IMetricReader metricReader)
+
+        TemplateGenerator _templateGenerator;
+        public CodeGraphGenerator(IAppSageLogger logger, IDynamicCompiler compiler, IAppSageWorkspace workspace, IMetricReader metricReader,IAppSageConfiguration config)
         {
             _logger = logger;
             _compiler = compiler;
             _workspace = workspace;
             _metricReader = metricReader;
+            _templateGenerator = new TemplateGenerator(logger, workspace, config);
         }
 
         [McpServerTool, Description("Run the code against the code graph and generate data table")]
@@ -42,7 +47,9 @@ namespace AppSage.MCPServer.Capabilty.Tools.CodeGraph
             EnsureGraph();
 
             var result = _compiler.CompileAndExecute<IEnumerable<DataTable>>(codeToCompileAndRun, _graph);
-            return result;
+
+            _templateGenerator.SaveAsTemplate(codeToCompileAndRun,result.ExecutionResult.GetType().FullName,result.ExecuteMethodComment);
+            return result.ExecutionResult;
         }
 
         [McpServerTool, Description("Run the code against the code graph and generate a directed graph")]
@@ -56,7 +63,8 @@ namespace AppSage.MCPServer.Capabilty.Tools.CodeGraph
             EnsureGraph();
 
             var result = _compiler.CompileAndExecute<DirectedGraph>(codeToCompileAndRun, _graph);
-            return result;
+            _templateGenerator.SaveAsTemplate(codeToCompileAndRun, result.ExecutionResult.GetType().FullName, result.ExecuteMethodComment);
+            return result.ExecutionResult;
         }
 
 
@@ -160,5 +168,8 @@ namespace AppSage.MCPServer.Capabilty.Tools.CodeGraph
                 }
             }
         }
+        
+
+    
     }
 }

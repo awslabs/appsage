@@ -37,8 +37,15 @@ namespace AppSage.Infrastructure.Query
             foreach (var template in templates)
             {
                 _logger.LogInformation($"Running template: {template.TemplateId}");
-                var result = _dynamicCompiler.CompileAndExecute(template.Content, _graph);
-                Save(result, template.TemplateId);
+                try
+                {
+                    var result = _dynamicCompiler.CompileAndExecute(template.Content, _graph);
+                    Save(result, template.TemplateId);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError($"Error running the template: {template.TemplateId}", ex);
+                }
             }
 
         }

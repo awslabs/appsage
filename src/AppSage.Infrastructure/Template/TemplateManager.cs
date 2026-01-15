@@ -96,36 +96,41 @@ namespace AppSage.Infrastructure.Template
             else
             {
                 string groupDirPath = workspacePaths.TemplateFolder;
-                if(!string.IsNullOrEmpty(Id))
+                var templateFiles = new List<string>();
+
+                if (!string.IsNullOrEmpty(Id))
                 {
                     groupDirPath = Path.Combine(workspacePaths.TemplateFolder, Id);
-                }
-
-                if (Directory.Exists(groupDirPath))
-                {
-                    var templateFiles = Directory.GetFiles(groupDirPath, "*.cs", SearchOption.TopDirectoryOnly);
-                    foreach (var templateFile in templateFiles)
-                    {
-                        string content = File.ReadAllText(templateFile);
-                        var relativeTemplateId = templateFile.Replace(workspacePaths.TemplateFolder + Path.DirectorySeparatorChar, String.Empty);
-                        var template = new TemplateBody
-                        {
-                            TemplateId = relativeTemplateId,
-                            TemplateType = TemplateType.SingleQuery,
-                            Content = content
-                        };
-                        string metadataFilePath = templateFile + ".metadata";
-                        if (File.Exists(metadataFilePath))
-                        {
-                            template.Description = File.ReadAllText(metadataFilePath);
-                        }
-                        results.Add(template);
-                    }
+                    templateFiles.AddRange(Directory.GetFiles(groupDirPath, "*.cs", SearchOption.TopDirectoryOnly));
                 }
                 else
                 {
-                    _logger.LogError($"No matching template group is found for Template Id: {Id}. Group directory '{groupDirPath}' does not exist");
+                    var groupDirs = Directory.GetDirectories(workspacePaths.TemplateFolder, "*", SearchOption.TopDirectoryOnly);
+                    foreach (var groupDir in groupDirs)
+                    {
+                        templateFiles.AddRange(Directory.GetFiles(groupDir, "*.cs", SearchOption.TopDirectoryOnly));
+                    }
                 }
+
+
+                foreach (var templateFile in templateFiles)
+                {
+                    string content = File.ReadAllText(templateFile);
+                    var relativeTemplateId = templateFile.Replace(workspacePaths.TemplateFolder + Path.DirectorySeparatorChar, String.Empty);
+                    var template = new TemplateBody
+                    {
+                        TemplateId = relativeTemplateId,
+                        TemplateType = TemplateType.SingleQuery,
+                        Content = content
+                    };
+                    string metadataFilePath = templateFile + ".metadata";
+                    if (File.Exists(metadataFilePath))
+                    {
+                        template.Description = File.ReadAllText(metadataFilePath);
+                    }
+                    results.Add(template);
+                }
+
             }
 
 
