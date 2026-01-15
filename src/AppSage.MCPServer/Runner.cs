@@ -40,7 +40,7 @@ namespace AppSage.MCPServer
             }
 
             string listeningUrl = $"http://localhost:{port}";
-            builder.WebHost.UseUrls();
+            //builder.WebHost.UseUrls();
             builder.WebHost.UseUrls(listeningUrl);
 
             var serverCapabilities = serviceCollection.GetService<ServerDiscovery>().CreateServerCapabilities();

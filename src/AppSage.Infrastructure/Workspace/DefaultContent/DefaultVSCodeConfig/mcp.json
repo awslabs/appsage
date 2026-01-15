@@ -1,0 +1,7 @@
+﻿{
+  "servers": {
+    "AppSageMCPServer": {
+      "url": "http://localhost:44000/mcp"
+    }
+  }
+}

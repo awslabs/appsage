@@ -110,6 +110,10 @@ namespace AppSage.Infrastructure.Workspace
                 Directory.CreateDirectory(ws.AppSageConfigFolder);
                 File.SetAttributes(ws.AppSageConfigFolder, File.GetAttributes(ws.AppSageConfigFolder) | FileAttributes.Hidden);
 
+                //Create default VS Code config
+                CreateDefultVSConfig(ws);
+
+
                 //Copy the default config file
                 string defaultConfigFile =AppSageConfiguration.GetDefaultConfigTemplateFilePath();
                 string destinationConfigFile = ws.AppSageConfigFilePath;
@@ -133,6 +137,23 @@ namespace AppSage.Infrastructure.Workspace
             }
             return 0;
         }
+
+        private static void CreateDefultVSConfig(IAppSageWorkspacePaths paths)
+        {
+            string vsCodeConfigFolder = Path.Combine(paths.RootFolder, ".vscode");
+            if (!Directory.Exists(vsCodeConfigFolder))
+            {
+                Directory.CreateDirectory(vsCodeConfigFolder);
+            }
+            string executingAssemblyLocation = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            var mcpServerConfig= Path.Combine(executingAssemblyLocation, "Workspace","DefaultContent","DefaultVSCodeConfig","mcp.json");
+            if (File.Exists(mcpServerConfig))
+            {
+                string destinationMCPConfig = Path.Combine(vsCodeConfigFolder, "mcp.json");
+                File.Copy(mcpServerConfig, destinationMCPConfig, true);
+            }
+        }
+ 
 
         static string[] DiscoverBuiltInIMetricProvider() {
 

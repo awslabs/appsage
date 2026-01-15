@@ -22,5 +22,13 @@
     <PackageReference Include="SharpToken" Version="2.0.4" />
     <PackageReference Include="System.Threading.RateLimiting" Version="10.0.2" />
   </ItemGroup>
+  <ItemGroup>
+    <None Update="Workspace\DefaultContent\DefaultVSCodeConfig\mcp.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Workspace\DefaultContent\DefaultTemplates\" />
+  </ItemGroup>
 
 </Project>
