@@ -24,11 +24,17 @@ namespace AppSage.Infrastructure.Query
             var groupDirs= Directory.GetDirectories(_workspace.TemplateFolder, "*", SearchOption.TopDirectoryOnly).Select(d => new DirectoryInfo(d));
             foreach(var groupDir in groupDirs)
             {
+                string groupMetadataFile= Path.Combine(groupDir.FullName,$"{groupDir.Name}.metadata");
+                string groupDescription=String.Empty;
+                if (File.Exists(groupMetadataFile))
+                {
+                    groupDescription = File.ReadAllText(groupMetadataFile);
+                }
                 var templateGroup=new TemplateInfo
                 {
                     TemplateType=TemplateType.Group,
                     TemplateId=groupDir.Name,
-                    Description=$"Template group for {groupDir.Name}"
+                    Description= groupDescription
                 };
                 results.Add(templateGroup);
 

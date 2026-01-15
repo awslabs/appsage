@@ -31,9 +31,10 @@ namespace AppSage.Run.CommandSet.Template
             cmd.TreatUnmatchedTokensAsErrors = false;
 
             var subCommandRegistry = new List<ISubCommand>();
-            subCommandRegistry.Add(new TemplateListCommand(_serviceCollection));
+            subCommandRegistry.Add(new TemplateListGroupCommand(_serviceCollection));
+            subCommandRegistry.Add(new TemplateListAllCommand(_serviceCollection));
             subCommandRegistry.Add(new TemplateRunCommand(_serviceCollection));
-
+            
             subCommandRegistry.ForEach(c =>
             {
                 cmd.Add(c.Build());

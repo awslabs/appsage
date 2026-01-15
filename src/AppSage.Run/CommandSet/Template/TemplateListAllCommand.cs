@@ -13,17 +13,17 @@ using AppSage.Infrastructure.Query;
 
 namespace AppSage.Run.CommandSet.Template
 {
-    public sealed class TemplateListCommand : ISubCommandWithNoOptions
+    public sealed class TemplateListAllCommand : ISubCommandWithNoOptions
     {
  
         IServiceCollection _serviceCollection;
-        public TemplateListCommand(IServiceCollection services)
+        public TemplateListAllCommand(IServiceCollection services)
         {
             _serviceCollection = services;
         }
 
-        public string Name => "list";
-        public string Description => "List the available templates";
+        public string Name => "list-all";
+        public string Description => "List all the available template files";
 
         public Command Build()
         {
@@ -56,16 +56,9 @@ namespace AppSage.Run.CommandSet.Template
             table.AddColumn("[bold]Description[/]");
             table.ShowRowSeparators = true;
 
-            var groups = templateManager.GetTemplates().Where(t=>t.TemplateType==TemplateType.Group);
+            var individualTemplates = templateManager.GetTemplates().Where(t=>t.TemplateType==TemplateType.Single).OrderBy(g=>g.TemplateId);
 
-            foreach (var template in groups)
-            {
-                table.AddRow(new Markup(template.TemplateId), new Markup(template.Description));
-            }
-
-            var single = templateManager.GetTemplates().Where(t => t.TemplateType == TemplateType.Single);
-
-            foreach (var template in single)
+            foreach (var template in individualTemplates)
             {
                 table.AddRow(new Markup(template.TemplateId), new Markup(template.Description));
             }
