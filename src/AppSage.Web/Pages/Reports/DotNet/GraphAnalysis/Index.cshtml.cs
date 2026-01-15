@@ -269,7 +269,7 @@ namespace AppSage.Web.Pages.Reports.DotNet.GraphAnalysis
             {
                 ["Project"] = new GroupingConfig
                 {
-                    Name = "Group by Project",
+                    Name = "GroupQuery by Project",
                     GroupByAttribute = "Type", // Changed to use Type property directly
                     GroupByValue = AppSage.Providers.DotNet.ConstString.Dependency.NodeType.PROJECT,
                     Enabled = false,
@@ -278,7 +278,7 @@ namespace AppSage.Web.Pages.Reports.DotNet.GraphAnalysis
                 },
                 ["Assembly"] = new GroupingConfig
                 {
-                    Name = "Group by Assembly",
+                    Name = "GroupQuery by Assembly",
                     GroupByAttribute = "Type", // Changed to use Type property directly
                     GroupByValue = AppSage.Providers.DotNet.ConstString.Dependency.NodeType.ASSEMBLY,
                     Enabled = false,
@@ -287,7 +287,7 @@ namespace AppSage.Web.Pages.Reports.DotNet.GraphAnalysis
                 },
                 ["Namespace"] = new GroupingConfig
                 {
-                    Name = "Group by Namespace",
+                    Name = "GroupQuery by Namespace",
                     GroupByAttribute = "Type", // Changed to use Type property directly
                     GroupByValue = AppSage.Providers.DotNet.ConstString.Dependency.NodeType.NAMESPACE,
                     Enabled = false,

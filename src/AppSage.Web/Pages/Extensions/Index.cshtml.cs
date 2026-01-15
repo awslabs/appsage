@@ -101,7 +101,7 @@ namespace AppSage.Web.Pages.Extensions
                 },
                 new Extension
                 {
-                    Name = "SQL Query Optimizer",
+                    Name = "SQL Template Optimizer",
                     Company = "DataBase Dynamics",
                     Installations = 78000,
                     Runs = 1560000,

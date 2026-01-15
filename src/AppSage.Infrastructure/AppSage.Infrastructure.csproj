@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\AppSage.Core\AppSage.Core.csproj" />
+    <ProjectReference Include="..\AppSage.Query\AppSage.Query.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="AWSSDK.BedrockRuntime" Version="4.0.14.5" />

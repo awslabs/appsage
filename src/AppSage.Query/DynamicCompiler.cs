@@ -27,12 +27,16 @@ namespace AppSage.Query
         
         public T CompileAndExecute<T>(string code, IDirectedGraph sourceGraph)
         {
+          return (T)CompileAndExecute(code, sourceGraph);
+        }
+        public object? CompileAndExecute(string code, IDirectedGraph sourceGraph)
+        {
             try
             {
                 _logger.LogInformation("code to complile:\r\n{Code}", code);
                 // Parse the code
                 var syntaxTree = CSharpSyntaxTree.ParseText(code);
-                
+
                 // Ensure required using statements are present
                 var requiredNamespaces = new[]
                 {
@@ -74,7 +78,7 @@ namespace AppSage.Query
                     "System.Linq",
                     "netstandard"
                 };
-                
+
                 foreach (var assemblyName in additionalAssemblies)
                 {
                     try
@@ -128,9 +132,9 @@ namespace AppSage.Query
                 var context = new AssemblyLoadContext(null, isCollectible: true);
                 var compiledAssembly = context.LoadFromStream(ms);
 
-                var type=compiledAssembly.GetTypes().Where(t=>t.Name=="MyQuery").First();
+                var type = compiledAssembly.GetTypes().Where(t => t.Name == "MyQuery").First();
 
-             
+
                 var method = type.GetMethod("Execute", BindingFlags.Static | BindingFlags.Public);
 
                 if (method == null)
@@ -142,28 +146,36 @@ namespace AppSage.Query
 
                 var executionResult = method.Invoke(null, new object[] { sourceGraph });
 
-                var saveQueryAsTemplate=_config.Get<bool>("AppSage.Query.DynamicCompiler:SaveQueryAsTemplateGroup");
-                if (saveQueryAsTemplate) { 
+                var saveQueryAsTemplate = _config.Get<bool>("AppSage.Query.DynamicCompiler:SaveQueryAsTemplateGroup");
+                if (saveQueryAsTemplate)
+                {
                     var templateGroupName = _config.Get<string>("AppSage.Query.DynamicCompiler:TemplateGroupNameForSaving");
                     var templateFolderPath = Path.Combine(_workspace.TemplateFolder, templateGroupName);
                     if (!Directory.Exists(templateFolderPath))
                     {
                         Directory.CreateDirectory(templateFolderPath);
                     }
-                    string templateName=Guid.NewGuid().ToString("N")+".cs";
+                    string templateName = Guid.NewGuid().ToString("N") + ".cs";
                     string filieName = Path.Combine(templateFolderPath, templateName);
                     File.WriteAllText(filieName, code);
 
                     string metaData = Path.Combine(templateFolderPath, templateName + ".metadata");
-                    var content=new List<string>();
-                    content.Add(typeof(T).Name);
+                    var content = new List<string>();
+                    if (executionResult != null)
+                    {
+                        content.Add($"ReturnType:{executionResult.GetType().FullName}");
+                    }
+                    else
+                    {
+                        content.Add("ReturnType:Void");
+                    }
                     content.Add(ExtractExecuteMethodComment(syntaxTree));
                     File.AppendAllLines(metaData, content.ToArray());
                 }
 
                 context.Unload();
 
-                return (T)executionResult;
+                return executionResult;
             }
             catch (Exception ex)
             {
@@ -172,7 +184,6 @@ namespace AppSage.Query
                 throw;
             }
         }
-
 
         /// <summary>
         /// Extracts the comment body above the Execute method from the syntax tree
@@ -294,5 +305,7 @@ namespace AppSage.Query
 
             return syntaxTree.WithRootAndOptions(newRoot, syntaxTree.Options);
         }
+
+       
     }
 }

@@ -5,5 +5,6 @@ namespace AppSage.Query
     public interface IDynamicCompiler
     {
         T CompileAndExecute<T>(string code, IDirectedGraph sourceGraph);
+        Object? CompileAndExecute(string code, IDirectedGraph sourceGraph);
     }
 }

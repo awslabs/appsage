@@ -1,6 +1,6 @@
-﻿namespace AppSage.Core.Query
+﻿namespace AppSage.Core.Template
 {
-    public class TemplateInfo
+    public class TemplateMetadata:ITemplateMetadata
     {
         public TemplateType TemplateType { get; set; }
         public string TemplateId { get; set; }

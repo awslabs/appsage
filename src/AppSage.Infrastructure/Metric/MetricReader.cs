@@ -3,12 +3,6 @@ using AppSage.Core.Logging;
 using AppSage.Core.Metric;
 using AppSage.Core.Workspace;
 using AppSage.Infrastructure.Serialization;
-using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AppSage.Infrastructure.Metric
 {
@@ -45,11 +39,18 @@ namespace AppSage.Infrastructure.Metric
 
             if (takeDataFromLastRun)
             {
+                _logger.LogInformation("Configuration is set to take the output data from the latest run folder.");
+                _logger.LogInformation("Searching for the latest run folder in [{ProviderOutputFolder}]", _workspace.ProviderOutputFolder);
                 DirectoryInfo outputFolder = new DirectoryInfo(_workspace.ProviderOutputFolder);
                 dataDir = outputFolder.GetDirectories("*", SearchOption.TopDirectoryOnly).OrderByDescending(d => d.Name).FirstOrDefault();
+                if (dataDir != null)
+                {
+                    _logger.LogInformation("Latest run folder is resolved as: [{LatestRunFolder}]", dataDir.FullName);
+                }
             }
             else
             {
+                _logger.LogInformation("Configuration is set to take the output data from the provider output folder in [{ProviderOutputFolder}].", _workspace.ProviderOutputFolder);
                 dataDir = new DirectoryInfo(_workspace.ProviderOutputFolder);
             }
 

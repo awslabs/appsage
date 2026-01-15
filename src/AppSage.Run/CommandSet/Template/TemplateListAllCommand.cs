@@ -1,7 +1,6 @@
 ﻿using AppSage.Core.Configuration;
 using AppSage.Core.Logging;
 using AppSage.Core.Metric;
-using AppSage.Core.Query;
 using AppSage.Core.Workspace;
 using AppSage.Run.CommandSet.Root;
 using AppSage.Run.Utilities;
@@ -9,7 +8,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using Spectre.Console;
 using System.CommandLine;
-using AppSage.Infrastructure.Query;
+using AppSage.Infrastructure.Template;
+using AppSage.Core.Template;
 
 namespace AppSage.Run.CommandSet.Template
 {
@@ -40,12 +40,12 @@ namespace AppSage.Run.CommandSet.Template
         }
         public int Execute()
         {
-            _serviceCollection.AddTransient<ITemplateQueryManager, TemplateQueryManager>();
+            _serviceCollection.AddTransient<ITemplateManager, TemplateManager>();
             var provider= _serviceCollection.BuildServiceProvider();
             var logger= provider.GetRequiredService<IAppSageLogger>();
        
 
-            var templateManager=provider.GetRequiredService<ITemplateQueryManager>();
+            var templateManager=provider.GetRequiredService<ITemplateManager>();
 
 
             var table = new Table();
@@ -56,7 +56,7 @@ namespace AppSage.Run.CommandSet.Template
             table.AddColumn("[bold]Description[/]");
             table.ShowRowSeparators = true;
 
-            var individualTemplates = templateManager.GetTemplates().Where(t=>t.TemplateType==TemplateType.Single).OrderBy(g=>g.TemplateId);
+            var individualTemplates = templateManager.GetTemplateMetadata().Where(t=>t.TemplateType==TemplateType.SingleQuery).OrderBy(g=>g.TemplateId);
 
             foreach (var template in individualTemplates)
             {
