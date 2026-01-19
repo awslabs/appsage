@@ -103,8 +103,7 @@ namespace AppSage.Infrastructure.Workspace
                 Directory.CreateDirectory(ws.ExtensionInstallFolder);
 
 
-                logger.LogInformation("{MessagePrefix} [{DocsFolder}]. This is where documents will be kept.", messagePrefix, ws.DocsFolder);
-                Directory.CreateDirectory(ws.DocsFolder);
+
 
                 logger.LogInformation("{MessagePrefix} hidden AppSage config folder folder [{AppSageConfigFolder}]. Used by AppSage to identify configuration.", messagePrefix, ws.AppSageConfigFolder);
                 Directory.CreateDirectory(ws.AppSageConfigFolder);

@@ -12,26 +12,27 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using System.CommandLine;
 
-namespace AppSage.Run.CommandSet.Template
+namespace AppSage.Run.CommandSet.Query
 {
-    public record TemplateRunOptions
+    public record QueryRunOptions
     {
         public string TemplateId { get; set; } = string.Empty;
     }
-    public sealed class TemplateRunCommand : ISubCommand<TemplateRunOptions>
+    public sealed class QueryRunCommand : ISubCommand<QueryRunOptions>
     {
         IServiceCollection _services;
-        public TemplateRunCommand(IServiceCollection services)
+        public QueryRunCommand(IServiceCollection services)
         {
             _services = services;
         }
 
         public string Name => "run";
-        public string Description => "Run the set of AppSage templates and create the analysis";
+        public string Description => "Run the set of AppSage query templates and create the analysis";
 
         public Command Build()
         {
             var cmd = new Command(this.Name, this.Description);
+            cmd.Aliases.Add("r");
             var argWorkspaceFolder = AppSageRootCommand.GetWorkspaceArgument();
             cmd.Add(argWorkspaceFolder);
 
@@ -47,13 +48,13 @@ namespace AppSage.Run.CommandSet.Template
             cmd.SetAction(pr =>
             {
                 var id = pr.GetValue(templateId);
-                TemplateRunOptions options = new TemplateRunOptions();
+                QueryRunOptions options = new QueryRunOptions();
                 options.TemplateId = id ;
                 return this.Execute(options);
             });
             return cmd;
         }
-        public int Execute(TemplateRunOptions opt)
+        public int Execute(QueryRunOptions opt)
         {
             _services.AddTransient<ITemplateManager, TemplateManager>();
             _services.AddTransient<ITemplateQuery, TemplateQueryManager>();

@@ -3,37 +3,38 @@ using AppSage.Run.CommandSet.MCP;
 using Microsoft.Extensions.DependencyInjection;
 using System.CommandLine;
 
-namespace AppSage.Run.CommandSet.Template
+namespace AppSage.Run.CommandSet.Query
 {
 
-    public record TemplateOptions
+    public record QueryOptions
     {
         public Command TemplateCommand { get; set; }
     }
-    public sealed class TemplateCommand : ISubCommand<TemplateOptions>
+    public sealed class QueryCommand : ISubCommand<QueryOptions>
     {
         IServiceCollection _serviceCollection;
         IAppSageLogger _logger;
-        public TemplateCommand(IServiceCollection serviceCollection)
+        public QueryCommand(IServiceCollection serviceCollection)
         {
             _serviceCollection = serviceCollection;
             ServiceProvider provider = serviceCollection.BuildServiceProvider();
             _logger = provider.GetService<IAppSageLogger>();
         }
 
-        public string Name => "template";
-        public string Description => "Perform  template related tasks. Templates are pre-defined set of analysis you like to run on AppSage.";
+        public string Name => "query";
+        public string Description => "Allows you to directly query AppSage data. You can use a query templates with pre-defined set of analysis to run.";
 
         public Command Build()
         {
 
             var cmd = new Command(this.Name, this.Description);
+            cmd.Aliases.Add("q");
             cmd.TreatUnmatchedTokensAsErrors = false;
 
             var subCommandRegistry = new List<ISubCommand>();
             subCommandRegistry.Add(new TemplateListGroupCommand(_serviceCollection));
             subCommandRegistry.Add(new TemplateListAllCommand(_serviceCollection));
-            subCommandRegistry.Add(new TemplateRunCommand(_serviceCollection));
+            subCommandRegistry.Add(new QueryRunCommand(_serviceCollection));
             
             subCommandRegistry.ForEach(c =>
             {
@@ -42,17 +43,13 @@ namespace AppSage.Run.CommandSet.Template
 
             cmd.SetAction(pr =>
             {
-                var cmd = pr.CommandResult.Command;
-                cmd.SetAction(pr =>
-                {
-                    var options = new TemplateOptions();
-                    options.TemplateCommand = pr.CommandResult.Command;
-                    this.Execute(options);
-                });
+                var options = new QueryOptions();
+                options.TemplateCommand = pr.CommandResult.Command;
+                this.Execute(options);
             });
             return cmd;
         }
-        public int Execute(TemplateOptions opt)
+        public int Execute(QueryOptions opt)
         {
             var cmd = opt.TemplateCommand;
             _logger.LogInformation("Select the sub command of '{CommandName}'", cmd.Name);

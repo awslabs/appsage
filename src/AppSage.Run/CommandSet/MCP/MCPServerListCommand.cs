@@ -25,6 +25,8 @@ namespace AppSage.Run.CommandSet.MCP
         public Command Build()
         {
             var cmd = new Command(this.Name, this.Description);
+            cmd.Aliases.Add("ls");
+
             var argWorkspaceFolder = AppSageRootCommand.GetWorkspaceArgument();
             cmd.Add(argWorkspaceFolder);
             cmd.SetAction(pr =>

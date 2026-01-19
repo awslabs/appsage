@@ -60,6 +60,12 @@ namespace AppSage.MCPServer
 
             var app = builder.Build();
 
+            if(options != null && options.PreloadMetrics)
+            {
+                var codeGraphGenerator = app.Services.GetService<CodeGraphGenerator>();
+                codeGraphGenerator.EnsureGraph();
+            }
+
 
             // Streamable HTTP endpoint at /mcp
             app.MapMcp("/mcp");

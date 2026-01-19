@@ -30,7 +30,12 @@ namespace AppSage.Query
         {
             try
             {
-                _logger.LogInformation("code to complile:\r\n{Code}", code);
+                bool logCodeToCompile = _config.Get<bool>("AppSage.Query.DynamicCompiler:LogCode");
+
+                if (logCodeToCompile)
+                {
+                    _logger.LogInformation("code to complile:\r\n{Code}", code);
+                }
                 // Parse the code
                 var syntaxTree = CSharpSyntaxTree.ParseText(code);
 

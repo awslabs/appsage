@@ -8,7 +8,7 @@ using AppSage.Run.CommandSet.Extension;
 using AppSage.Run.CommandSet.Init;
 using AppSage.Run.CommandSet.MCP;
 using AppSage.Run.CommandSet.Root;
-using AppSage.Run.CommandSet.Template;
+using AppSage.Run.CommandSet.Query;
 using AppSage.Run.CommandSet.Version;
 using DocumentFormat.OpenXml.Bibliography;
 using DocumentFormat.OpenXml.Wordprocessing;
@@ -143,7 +143,7 @@ namespace AppSage.Run
             commands.Add(new ExtensionCommand(serviceCollection));
             commands.Add(new MCPServerCommand(serviceCollection));
             commands.Add(new VersionCommnad(serviceCollection));
-            commands.Add(new TemplateCommand(serviceCollection));
+            commands.Add(new QueryCommand(serviceCollection));
 
             return commands;
         }

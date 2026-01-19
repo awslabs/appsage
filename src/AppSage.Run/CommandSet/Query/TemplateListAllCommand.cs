@@ -11,7 +11,7 @@ using System.CommandLine;
 using AppSage.Infrastructure.Template;
 using AppSage.Core.Template;
 
-namespace AppSage.Run.CommandSet.Template
+namespace AppSage.Run.CommandSet.Query
 {
     public sealed class TemplateListAllCommand : ISubCommandWithNoOptions
     {
@@ -22,14 +22,15 @@ namespace AppSage.Run.CommandSet.Template
             _serviceCollection = services;
         }
 
-        public string Name => "list-all";
-        public string Description => "List all the available template files";
+        public string Name => "list-templates";
+        public string Description => "List all the available qeury templates";
 
         public Command Build()
         {
            
 
             var cmd = new Command(this.Name, this.Description);
+            cmd.Aliases.Add("lt");
             var argWorkspaceFolder = AppSageRootCommand.GetWorkspaceArgument();
             cmd.Add(argWorkspaceFolder);
             cmd.SetAction(pr =>

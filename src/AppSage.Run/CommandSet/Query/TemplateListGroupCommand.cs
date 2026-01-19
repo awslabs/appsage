@@ -11,7 +11,7 @@ using System.CommandLine;
 using AppSage.Infrastructure.Template;
 using AppSage.Core.Template;
 
-namespace AppSage.Run.CommandSet.Template
+namespace AppSage.Run.CommandSet.Query
 {
     public sealed class TemplateListGroupCommand : ISubCommandWithNoOptions
     {
@@ -22,14 +22,15 @@ namespace AppSage.Run.CommandSet.Template
             _serviceCollection = services;
         }
 
-        public string Name => "list-groups";
-        public string Description => "List the available template groups";
+        public string Name => "list-template-groups";
+        public string Description => "List the available template groups. A template group is a collect of templates you can run in one shot.";
 
         public Command Build()
         {
            
 
             var cmd = new Command(this.Name, this.Description);
+            cmd.Aliases.Add("ltg");
             var argWorkspaceFolder = AppSageRootCommand.GetWorkspaceArgument();
             cmd.Add(argWorkspaceFolder);
             cmd.SetAction(pr =>

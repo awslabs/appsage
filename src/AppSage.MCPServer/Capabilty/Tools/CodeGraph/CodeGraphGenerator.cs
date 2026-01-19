@@ -155,7 +155,7 @@ namespace AppSage.MCPServer.Capabilty.Tools.CodeGraph
             _filteredGraph = filteredGraph;
             return $"Graph data is filtered. Original graph had [{_graph.Nodes.Count} nodes and {_graph.Edges.Count} edges]. New filtered graph has [{_filteredGraph.Nodes.Count} nodes and {_filteredGraph.Edges.Count} edges] ";
         }
-        private void EnsureGraph()
+        internal void EnsureGraph()
         {
             if (_graph == null)
             {

@@ -24,7 +24,7 @@ namespace AppSage.Run.CommandSet.MCP
             var cmd = new Command(this.Name, this.Description);
             var argWorkspaceFolder = AppSageRootCommand.GetWorkspaceArgument();
             cmd.Add(argWorkspaceFolder);
-
+            cmd.Aliases.Add("r");
 
             var port = new Option<int>(name: "--port", aliases: new string[] { "-p" });
             port.Description = $"""
@@ -32,16 +32,25 @@ namespace AppSage.Run.CommandSet.MCP
                 """;
             cmd.Add(port);
 
+            var preloadMetrics = new Option<bool>(name: "--preload-metrics", aliases: new string[] {"-plm" });
+            preloadMetrics.Description = """
+                Preload all metrics into memory on server start. This may increase startup time but will improve query performance.
+                """;
+            cmd.Add(preloadMetrics);
 
 
             cmd.SetAction(pr =>
             {
                 var workspaceFolder = pr.GetValue(argWorkspaceFolder);
                 var portValue = pr.GetValue(port);
-               
+
+                var preloadMetricsValue = pr.GetValue(preloadMetrics);
+
+
                 MCPServerRunOptions options = new MCPServerRunOptions();
                 options.Port = portValue;
-               
+                options.PreloadMetrics= preloadMetricsValue;
+
                 return this.Execute(options);
             });
             return cmd;

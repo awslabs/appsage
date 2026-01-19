@@ -27,6 +27,7 @@ namespace AppSage.Run.CommandSet.Extension
 
             var cmd = new Command(this.Name, this.Description);
             cmd.TreatUnmatchedTokensAsErrors = false;
+            cmd.Aliases.Add("ext");
 
             var subCommandRegistry = new List<ISubCommand>();
             subCommandRegistry.Add(new ExtensionListCommand(_serviceCollection));

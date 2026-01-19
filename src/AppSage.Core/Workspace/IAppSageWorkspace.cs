@@ -11,14 +11,13 @@
     {
         //input folders
         protected const string REPOSITORIES_ROOT_FOLDER_NAME = "Repositories";
-        protected const string DOCS_ROOT_FOLDER_NAME = "Docs";
-        protected const string TEMPLATES_ROOT_FOLDER_NAME = "Templates";
+        protected const string QUERY_TEMPLATES_ROOT_FOLDER_NAME = "QueryTemplates";
 
         //output folders
         protected const string OUTPUT_ROOT_FOLDER_NAME = "Output";
         protected const string PROVIDER_OUTPUT_FOLDER_NAME = "Provider";
         protected const string MCP_SERVER_OUTPUT_FOLDER_NAME = "MCPServer";
-        protected const string TEMPLATE_BASED_ANALYSIS_OUTPUT_FOLDER_NAME = "TemplateBasedAnalysis";
+        protected const string QUERY_OUTPUT_FOLDER_NAME = "Query";
         protected const string LOGS_ROOT_FOLDER_NAME = "Logs";
 
         //Extensions related folders
@@ -43,9 +42,9 @@
 
         string MCPServerOutputFolder => Path.Combine(RootFolder, OUTPUT_ROOT_FOLDER_NAME, MCP_SERVER_OUTPUT_FOLDER_NAME);
 
-        string TemplateBasedAnalysisOutputFolder => Path.Combine(RootFolder, OUTPUT_ROOT_FOLDER_NAME, TEMPLATE_BASED_ANALYSIS_OUTPUT_FOLDER_NAME);
+        string TemplateBasedAnalysisOutputFolder => Path.Combine(RootFolder, OUTPUT_ROOT_FOLDER_NAME, QUERY_OUTPUT_FOLDER_NAME);
 
-        string TemplateFolder => Path.Combine(RootFolder, TEMPLATES_ROOT_FOLDER_NAME);
+        string TemplateFolder => Path.Combine(RootFolder, QUERY_TEMPLATES_ROOT_FOLDER_NAME);
 
         string LogsFolder => Path.Combine(RootFolder, LOGS_ROOT_FOLDER_NAME);
 
@@ -63,7 +62,7 @@
             return Path.Combine(ExtensionInstallFolder, extensionId, EXTENSION_DOCUMENTATION_FOLDER_NAME);
         }
 
-        string DocsFolder => Path.Combine(RootFolder, DOCS_ROOT_FOLDER_NAME);
+
 
         string AppSageConfigFolder => Path.Combine(RootFolder, APPSAGE_CONFIG_ROOT_FOLDER_NAME);
         string AppSageConfigFilePath => Path.Combine(AppSageConfigFolder, APPSAGE_CONFIG_FILENAME);
