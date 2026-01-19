@@ -77,24 +77,7 @@ namespace AppSage.MCPServer.Capabilty.Tools.CodeGraph
         [McpServerTool, Description("Load the data and refresh the current graph metrics. Usually done once, unless explicity asked to do so.")]
         public string LoadGraphData()
         {
-            _logger.LogInformation("Loading graph data from the metric store.");
-
-            var metrics = _metricReader.GetMetricSet()
-                .AsParallel().WithDegreeOfParallelism(10).Where(m => m is IMetricValue<DirectedGraph>)
-                .Cast<IMetricValue<DirectedGraph>>();
-
-            _logger.LogInformation($"Found {metrics.Count()} graph metrics in the metric store.");
-
-            var graphSet = metrics.Where(x => x is IMetricValue<DirectedGraph>)
-                .Cast<IMetricValue<DirectedGraph>>().Select(r => r.Value);
-
-            _logger.LogInformation("Merging multiple graphs to form a one.");
-
-            _graph = DirectedGraph.MergeGraph(graphSet);
-
-            //initially the filtered graph is the same as the full graph
-            _filteredGraph = _graph;
-            _logger.LogInformation("Loading completed.");
+            EnsureGraph();
 
             if (_graph == null)
             {
@@ -163,7 +146,25 @@ namespace AppSage.MCPServer.Capabilty.Tools.CodeGraph
                 {
                     if (_graph == null)
                     {
-                        LoadGraphData();
+                        _logger.LogInformation("Loading graph data from the metric store.");
+
+                        var metrics = _metricReader.GetMetricSet()
+                            .AsParallel().WithDegreeOfParallelism(10).Where(m => m is IMetricValue<DirectedGraph>)
+                            .Cast<IMetricValue<DirectedGraph>>();
+
+                        _logger.LogInformation($"Found {metrics.Count()} graph metrics in the metric store.");
+
+                        var graphSet = metrics.Where(x => x is IMetricValue<DirectedGraph>)
+                            .Cast<IMetricValue<DirectedGraph>>().Select(r => r.Value);
+
+                        _logger.LogInformation("Merging multiple graphs to form a one.");
+
+                        _graph = DirectedGraph.MergeGraph(graphSet);
+
+                        //initially the filtered graph is the same as the full graph
+                        _filteredGraph = _graph;
+                        _logger.LogInformation("Loading completed.");
+                        _logger.LogInformation($"Graph has {_graph.Nodes.Count} nodes and {_graph.Edges.Count} edges.");
                     }
                 }
             }

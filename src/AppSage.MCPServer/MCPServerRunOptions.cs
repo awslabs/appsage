@@ -11,7 +11,7 @@ namespace AppSage.MCPServer
         public const int DefaultPort = 44000;
         public int Port { get; set; } = DefaultPort;
 
-        public string ProviderOutputName { get; set; } = null;
+        public string DatasetName { get; set; } = null;
 
         public bool PreloadMetrics { get; set; } = false;
     }
