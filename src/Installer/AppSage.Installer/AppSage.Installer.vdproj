@@ -19,6 +19,12 @@
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
+        "Entry"
+        {
+        "MsmKey" = "8:_FF78B1BEDA0E4D1C81AD89834CF89160"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
     }
     "Configurations"
     {
@@ -59,6 +65,20 @@
     {
         "CustomAction"
         {
+            "{4AA51A2D-7D85-4A59-BA75-B0809FC8B380}:_DE90F700ADC44F439D70F3673116BCCA"
+            {
+            "Name" = "8:AppSage.Installer.CustomActions.exe"
+            "Condition" = "8:"
+            "Object" = "8:_FF78B1BEDA0E4D1C81AD89834CF89160"
+            "FileType" = "3:2"
+            "InstallAction" = "3:1"
+            "Arguments" = "8:INSTALL TARGETDIR=\"[TARGETDIR]\" ALLUSERS=\"[ALLUSERS]\""
+            "EntryPoint" = "8:"
+            "Sequence" = "3:1"
+            "Identifier" = "8:_E5776A6E_37B1_4A79_AB1F_A2CDC8F74A80"
+            "InstallerClass" = "11:FALSE"
+            "CustomActionData" = "8:"
+            }
         }
         "DefaultFeature"
         {
@@ -84,6 +104,26 @@
         }
         "File"
         {
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_FF78B1BEDA0E4D1C81AD89834CF89160"
+            {
+            "SourcePath" = "8:..\\AppSage.Installer.CustomActions\\bin\\Debug\\net10.0\\win-x64\\publish\\AppSage.Installer.CustomActions.exe"
+            "TargetName" = "8:AppSage.Installer.CustomActions.exe"
+            "Tag" = "8:"
+            "Folder" = "8:_B00A149616894AD6B0E73A5B16566E2A"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
         }
         "FileType"
         {
@@ -139,9 +179,9 @@
         "Product"
         {
         "Name" = "8:Microsoft Visual Studio"
-        "ProductName" = "8:AppSage.Installer"
+        "ProductName" = "8:AppSage"
         "ProductCode" = "8:{1638684B-B3BC-4B85-A2AA-16F70BC6E080}"
-        "PackageCode" = "8:{B56B0BEA-21C2-4120-9966-4A0FE2F693D9}"
+        "PackageCode" = "8:{2A93CB47-F31C-4AF9-85D8-3787DB06A5C5}"
         "UpgradeCode" = "8:{F79E241F-38A6-4C38-848C-D75A008F2071}"
         "AspNetVersion" = "8:"
         "RestartWWWService" = "11:FALSE"
@@ -152,7 +192,7 @@
         "Manufacturer" = "8:Amazon.com"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
-        "Title" = "8:AppSage.Installer"
+        "Title" = "8:AppSage"
         "Subject" = "8:"
         "ARPCONTACT" = "8:Amazon.com"
         "Keywords" = "8:"
@@ -684,7 +724,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_D474CA590BB34C7D9BD836BAECA40685"
             {
-            "SourcePath" = "8:..\\..\\AppSage.Run\\obj\\Release\\net8.0\\AppSage.dll"
+            "SourcePath" = "8:..\\..\\AppSage.Run\\obj\\Debug\\net8.0\\AppSage.dll"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_B00A149616894AD6B0E73A5B16566E2A"
