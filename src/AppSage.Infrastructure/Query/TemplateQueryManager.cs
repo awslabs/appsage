@@ -40,7 +40,7 @@ namespace AppSage.Infrastructure.Query
                 try
                 {
                     var result = _dynamicCompiler.CompileAndExecute(template.Content, _graph);
-                    Save(result, template.TemplateId);
+                    Save(result.ExecutionResult, template.TemplateId);
                 }
                 catch (Exception ex)
                 {
@@ -59,7 +59,7 @@ namespace AppSage.Infrastructure.Query
             }
 
             string filePrefix = templateId.Replace(Path.DirectorySeparatorChar, '_').Replace(Path.AltDirectorySeparatorChar, '_');
-            string fileSuffix = $"{DateTime.Now.ToString("yyyyMMdd_HHmmss")}_{Guid.NewGuid().ToString().Take(6).ToString()}";
+            string fileSuffix = $"{DateTime.Now.ToString("yyyyMMdd_HHmmss")}_{Guid.NewGuid().ToString().Substring(0, 6)}";
 
             // Handle IEnumerable<DataTable> - convert to Excel file
             if (result is IEnumerable<DataTable> dataTables)

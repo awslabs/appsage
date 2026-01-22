@@ -49,8 +49,10 @@ namespace AppSage.Run
                 //args= new string[] { "mcpserver", "run", "-ws", "C:\\Dev\\MyAppSageWorkspace" };
                 //args = new string[] { "template", "list", "-ws", "C:\\Dev\\MyAppSageWorkspace" };
 
-                //args = new string[] { "mcpserver", "-ws", "C:\\Dev\\MyAppSageWorkspace" };
+                //args = new string[] { "mcpserver","run", "-ws", "C:\\Dev\\MyAppSageWorkspace","-plm" };
                 //args = new string[] { "template", "run", "-ws", "C:\\Dev\\MyAppSageWorkspace" };
+                //args = new string[] { "q", "run", "-ws", "C:\\Dev\\MyAppSageWorkspace","--id", "MCPTemplateGenerator\\myquery.cs" };
+
                 RootCommand rootCommand = new RootCommand
                 {
                     Description = "AppSage Run Command Line Interface"
