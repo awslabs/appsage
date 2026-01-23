@@ -28,6 +28,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppSage.Providers.HelloWorld", "BuiltInExtensions\AppSage.Providers.HelloWorld\AppSage.Providers.HelloWorld.csproj", "{A0ED0B6B-D3AD-44AE-9DA8-60ACED7CEA34}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Installer", "Installer", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+	ProjectSection(SolutionItems) = preProject
+		Installer\Build-Installer.ps1 = Installer\Build-Installer.ps1
+		Installer\Install-AppSage.ps1 = Installer\Install-AppSage.ps1
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppSage.Query", "AppSage.Query\AppSage.Query.csproj", "{660CA2CC-7F68-43F2-94E1-63D3ED2A5468}"
 EndProject
