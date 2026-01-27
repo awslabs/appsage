@@ -87,17 +87,117 @@ function Test-DotNetVersion {
     }
 }
 
-# Paths
+# Function to build AppSage .NET application
+function Build-AppSageDotNetApp {
+    param(
+        [string]$Configuration,
+        [string]$PublishWorkspace,
+        [string]$AppZipFile
+    )
+    
+    # Derive .NET-related paths within the function
+    $ScriptRoot = $PSScriptRoot
+    $SolutionRoot = Split-Path $ScriptRoot -Parent
+    $AppSageRunProject = Join-Path $SolutionRoot "AppSage.Run\AppSage.Run.csproj"
+    $PublishOutput = Join-Path $SolutionRoot "AppSage.Run\bin\Publish\AppSageApp"
+    
+    # Step 1: Clean old files
+    Write-Host "[1/6] Cleaning old .NET app files..." -ForegroundColor Green
+    if (Test-Path $PublishOutput) {
+        Remove-Item $PublishOutput -Recurse -Force
+    }
+    if (Test-Path $AppZipFile) {
+        Remove-Item $AppZipFile -Force
+    }
+    Write-Host "  ✓ .NET app files cleaned" -ForegroundColor Green
+    Write-Host ""
+
+    # Step 2: Clean solution build artifacts
+    Write-Host "[2/6] Cleaning solution build artifacts..." -ForegroundColor Green
+    & dotnet clean "`"$SolutionRoot`"" --configuration $Configuration --verbosity minimal
+    if ($LASTEXITCODE -ne 0) {
+        Write-Warning "Clean failed, continuing anyway..."
+    }
+    Write-Host "  ✓ Solution cleaned" -ForegroundColor Green
+    Write-Host ""
+
+    # Step 3: Ensure publish directory exists
+    Write-Host "[3/6] Creating publish directories..." -ForegroundColor Green
+    New-Item -Path $PublishWorkspace -ItemType Directory -Force | Out-Null
+    Write-Host "  ✓ Publish directories created" -ForegroundColor Green
+    Write-Host ""
+
+    # Step 4: Publish AppSage.Run
+    Write-Host "[4/6] Publishing AppSage ($Configuration)..." -ForegroundColor Green
+
+    $publishArgs = @(
+        'publish',
+        "`"$AppSageRunProject`"",
+        '-c', $Configuration,
+        '-r', 'win-x64',
+        '--self-contained', 'true',
+        '-p:PublishSingleFile=true',
+        '-o', "`"$PublishOutput`""
+    )
+
+    if ($Configuration -eq 'Release') {
+        $publishArgs += '-p:DebugType=none'
+    }
+
+    & dotnet @publishArgs
+
+    if ($LASTEXITCODE -ne 0) {
+        throw "Publish failed"
+    }
+
+    Write-Host "  ✓ Published to: $PublishOutput" -ForegroundColor Green
+    Write-Host ""
+
+    # Step 5: Create AppSageApp.zip
+    Write-Host "[5/6] Creating .NET app package..." -ForegroundColor Green
+
+    # Create zip of the published app
+    Compress-Archive -Path "$PublishOutput\*" -DestinationPath $AppZipFile -Force
+
+    $appZipSize = (Get-Item $AppZipFile).Length / 1MB
+    Write-Host "  ✓ .NET app package created ($([math]::Round($appZipSize, 2)) MB)" -ForegroundColor Green
+    Write-Host ""
+}
+
+# Function to copy install script
+function Copy-InstallScript {
+    param(
+        [string]$InstallScriptCopy
+    )
+    
+    # Derive install script source path
+    $ScriptRoot = $PSScriptRoot
+    $InstallScript = Join-Path $ScriptRoot "Install-AppSage.ps1"
+    
+    # Clean old install script copy
+    if (Test-Path $InstallScriptCopy) {
+        Remove-Item $InstallScriptCopy -Force
+    }
+
+    # Copy the install script
+    if (Test-Path $InstallScript) {
+        Copy-Item $InstallScript -Destination $InstallScriptCopy
+        Write-Host "  ✓ Install script copied" -ForegroundColor Green
+    } else {
+        Write-Warning "Install-AppSage.ps1 not found at $InstallScript"
+    }
+}
+
+# Paths (only for installer-specific files)
 $ScriptRoot = $PSScriptRoot
 $SolutionRoot = Split-Path $ScriptRoot -Parent
-$AppSageRunProject = Join-Path $SolutionRoot "AppSage.Run\AppSage.Run.csproj"
-$PublishOutput = Join-Path $SolutionRoot "AppSage.Run\bin\Publish\AppSageApp"
-$PublishBaseDir = Join-Path $SolutionRoot "AppSage.Run\bin\Publish"
-$AppZipFile = Join-Path $PublishBaseDir "AppSageApp.zip"
-$InstallScript = Join-Path $ScriptRoot "Install-AppSage.ps1"
-$InstallScriptCopy = Join-Path $PublishBaseDir "Install-AppSage.ps1"
 $FinalInstallerDir = Join-Path $ScriptRoot "Publish"
 $InstallerZip = Join-Path $FinalInstallerDir "AppSageInstaller.zip"
+
+# Temporary paths for installer creation
+$PublishWorkspace = Join-Path $SolutionRoot "AppSage.Run\bin\Publish"
+$AppZipFile = Join-Path $PublishWorkspace "AppSageApp.zip"
+$InstallScriptCopy = Join-Path $PublishWorkspace "Install-AppSage.ps1"
 
 Write-Host ""
 Write-Host "═══════════════════════════════════════" -ForegroundColor Cyan
@@ -113,87 +213,24 @@ if (-not (Test-DotNetVersion -MinimumVersion $dotNetVersionRequired)) {
 }
 Write-Host ""
 
-# Step 1: Clean old files
-Write-Host "[1/6] Cleaning old files..." -ForegroundColor Green
-if (Test-Path $PublishOutput) {
- Remove-Item $PublishOutput -Recurse -Force
-}
-if (Test-Path $AppZipFile) {
-    Remove-Item $AppZipFile -Force
-}
-if (Test-Path $InstallScriptCopy) {
-    Remove-Item $InstallScriptCopy -Force
-}
-if (Test-Path $FinalInstallerDir) {
-    Remove-Item $FinalInstallerDir -Recurse -Force
-}
-Write-Host "  ✓ Cleaned" -ForegroundColor Green
-Write-Host ""
+# Step 1-5: Build AppSage .NET Application
+Build-AppSageDotNetApp -Configuration $Configuration -PublishWorkspace $PublishWorkspace -AppZipFile $AppZipFile
 
-# Step 2: Clean solution build artifacts
-Write-Host "[2/6] Cleaning solution build artifacts..." -ForegroundColor Green
-& dotnet clean "`"$SolutionRoot`"" --configuration $Configuration --verbosity minimal
-if ($LASTEXITCODE -ne 0) {
-    Write-Warning "Clean failed, continuing anyway..."
-}
-Write-Host "  ✓ Solution cleaned" -ForegroundColor Green
-Write-Host ""
-
-# Step 3: Ensure directories exist
-Write-Host "[3/6] Creating directories..." -ForegroundColor Green
-New-Item -Path $PublishBaseDir -ItemType Directory -Force | Out-Null
-New-Item -Path $FinalInstallerDir -ItemType Directory -Force | Out-Null
-Write-Host "  ✓ Directories created" -ForegroundColor Green
-Write-Host ""
-
-# Step 4: Publish AppSage.Run
-Write-Host "[4/6] Publishing AppSage ($Configuration)..." -ForegroundColor Green
-
-$publishArgs = @(
-    'publish',
-    "`"$AppSageRunProject`"",
-    '-c', $Configuration,
-    '-r', 'win-x64',
-    '--self-contained', 'true',
-    '-p:PublishSingleFile=true',
-    '-o', "`"$PublishOutput`""
-)
-
-if ($Configuration -eq 'Release') {
-    $publishArgs += '-p:DebugType=none'
-}
-
-& dotnet @publishArgs
-
-if ($LASTEXITCODE -ne 0) {
-    throw "Publish failed"
-}
-
-Write-Host "  ✓ Published to: $PublishOutput" -ForegroundColor Green
-Write-Host ""
-
-# Step 5: Create AppSageApp.zip and copy Install-AppSage.ps1
-Write-Host "[5/6] Creating app package and copying install script..." -ForegroundColor Green
-
-# Create zip of the published app
-Compress-Archive -Path "$PublishOutput\*" -DestinationPath $AppZipFile -Force
-
-# Copy the install script
-if (Test-Path $InstallScript) {
-    Copy-Item $InstallScript -Destination $InstallScriptCopy
-    Write-Host "  ✓ Install script copied" -ForegroundColor Green
-} else {
-    Write-Warning "Install-AppSage.ps1 not found at $InstallScript"
-}
-
-$appZipSize = (Get-Item $AppZipFile).Length / 1MB
-Write-Host "  ✓ App package created ($([math]::Round($appZipSize, 2)) MB)" -ForegroundColor Green
-Write-Host ""
-
-# Step 6: Create final installer zip
+# Step 6: Copy install script and create final installer
 Write-Host "[6/6] Creating final installer package..." -ForegroundColor Green
 
-# Compress both Install-AppSage.ps1 and AppSageApp.zip into the final installer
+# Ensure final installer directory exists
+New-Item -Path $FinalInstallerDir -ItemType Directory -Force | Out-Null
+
+# Clean old installer zip
+if (Test-Path $InstallerZip) {
+    Remove-Item $InstallerZip -Force
+}
+
+# Copy install script to workspace
+Copy-InstallScript -InstallScriptCopy $InstallScriptCopy
+
+# Create final installer zip
 $itemsToZip = @()
 if (Test-Path $InstallScriptCopy) {
     $itemsToZip += $InstallScriptCopy
