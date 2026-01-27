@@ -15,6 +15,78 @@ param(
 
 $ErrorActionPreference = 'Stop'
 
+# Function to check .NET version (minimum version or higher)
+function Test-DotNetVersion {
+    param(
+        [string]$MinimumVersion = "8.0",
+        [switch]$ExactMatch = $false
+    )
+    
+    try {
+        $sdks = & dotnet --list-sdks 2>$null
+        if ($LASTEXITCODE -ne 0) {
+    Write-Warning ".NET CLI not found"
+          return $false
+        }
+        
+        if ($sdks -eq $null -or $sdks.Count -eq 0) {
+     Write-Warning "No .NET SDKs found"
+          return $false
+ }
+        
+        # Parse the minimum version
+        $minVersion = [System.Version]::Parse($MinimumVersion)
+ 
+        # Find compatible versions
+        $compatibleVersions = @()
+        
+    foreach ($sdk in $sdks) {
+            # Extract version from SDK string (format: "8.0.100 [path]")
+  $versionMatch = $sdk -match '^(\d+\.\d+\.\d+)'
+    if ($versionMatch) {
+       $sdkVersion = [System.Version]::Parse($matches[1])
+                
+      if ($ExactMatch) {
+       # For exact match, compare major.minor only
+ if ($sdkVersion.Major -eq $minVersion.Major -and $sdkVersion.Minor -eq $minVersion.Minor) {
+  $compatibleVersions += $sdk
+              }
+                } else {
+       # For minimum version, check if SDK version >= minimum version
+      if ($sdkVersion -ge $minVersion) {
+             $compatibleVersions += $sdk
+          }
+          }
+            }
+        }
+        
+        if ($compatibleVersions.Count -gt 0) {
+    if ($ExactMatch) {
+            Write-Host "  ✓ .NET $MinimumVersion SDK found: $($compatibleVersions[0])" -ForegroundColor Green
+            } else {
+   Write-Host "  ✓ .NET $MinimumVersion+ SDK found: $($compatibleVersions[0])" -ForegroundColor Green
+  if ($compatibleVersions.Count -gt 1) {
+         Write-Host "    Additional compatible versions: $($compatibleVersions[1..($compatibleVersions.Count-1)] -join ', ')" -ForegroundColor Gray
+         }
+  }
+   return $true
+    } else {
+          if ($ExactMatch) {
+          Write-Warning ".NET $MinimumVersion SDK not found"
+            } else {
+ Write-Warning ".NET $MinimumVersion or higher SDK not found"
+      }
+    Write-Host "Available SDKs:" -ForegroundColor Yellow
+ $sdks | ForEach-Object { Write-Host "    $_" -ForegroundColor Gray }
+            return $false
+        }
+    }
+    catch {
+        Write-Error "Error checking .NET version: $($_.Exception.Message)"
+        return $false
+    }
+}
+
 # Paths
 $ScriptRoot = $PSScriptRoot
 $SolutionRoot = Split-Path $ScriptRoot -Parent
@@ -31,6 +103,14 @@ Write-Host ""
 Write-Host "═══════════════════════════════════════" -ForegroundColor Cyan
 Write-Host "  Building AppSage Package" -ForegroundColor Cyan
 Write-Host "═══════════════════════════════════════" -ForegroundColor Cyan
+Write-Host ""
+
+# Step 0: Check .NET prerequisites
+Write-Host "[0/6] Checking .NET prerequisites..." -ForegroundColor Green
+$dotNetVersionRequired= "10.0"
+if (-not (Test-DotNetVersion -MinimumVersion $dotNetVersionRequired)) {
+    throw ".NET $dotNetVersionRequired or higher SDK is required but not found. Please install .NET $dotNetVersionRequired+ x64 SDK from https://dotnet.microsoft.com/download"
+}
 Write-Host ""
 
 # Step 1: Clean old files

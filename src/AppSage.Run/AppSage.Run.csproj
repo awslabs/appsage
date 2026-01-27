@@ -30,6 +30,7 @@
 	<!-- Custom timestamping of the assembly with build date time -->
 	<PropertyGroup>
 		<BuildTimestamp>$([System.DateTime]::UtcNow.ToString("yyyy-MM-ddTHH:mm:ssZ"))</BuildTimestamp>
+		<ApplicationIcon>Images\app.ico</ApplicationIcon>
 	</PropertyGroup>
 	<ItemGroup>
 		<AssemblyMetadata Include="BuildTimestamp" Value="$(BuildTimestamp)" />
