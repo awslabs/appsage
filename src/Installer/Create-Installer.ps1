@@ -10,7 +10,10 @@
 param(
     [Parameter()]
     [ValidateSet('Debug', 'Release')]
-    [string]$Configuration = 'Release'
+    [string]$Configuration = 'Release',
+    
+    [Parameter()]
+    [string]$VSCodeExtensionVersion
 )
 
 $ErrorActionPreference = 'Stop'
@@ -188,6 +191,73 @@ function Copy-InstallScript {
     }
 }
 
+# Function to build and package VSCode extension
+function Build-AppSageVSCodeExtension {
+    param(
+        [string]$Configuration,
+        [string]$VSCodeExtensionCopy,
+        [string]$Version
+    )
+    
+    # Derive VSCode extension paths
+    $ScriptRoot = $PSScriptRoot
+    $SolutionRoot = Split-Path $ScriptRoot -Parent
+    $VSCodeExtensionRoot = Join-Path $SolutionRoot "AppSage.VSCodeExtension"
+    $BuildScript = Join-Path $VSCodeExtensionRoot "BuildVSCodeExtension.ps1"
+    $ReleaseFolder = Join-Path $VSCodeExtensionRoot "release"
+    
+    # Clean old VSCode extension copy
+    if (Test-Path $VSCodeExtensionCopy) {
+        Remove-Item $VSCodeExtensionCopy -Force
+    }
+
+    # Check if build script exists
+    if (-not (Test-Path $BuildScript)) {
+        Write-Warning "VSCode extension build script not found at $BuildScript"
+        return
+    }
+
+    # Run the VSCode extension build script
+    Write-Host "[VSCode] Building and packaging VSCode extension..." -ForegroundColor Magenta
+    
+    try {
+        # Save current location
+        $currentLocation = Get-Location
+        
+        # Call the build script in the same PowerShell process
+        if ($Version) {
+            & $BuildScript -Version $Version
+        } else {
+            & $BuildScript
+        }
+        
+        # Restore location in case the script changed it
+        Set-Location $currentLocation
+        
+        if ($LASTEXITCODE -ne 0) {
+            throw "VSCode extension build failed"
+        }
+        
+        # Find the VSIX file in the release folder
+        $vsixFiles = Get-ChildItem -Path $ReleaseFolder -Filter "*.vsix" -ErrorAction SilentlyContinue
+        
+        if ($vsixFiles -and $vsixFiles.Count -gt 0) {
+            # Use the first (or only) VSIX file found
+            $vsixPath = $vsixFiles[0].FullName
+            
+            # Copy the VSIX file to the workspace
+            Copy-Item $vsixPath -Destination $VSCodeExtensionCopy
+            $vsixSize = (Get-Item $VSCodeExtensionCopy).Length / 1KB
+            Write-Host "  ✓ VSCode extension copied ($([math]::Round($vsixSize, 2)) KB)" -ForegroundColor Magenta
+        } else {
+            Write-Warning "No VSIX file found in $ReleaseFolder"
+        }
+    }
+    catch {
+        Write-Warning "Failed to build VSCode extension: $($_.Exception.Message)"
+    }
+}
+
 # Paths (only for installer-specific files)
 $ScriptRoot = $PSScriptRoot
 $SolutionRoot = Split-Path $ScriptRoot -Parent
@@ -198,6 +268,7 @@ $InstallerZip = Join-Path $FinalInstallerDir "AppSageInstaller.zip"
 $PublishWorkspace = Join-Path $SolutionRoot "AppSage.Run\bin\Publish"
 $AppZipFile = Join-Path $PublishWorkspace "AppSageApp.zip"
 $InstallScriptCopy = Join-Path $PublishWorkspace "Install-AppSage.ps1"
+$VSCodeExtensionCopy = Join-Path $PublishWorkspace "AppSageVSCodeExtension.vsix"
 
 Write-Host ""
 Write-Host "═══════════════════════════════════════" -ForegroundColor Cyan
@@ -215,6 +286,9 @@ Write-Host ""
 
 # Step 1-5: Build AppSage .NET Application
 Build-AppSageDotNetApp -Configuration $Configuration -PublishWorkspace $PublishWorkspace -AppZipFile $AppZipFile
+
+# Step 5.5: Build AppSage VSCode Extension
+Build-AppSageVSCodeExtension -Configuration $Configuration -VSCodeExtensionCopy $VSCodeExtensionCopy -Version $VSCodeExtensionVersion
 
 # Step 6: Copy install script and create final installer
 Write-Host "[6/6] Creating final installer package..." -ForegroundColor Green
@@ -236,6 +310,9 @@ if (Test-Path $InstallScriptCopy) {
     $itemsToZip += $InstallScriptCopy
 }
 $itemsToZip += $AppZipFile
+if (Test-Path $VSCodeExtensionCopy) {
+    $itemsToZip += $VSCodeExtensionCopy
+}
 
 Compress-Archive -Path $itemsToZip -DestinationPath $InstallerZip -Force
 
@@ -249,6 +326,10 @@ Write-Host "══════════════════════�
 Write-Host ""
 Write-Host "App Package: " -NoNewline
 Write-Host $AppZipFile -ForegroundColor Yellow
+if (Test-Path $VSCodeExtensionCopy) {
+    Write-Host "VSCode Extension: " -NoNewline
+    Write-Host $VSCodeExtensionCopy -ForegroundColor Yellow
+}
 Write-Host "Final Installer: " -NoNewline
 Write-Host $InstallerZip -ForegroundColor Yellow
 Write-Host "Installer Size: " -NoNewline
