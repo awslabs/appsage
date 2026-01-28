@@ -13,10 +13,37 @@ param(
     [string]$Configuration = 'Release',
     
     [Parameter()]
-    [string]$VSCodeExtensionVersion
+    [string]$Version
 )
 
 $ErrorActionPreference = 'Stop'
+
+# Function to validate version format (3-part version number)
+function Test-VersionFormat {
+    param(
+        [string]$Version
+    )
+    
+    if ([string]::IsNullOrWhiteSpace($Version)) {
+        return $true  # Allow null/empty version
+    }
+    
+    try {
+        $versionObj = [System.Version]::Parse($Version)
+        
+        # Check if it's a 3-part version (Major.Minor.Build)
+        if ($versionObj.Major -ge 0 -and $versionObj.Minor -ge 0 -and $versionObj.Build -ge 0 -and $versionObj.Revision -eq -1) {
+            return $true
+        } else {
+            Write-Warning "Version must be in 3-part format (e.g., 1.2.3). Provided: $Version"
+            return $false
+        }
+    }
+    catch {
+        Write-Warning "Invalid version format. Version must be in 3-part format (e.g., 1.2.3). Provided: $Version"
+        return $false
+    }
+}
 
 # Function to check .NET version (minimum version or higher)
 function Test-DotNetVersion {
@@ -95,7 +122,8 @@ function Build-AppSageDotNetApp {
     param(
         [string]$Configuration,
         [string]$PublishWorkspace,
-        [string]$AppZipFile
+        [string]$AppZipFile,
+        [string]$Version
     )
     
     # Derive .NET-related paths within the function
@@ -142,6 +170,15 @@ function Build-AppSageDotNetApp {
         '-p:PublishSingleFile=true',
         '-o', "`"$PublishOutput`""
     )
+
+    # Add version parameters only if version is provided and not null/empty
+    if (-not [string]::IsNullOrWhiteSpace($Version)) {
+        $publishArgs += '-p:Version=' + $Version
+        $publishArgs += '-p:AssemblyVersion=' + $Version
+        $publishArgs += '-p:FileVersion=' + $Version
+        $publishArgs += '-p:InformationalVersion=' + $Version
+        Write-Host "  Setting version to: $Version" -ForegroundColor Gray
+    }
 
     if ($Configuration -eq 'Release') {
         $publishArgs += '-p:DebugType=none'
@@ -262,10 +299,18 @@ function Build-AppSageVSCodeExtension {
 $ScriptRoot = $PSScriptRoot
 $SolutionRoot = Split-Path $ScriptRoot -Parent
 $FinalInstallerDir = Join-Path $ScriptRoot "Publish"
+
 $InstallerZip = Join-Path $FinalInstallerDir "AppSageInstaller.zip"
 
+if (-not [string]::IsNullOrWhiteSpace($Version)) {
+   $InstallerZip = Join-Path $FinalInstallerDir "AppSageInstaller-v$Version.zip"
+}
+
+
 # Temporary paths for installer creation
-$PublishWorkspace = Join-Path $SolutionRoot "AppSage.Run\bin\Publish"
+# Temporary paths for installer creation
+$TempPath = [System.IO.Path]::GetTempPath()
+$PublishWorkspace = Join-Path $TempPath "AppSage_$(New-Guid)"
 $AppZipFile = Join-Path $PublishWorkspace "AppSageApp.zip"
 $InstallScriptCopy = Join-Path $PublishWorkspace "Install-AppSage.ps1"
 $VSCodeExtensionCopy = Join-Path $PublishWorkspace "AppSageVSCodeExtension.vsix"
@@ -276,6 +321,15 @@ Write-Host "  Building AppSage Package" -ForegroundColor Cyan
 Write-Host "═══════════════════════════════════════" -ForegroundColor Cyan
 Write-Host ""
 
+# Validate version format if provided
+if (-not [string]::IsNullOrWhiteSpace($Version)) {
+    if (-not (Test-VersionFormat -Version $Version)) {
+        throw "Invalid version format. Please provide a 3-part version number (e.g., 1.2.3)."
+    }
+    Write-Host "Using version: $Version" -ForegroundColor Green
+    Write-Host ""
+}
+
 # Step 0: Check .NET prerequisites
 Write-Host "[0/6] Checking .NET prerequisites..." -ForegroundColor Green
 $dotNetVersionRequired= "10.0"
@@ -284,11 +338,13 @@ if (-not (Test-DotNetVersion -MinimumVersion $dotNetVersionRequired)) {
 }
 Write-Host ""
 
+Write-Host "Artifacts will be temporarily stored in: $PublishWorkspace before zipping" -ForegroundColor Green
+
 # Step 1-5: Build AppSage .NET Application
-Build-AppSageDotNetApp -Configuration $Configuration -PublishWorkspace $PublishWorkspace -AppZipFile $AppZipFile
+Build-AppSageDotNetApp -Configuration $Configuration -PublishWorkspace $PublishWorkspace -AppZipFile $AppZipFile -Version $Version
 
 # Step 5.5: Build AppSage VSCode Extension
-Build-AppSageVSCodeExtension -Configuration $Configuration -VSCodeExtensionCopy $VSCodeExtensionCopy -Version $VSCodeExtensionVersion
+Build-AppSageVSCodeExtension -Configuration $Configuration -VSCodeExtensionCopy $VSCodeExtensionCopy -Version $Version
 
 # Step 6: Copy install script and create final installer
 Write-Host "[6/6] Creating final installer package..." -ForegroundColor Green
@@ -324,12 +380,10 @@ Write-Host "══════════════════════�
 Write-Host "  BUILD COMPLETE!" -ForegroundColor Green
 Write-Host "═══════════════════════════════════════" -ForegroundColor Cyan
 Write-Host ""
-Write-Host "App Package: " -NoNewline
-Write-Host $AppZipFile -ForegroundColor Yellow
-if (Test-Path $VSCodeExtensionCopy) {
-    Write-Host "VSCode Extension: " -NoNewline
-    Write-Host $VSCodeExtensionCopy -ForegroundColor Yellow
-}
+Write-Host "Temporary build artifacts are kept in : " -NoNewline
+Write-Host $PublishWorkspace -ForegroundColor Yellow -NoNewline
+Write-Host " for debugging & inspection. You can safely delete this folder."
+
 Write-Host "Final Installer: " -NoNewline
 Write-Host $InstallerZip -ForegroundColor Yellow
 Write-Host "Installer Size: " -NoNewline
