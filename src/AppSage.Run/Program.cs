@@ -43,7 +43,7 @@ namespace AppSage.Run
             {
 
                 //args=new string[] {"init"};
-                //args = new string[] { "init", "-ws", @"C:\\Dev\\MyAppSageWorkspace1" };
+                //args = new string[] { "init", "-ws", @"C:\\Temp\\MyAppSageWorkspace11" };
                 //args = new string[] { "init" };
                 //args = new string[] { "extension","run","-ws", "C:\\Dev\\MyAppSageWorkspace" };
                 //args= new string[] { "mcpserver", "run", "-ws", "C:\\Dev\\MyAppSageWorkspace" };

@@ -166,8 +166,8 @@ function Build-AppSageDotNetApp {
         "`"$AppSageRunProject`"",
         '-c', $Configuration,
         '-r', 'win-x64',
-        '--self-contained', 'true',
-        '-p:PublishSingleFile=true',
+        '--self-contained', 'false',
+        '-p:PublishSingleFile=false',
         '-o', "`"$PublishOutput`""
     )
 
@@ -182,6 +182,11 @@ function Build-AppSageDotNetApp {
 
     if ($Configuration -eq 'Release') {
         $publishArgs += '-p:DebugType=none'
+    }
+
+    if ($Configuration -eq 'Debug') {
+        $publishArgs += '-p:DebugType=portable'
+        $publishArgs += '-p:DebugSymbols=true'
     }
 
     & dotnet @publishArgs

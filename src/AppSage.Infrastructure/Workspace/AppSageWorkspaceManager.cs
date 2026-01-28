@@ -1,6 +1,7 @@
 ﻿using AppSage.Core.Configuration;
 using AppSage.Core.Logging;
 using AppSage.Core.Workspace;
+using System.Diagnostics;
 using System.Reflection;
 
 namespace AppSage.Infrastructure.Workspace
@@ -99,10 +100,9 @@ namespace AppSage.Infrastructure.Workspace
                 logger.LogInformation("{MessagePrefix} [{ExtensionPackagesFolder}]. This is where all extensions/plugins Nuget packages (.nupkg, .snupkg)  should be placed.", messagePrefix, ws.ExtensionPackagesFolder);
                 Directory.CreateDirectory(ws.ExtensionPackagesFolder);
 
+               
                 logger.LogInformation("{MessagePrefix} [{ExtensionInstallFolder}]. This is where all extensions/plugins once installed are kept. One folder for each extension.", messagePrefix, ws.ExtensionInstallFolder);
                 Directory.CreateDirectory(ws.ExtensionInstallFolder);
-
-
 
 
                 logger.LogInformation("{MessagePrefix} hidden AppSage config folder folder [{AppSageConfigFolder}]. Used by AppSage to identify configuration.", messagePrefix, ws.AppSageConfigFolder);
