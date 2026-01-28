@@ -2,7 +2,7 @@
   "name": "appsage-vscode-extension",
   "displayName": "AppSage Viewer",
   "description": "Visual Studio Code extension for viewing AppSage graph and table files",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "publisher": "appsage",
   "repository": {
     "type": "git",

@@ -25,7 +25,7 @@ param(
     [Parameter()]
     [string]$InstallPath = "C:\Program Files\AppSage",
     
- [Parameter()]
+    [Parameter()]
     [bool]$AddToPath = $true,
     
     [Parameter()]
@@ -53,7 +53,7 @@ function Get-NewInstallPath {
     
     Write-Host ""
     Write-Host "The directory '$CurrentPath' already exists and is not empty." -ForegroundColor Yellow
-  Write-Host ""
+    Write-Host ""
     Write-Host "For safety, AppSage requires an empty or non-existent directory." -ForegroundColor White
     Write-Host ""
     Write-Host "Please choose one of the following options:" -ForegroundColor Cyan
@@ -67,85 +67,86 @@ function Get-NewInstallPath {
     
         switch ($choice) {
             "1" {
-    Write-Host ""
-           $newPath = Read-Host "Enter new installation path"
+                Write-Host ""
+                $newPath = Read-Host "Enter new installation path"
      
                 if ([string]::IsNullOrWhiteSpace($newPath)) {
-             Write-Host "Invalid path. Please try again." -ForegroundColor Red
-         continue
-     }
-      
-             # Expand environment variables and relative paths
-            $newPath = [System.Environment]::ExpandEnvironmentVariables($newPath)
-         $newPath = [System.IO.Path]::GetFullPath($newPath)
-     
-        Write-Host ""
-     Write-Host "Checking new path: $newPath" -ForegroundColor Gray   
-           if (Test-DirectoryEmpty $newPath) {
-    Write-Host "✓ Path is suitable for installation" -ForegroundColor Green
-    return $newPath
-     } else {
-           Write-Host "✗ This directory also exists and is not empty." -ForegroundColor Red
-     Write-Host ""
-        
-     # Recursively call function with the new path that's also non-empty
-    return Get-NewInstallPath $newPath
+                    Write-Host "Invalid path. Please try again." -ForegroundColor Red
+                    continue
                 }
-          }
+      
+                # Expand environment variables and relative paths
+                $newPath = [System.Environment]::ExpandEnvironmentVariables($newPath)
+                $newPath = [System.IO.Path]::GetFullPath($newPath)
+     
+                Write-Host ""
+                Write-Host "Checking new path: $newPath" -ForegroundColor Gray   
+                if (Test-DirectoryEmpty $newPath) {
+                    Write-Host "✓ Path is suitable for installation" -ForegroundColor Green
+                    return $newPath
+                }
+                else {
+                    Write-Host "✗ This directory also exists and is not empty." -ForegroundColor Red
+                    Write-Host ""
+        
+                    # Recursively call function with the new path that's also non-empty
+                    return Get-NewInstallPath $newPath
+                }
+            }
             "2" {
-            Write-Host ""
-  Write-Host "WARNING: This will permanently delete all contents of '$CurrentPath'" -ForegroundColor Red
-         Write-Host ""
+                Write-Host ""
+                Write-Host "WARNING: This will permanently delete all contents of '$CurrentPath'" -ForegroundColor Red
+                Write-Host ""
     
-          # Show what will be deleted
-       try {
-  $items = Get-ChildItem $CurrentPath -Force -ErrorAction SilentlyContinue
-  if ($items.Count -gt 0) {
-   Write-Host "Contents that will be deleted:" -ForegroundColor Yellow
-     $items | ForEach-Object { 
- Write-Host "  $_" -ForegroundColor Gray 
- }
-               Write-Host ""
-        }
-        }
+                # Show what will be deleted
+                try {
+                    $items = Get-ChildItem $CurrentPath -Force -ErrorAction SilentlyContinue
+                    if ($items.Count -gt 0) {
+                        Write-Host "Contents that will be deleted:" -ForegroundColor Yellow
+                        $items | ForEach-Object { 
+                            Write-Host "  $_" -ForegroundColor Gray 
+                        }
+                        Write-Host ""
+                    }
+                }
                 catch {
-          Write-Host "Unable to list directory contents." -ForegroundColor Gray
-       }
+                    Write-Host "Unable to list directory contents." -ForegroundColor Gray
+                }
    
-     do {
-        $confirm = Read-Host "Are you sure you want to delete this folder? Type 'YES' to confirm or 'NO' to go back"
+                do {
+                    $confirm = Read-Host "Are you sure you want to delete this folder? Type 'YES' to confirm or 'NO' to go back"
                 
-   if ($confirm -eq "YES") {
-        try {
-        Write-Host "Deleting existing folder..." -ForegroundColor Yellow
-    Remove-Item $CurrentPath -Recurse -Force
-     Write-Host "✓ Folder deleted successfully" -ForegroundColor Green
-      return $CurrentPath
-      }
-       catch {
-  Write-Host "ERROR: Failed to delete folder: $($_.Exception.Message)" -ForegroundColor Red
-   Write-Host "Please try a different option." -ForegroundColor Yellow
- break
-          }
-          }
-             elseif ($confirm -eq "NO") {
-           break
-   }
-     else {
-            Write-Host "Please type 'YES' or 'NO'" -ForegroundColor Red
-       }
-         } while ($true)
-       }
+                    if ($confirm -eq "YES") {
+                        try {
+                            Write-Host "Deleting existing folder..." -ForegroundColor Yellow
+                            Remove-Item $CurrentPath -Recurse -Force
+                            Write-Host "✓ Folder deleted successfully" -ForegroundColor Green
+                            return $CurrentPath
+                        }
+                        catch {
+                            Write-Host "ERROR: Failed to delete folder: $($_.Exception.Message)" -ForegroundColor Red
+                            Write-Host "Please try a different option." -ForegroundColor Yellow
+                            break
+                        }
+                    }
+                    elseif ($confirm -eq "NO") {
+                        break
+                    }
+                    else {
+                        Write-Host "Please type 'YES' or 'NO'" -ForegroundColor Red
+                    }
+                } while ($true)
+            }
             "3" {
-   Write-Host ""
-              Write-Host "Installation cancelled by user." -ForegroundColor Yellow
-            exit 0
-    }
-     default {
+                Write-Host ""
+                Write-Host "Installation cancelled by user." -ForegroundColor Yellow
+                exit 0
+            }
+            default {
                 Write-Host "Invalid choice. Please enter 1, 2, or 3." -ForegroundColor Red
             }
         }
- } while ($true)
+    } while ($true)
 }
 
 # Function to validate installation path safety
@@ -157,7 +158,7 @@ function Test-InstallationPathSafe {
     $fullPath = [System.IO.Path]::GetFullPath($fullPath)
     
     # Check for dangerous system paths
- $systemPaths = @(
+    $systemPaths = @(
         $env:SystemRoot,
         $env:ProgramFiles,
         $env:windir,
@@ -167,15 +168,129 @@ function Test-InstallationPathSafe {
     )
     
     foreach ($sysPath in $systemPaths) {
- if ($fullPath -eq $sysPath) {
+        if ($fullPath -eq $sysPath) {
             Write-Host ""
-          Write-Host "ERROR: Cannot install directly to system directory '$fullPath'" -ForegroundColor Red
+            Write-Host "ERROR: Cannot install directly to system directory '$fullPath'" -ForegroundColor Red
             Write-Host "Please choose a subdirectory like '$fullPath\AppSage'" -ForegroundColor Yellow
             return $false
         }
     }
     
     return $true
+}
+
+# Function to get previous installation path from registry
+function Get-PreviousInstallationPath {
+    param([string]$Scope)
+    
+    try {
+        $registryPath = if ($Scope -eq 'Machine') {
+            "HKLM:\SOFTWARE\AppSage"
+        } else {
+            "HKCU:\SOFTWARE\AppSage"
+        }
+        
+        if (Test-Path $registryPath) {
+            $installPath = Get-ItemProperty -Path $registryPath -Name "InstallPath" -ErrorAction SilentlyContinue
+            if ($installPath -and $installPath.InstallPath) {
+                return $installPath.InstallPath
+            }
+        }
+        
+        return $null
+    }
+    catch {
+        return $null
+    }
+}
+
+# Function to set installation path in registry
+function Set-InstallationPathRegistry {
+    param(
+        [string]$InstallPath,
+        [string]$Scope
+    )
+    
+    try {
+        $registryPath = if ($Scope -eq 'Machine') {
+            "HKLM:\SOFTWARE\AppSage"
+        } else {
+            "HKCU:\SOFTWARE\AppSage"
+        }
+        
+        # Create registry key if it doesn't exist
+        if (-not (Test-Path $registryPath)) {
+            New-Item -Path $registryPath -Force | Out-Null
+        }
+        
+        # Set the installation path
+        Set-ItemProperty -Path $registryPath -Name "InstallPath" -Value $InstallPath
+        Set-ItemProperty -Path $registryPath -Name "InstallDate" -Value (Get-Date -Format "yyyy-MM-dd HH:mm:ss")
+        Set-ItemProperty -Path $registryPath -Name "Scope" -Value $Scope
+        
+        Write-Host "  ✓ Installation registered in Windows Registry" -ForegroundColor Green
+    }
+    catch {
+        Write-Host "WARNING: Failed to register installation in Registry: $($_.Exception.Message)" -ForegroundColor Yellow
+    }
+}
+
+# Function to handle previous installation
+function Test-PreviousInstallation {
+    param([string]$Scope)
+    
+    $previousPath = Get-PreviousInstallationPath -Scope $Scope
+    
+    if ($previousPath) {
+        Write-Host "Previous AppSage installation detected:" -ForegroundColor Yellow
+        Write-Host "  Location: $previousPath" -ForegroundColor Gray
+        Write-Host ""
+        
+        # Check if the previous installation still exists
+        $appExe = Join-Path $previousPath "AppSage.exe"
+        if (Test-Path $appExe) {
+            Write-Host "Previous installation appears to be active." -ForegroundColor Yellow
+            Write-Host ""
+            Write-Host "Choose an option:" -ForegroundColor Cyan
+            Write-Host "  [1] Upgrade existing installation (recommended)" -ForegroundColor White
+            Write-Host "  [2] Install to a different location" -ForegroundColor White
+            Write-Host "  [3] Cancel installation" -ForegroundColor White
+            Write-Host ""
+            
+            do {
+                $choice = Read-Host "Enter your choice (1, 2, or 3)"
+                
+                switch ($choice) {
+                    "1" {
+                        Write-Host ""
+                        Write-Host "Upgrading existing installation at: $previousPath" -ForegroundColor Green
+                        return $previousPath
+                    }
+                    "2" {
+                        Write-Host ""
+                        Write-Host "Proceeding with new installation location..." -ForegroundColor Green
+                        return $null
+                    }
+                    "3" {
+                        Write-Host ""
+                        Write-Host "Installation cancelled by user." -ForegroundColor Yellow
+                        exit 0
+                    }
+                    default {
+                        Write-Host "Invalid choice. Please enter 1, 2, or 3." -ForegroundColor Red
+                    }
+                }
+            } while ($true)
+        }
+        else {
+            Write-Host "Previous installation directory no longer exists or is incomplete." -ForegroundColor Gray
+            Write-Host "Proceeding with new installation..." -ForegroundColor Green
+            Write-Host ""
+            return $null
+        }
+    }
+    
+    return $null
 }
 
 # Check if running as administrator for Machine scope
@@ -185,9 +300,9 @@ if ($Scope -eq 'Machine') {
     if (-not $isAdmin) {
         Write-Host ""
         Write-Host "ERROR: Administrator privileges required for system-wide installation." -ForegroundColor Red
-     Write-Host ""
+        Write-Host ""
         Write-Host "Please run this script as Administrator, or use:" -ForegroundColor Yellow
-      Write-Host "  .\Install-AppSage.ps1 -Scope User" -ForegroundColor Cyan
+        Write-Host "  .\Install-AppSage.ps1 -Scope User" -ForegroundColor Cyan
         Write-Host ""
         exit 1
     }
@@ -208,8 +323,18 @@ if (-not (Test-Path $AppZipFile)) {
     Write-Host "ERROR: AppSageApp.zip not found!" -ForegroundColor Red
     Write-Host "Expected location: $AppZipFile" -ForegroundColor Red
     Write-Host ""
- Write-Host "Please ensure AppSageApp.zip is in the same directory as this script." -ForegroundColor Yellow
+    Write-Host "Please ensure AppSageApp.zip is in the same directory as this script." -ForegroundColor Yellow
     exit 1
+}
+
+# Check for previous installation
+Write-Host "Checking for previous installations..." -ForegroundColor Green
+$previousInstallPath = Test-PreviousInstallation -Scope $Scope
+
+# Use previous installation path if user chose to upgrade
+if ($previousInstallPath) {
+    $InstallPath = $previousInstallPath
+    Write-Host ""
 }
 
 # Validate and get final installation path
@@ -250,7 +375,7 @@ try {
 }
 catch {
     Write-Host "ERROR: Failed to create installation directory." -ForegroundColor Red
- Write-Host "Error: $($_.Exception.Message)" -ForegroundColor Red
+    Write-Host "Error: $($_.Exception.Message)" -ForegroundColor Red
     exit 1
 }
 Write-Host ""
@@ -265,7 +390,7 @@ try {
 catch {
     Write-Host "ERROR: Failed to extract application files." -ForegroundColor Red
     Write-Host "Error: $($_.Exception.Message)" -ForegroundColor Red
-exit 1
+    exit 1
 }
 Write-Host ""
 
@@ -273,26 +398,27 @@ Write-Host ""
 if ($AddToPath) {
     Write-Host "[3/3] Adding to PATH..." -ForegroundColor Green
     
-try {
+    try {
         $target = if ($Scope -eq 'Machine') { [EnvironmentVariableTarget]::Machine } else { [EnvironmentVariableTarget]::User }
         
-    $currentPath = [Environment]::GetEnvironmentVariable('PATH', $target)
+        $currentPath = [Environment]::GetEnvironmentVariable('PATH', $target)
         
         # Check if already in PATH
         $pathDirs = $currentPath -split ';' | Where-Object { $_ -ne '' }
         $alreadyInPath = $pathDirs | Where-Object { $_ -eq $finalInstallPath }
         
- if ($alreadyInPath) {
-  Write-Host "  Already in PATH" -ForegroundColor DarkGray
- } else {
-$newPath = $currentPath.TrimEnd(';') + ';' + $finalInstallPath
-   [Environment]::SetEnvironmentVariable('PATH', $newPath, $target)
+        if ($alreadyInPath) {
+            Write-Host "  Already in PATH" -ForegroundColor DarkGray
+        }
+        else {
+            $newPath = $currentPath.TrimEnd(';') + ';' + $finalInstallPath
+            [Environment]::SetEnvironmentVariable('PATH', $newPath, $target)
             Write-Host "  ✓ Added to $Scope PATH" -ForegroundColor Green
         }
     }
     catch {
         Write-Host "WARNING: Failed to update PATH environment variable." -ForegroundColor Yellow
-      Write-Host "You may need to add '$finalInstallPath' to your PATH manually." -ForegroundColor Yellow
+        Write-Host "You may need to add '$finalInstallPath' to your PATH manually." -ForegroundColor Yellow
     }
     
     Write-Host ""
@@ -302,9 +428,13 @@ $newPath = $currentPath.TrimEnd(';') + ';' + $finalInstallPath
 $appExe = Join-Path $finalInstallPath "AppSage.exe"
 if (Test-Path $appExe) {
     Write-Host "✓ Installation verified successfully" -ForegroundColor Green
-} else {
+    
+    # Register installation in Windows Registry
+    Set-InstallationPathRegistry -InstallPath $finalInstallPath -Scope $Scope
+}
+else {
     Write-Host "WARNING: AppSage.exe not found in installation directory" -ForegroundColor Yellow
- Write-Host "Installation may be incomplete." -ForegroundColor Yellow
+    Write-Host "Installation may be incomplete." -ForegroundColor Yellow
 }
 Write-Host ""
 
@@ -322,9 +452,10 @@ if ($AddToPath -and (Test-Path $appExe)) {
     Write-Host "  appsage --help" -ForegroundColor Cyan
     Write-Host ""
     Write-Host "Note: You may need to restart your terminal for PATH changes to take effect." -ForegroundColor Yellow
-} else {
+}
+else {
     Write-Host "To run AppSage, use the full path:" -ForegroundColor White
-  Write-Host "  `"$finalInstalledPath\appsage.exe`"" -ForegroundColor Cyan
+    Write-Host "  `"$finalInstalledPath\appsage.exe`"" -ForegroundColor Cyan
 }
 
 Write-Host ""
